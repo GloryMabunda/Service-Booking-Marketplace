@@ -1,326 +1,609 @@
-# Service Booking Marketplace
+# Makeup Booking System
 
-A full-stack ASP.NET Core service booking marketplace that connects clients with service providers, enabling service discovery, availability management, appointment scheduling, deposits, payments, and automated notifications.
+A full-stack service booking and management system that allows clients to browse services, view availability, and make appointments online.
 
-## Project Overview
+For the purposes of this portfolio project, the system is demonstrated using a **makeup artist business** as the primary example. However, the system is designed to be reusable for any appointment-based service provider.
 
-The platform is designed for service-based businesses such as:
+Examples include:
 
 - Makeup artists
 - Hair stylists
+- Nail technicians
 - Beauty therapists
 - Personal trainers
 - Photographers
 - Tutors
 - Cleaning services
-- Other appointment-based service providers
+- Barbers
+- Massage therapists
+- Other service-based businesses
 
-Providers can manage their services, pricing, availability, blocked times, and bookings. Clients can discover providers, choose a service, select an available time slot, and complete a booking.
+The goal is to build a practical booking system that can be adapted to different service businesses without changing the core booking functionality.
+
+---
+
+## Project Overview
+
+The system provides two main experiences:
+
+### Client Website
+
+Clients can:
+
+- View the business and its services
+- View service descriptions and pricing
+- View available appointment dates and times
+- Make a booking without creating an account
+- Provide their contact details
+- Receive booking confirmation
+- View their booking details
+
+### Administrator Portal
+
+The service provider can securely log in and:
+
+- View all bookings
+- View individual booking details
+- View client information
+- Manage services
+- Manage service pricing
+- Configure service duration
+- Manage availability
+- Block dates and times
+- View appointments through a calendar
+- Confirm or cancel bookings
+- Mark bookings as completed
+- Manage the booking schedule
+
+---
+
+## Real-World Use Case
+
+The portfolio implementation uses **Make Up by Glory** as the example business.
+
+A client visiting the website could:
+
+```text
+View Services
+      ↓
+Choose a Makeup Service
+      ↓
+View Available Dates
+      ↓
+Choose Available Time
+      ↓
+Enter Contact Details
+      ↓
+Confirm Booking
+      ↓
+Booking Created
+      ↓
+Email / SMS Confirmation
+```
+
+The same system could then be configured for another service provider without changing the fundamental booking functionality.
+
+---
 
 ## Key Features
 
+### Service Management
+
+Administrators can create and manage services.
+
+Each service can contain:
+
+- Service name
+- Description
+- Price
+- Duration
+- Active/inactive status
+
+Example:
+
+| Service | Duration | Price |
+|---|---:|---:|
+| Soft Glam | 1h 30m | R650 |
+| Full Glam | 2h | R850 |
+| Bridal Makeup | 2h 30m | R1,200 |
+| Matric Dance Makeup | 2h | R900 |
+
+These examples are specific to the makeup artist implementation and can be replaced with services appropriate to another business.
+
+---
+
+## Availability Management
+
+The service provider can define when appointments are available.
+
+The system supports:
+
+- Working days
+- Working hours
+- Appointment duration
+- Existing bookings
+- Blocked dates
+- Blocked time periods
+- Multiple appointments per day
+
+Availability is calculated based on the selected service duration.
+
+For example, if a service requires two hours, the system should not offer a one-hour period before another appointment.
+
+---
+
+## Booking System
+
+Clients can select:
+
+1. Service
+2. Date
+3. Available time
+4. Contact details
+5. Optional booking notes
+
+The system validates availability when the booking is submitted.
+
+Availability is checked server-side to prevent two clients from successfully booking the same appointment slot.
+
+### Booking Statuses
+
+Bookings can progress through statuses such as:
+
+- Pending
+- Confirmed
+- Cancelled
+- Completed
+- No-show
+
+---
+
+## Booking Details
+
+Administrators can view detailed information about each booking.
+
+Example:
+
+```text
+Booking #BK-000123
+
+Client:
+Sarah Mokoena
+
+Email:
+sarah@example.com
+
+Phone:
+082 XXX XXXX
+
+Service:
+Soft Glam Makeup
+
+Date:
+17 October 2026
+
+Time:
+10:00 – 11:30
+
+Price:
+R650
+
+Status:
+Confirmed
+
+Notes:
+Birthday makeup
+```
+
+---
+
+## Notifications
+
+After a booking is successfully created, the system can send confirmation notifications to both the client and the service provider.
+
 ### Client
 
-- Register and manage a profile
-- Browse service providers and services
-- View provider profiles and service details
-- Check provider availability
-- Book a service
-- Pay a required deposit
-- View and manage bookings
-- Receive booking notifications
-- Leave reviews after completed services
+Example email/SMS:
+
+> Your appointment has been confirmed for 17 October at 10:00. Service: Soft Glam Makeup. Total: R650.
 
 ### Service Provider
 
-- Create and manage a provider profile
-- Create and manage services
-- Set service prices and durations
-- Configure deposit requirements
-- Define recurring working hours
-- Block specific dates and times
-- Manage bookings through a calendar
-- View clients and booking history
-- Track revenue and booking activity
-- Receive booking notifications
-- Manage reviews
+Example notification:
 
-### Booking & Availability
+> New booking received from Sarah Mokoena for Soft Glam Makeup on 17 October at 10:00.
 
-The booking engine considers:
+The notification system is designed so that email and SMS providers can be integrated without tightly coupling them to the booking logic.
 
-- Provider working hours
-- Service duration
-- Buffer time between appointments
-- Existing bookings
-- Blocked dates and times
-- Booking status
-- Deposit/payment requirements
+Development can use mock notification services before connecting real providers.
 
-Availability is validated server-side when a booking is created to prevent double-booking.
+---
 
-### Payments
+## Administrator Portal
 
-Services can be configured to require:
+The administrator dashboard provides an overview of the business's bookings.
 
-- No payment
-- A fixed deposit
-- A percentage-based deposit
+Example dashboard information:
 
-Payment processing is abstracted behind a payment service so that a payment gateway can be integrated without tightly coupling the booking system to a specific provider.
+```text
+Today's Bookings
+        3
 
-### Notifications
+Upcoming Bookings
+        12
 
-Notifications are designed around an abstraction layer supporting:
+Completed This Month
+        24
 
-- SMS
-- Email
-- In-app notifications
+Upcoming Appointments
+--------------------------------
+Sarah Mokoena    Soft Glam    09:00
+Jane Dlamini     Bridal       12:00
+Lerato M.        Full Glam    15:00
+```
 
-Development environments can use mock notification services without sending real messages.
+The administrator can also switch to a calendar view to manage appointments and availability.
+
+---
 
 ## Technology Stack
 
 ### Backend
 
-- C#
-- ASP.NET Core
-- ASP.NET Core Identity
-- Entity Framework Core
-- REST APIs
-- SQL Server
-- Swagger / OpenAPI
+- Node.js
+- TypeScript
+- NestJS
+- REST API
+
+### Database
+
+- PostgreSQL
 
 ### Frontend
 
-- ASP.NET Core MVC / Razor
 - HTML5
 - CSS3
-- JavaScript
-- jQuery
 - Bootstrap
-- DataTables
-- FullCalendar
-- Chart.js
+- Vanilla JavaScript
+- Bootstrap Icons
 
-### Development & DevOps
+### Libraries
+
+- FullCalendar — appointment calendar
+- Nodemailer — email notifications
+- PostgreSQL database libraries / ORM
+- Additional lightweight libraries where they provide clear value
+
+The project intentionally avoids large frontend frameworks such as React, Angular, or Vue.
+
+The frontend will use standard HTML, CSS, Bootstrap, and vanilla JavaScript to keep the application lightweight and demonstrate understanding of the underlying web technologies.
+
+### Development
 
 - Git
 - GitHub
 - GitHub Actions
-- Automated builds and tests
-- CI/CD
+- npm
+- REST APIs
+- Automated testing
+
+---
 
 ## Architecture
 
-The application uses a modular monolith architecture with clear separation of responsibilities.
+The application follows a modular backend architecture.
 
 ```text
-Service-Booking-Marketplace
-│
-├── Web
-│   └── Controllers, APIs and UI
-│
-├── Application
-│   └── Business use cases and services
-│
-├── Domain
-│   └── Entities and business rules
-│
-├── Infrastructure
-│   └── Database and external integrations
-│
-└── Tests
-    └── Unit and integration tests
+Client Browser
+      │
+      │ HTTP / REST
+      ▼
+┌──────────────────────┐
+│      NestJS API      │
+├──────────────────────┤
+│ Authentication       │
+│ Bookings             │
+│ Services             │
+│ Availability         │
+│ Notifications        │
+└──────────┬───────────┘
+           │
+           ▼
+     PostgreSQL
+           │
+           ├── Users
+           ├── Services
+           ├── Availability
+           ├── Bookings
+           └── Notifications
 ```
 
-The project is intentionally designed as a modular monolith rather than microservices. This keeps the solution maintainable while demonstrating separation of concerns and scalable application design.
+---
 
-## Main Modules
+## Core Modules
 
-- Authentication & Authorization
-- Providers
-- Clients
-- Services
-- Availability
-- Bookings
-- Payments
-- Notifications
-- Reviews
-- Reporting
-- Administration
+```text
+Authentication
+      │
+      ├── Administrator Login
+      └── Authentication / Authorization
+
+Services
+      │
+      └── Service Management
+
+Availability
+      │
+      ├── Working Hours
+      └── Blocked Times
+
+Bookings
+      │
+      ├── Create Booking
+      ├── View Booking
+      ├── Update Booking
+      └── Booking Status
+
+Notifications
+      │
+      ├── Email
+      └── SMS
+
+Administration
+      │
+      ├── Dashboard
+      ├── Bookings
+      ├── Services
+      └── Calendar
+```
+
+---
 
 ## Booking Flow
 
 ```text
 Client
-  ↓
-Search providers/services
-  ↓
-Select service
-  ↓
-Select date
-  ↓
-Check availability
-  ↓
-Select time
-  ↓
-Create booking
-  ↓
-Payment required?
-  ├── No → Confirm booking
   │
-  └── Yes
-       ↓
-     Payment gateway
-       ↓
-     Server-side payment verification
-       ↓
-     Confirm booking
-  ↓
-Notify client + provider
+  ▼
+View Services
+  │
+  ▼
+Select Service
+  │
+  ▼
+Select Date
+  │
+  ▼
+Check Availability
+  │
+  ▼
+Select Time
+  │
+  ▼
+Enter Client Details
+  │
+  ▼
+Submit Booking
+  │
+  ▼
+Server-Side Availability Check
+  │
+  ├── Slot unavailable
+  │       └── Return error
+  │
+  └── Slot available
+          │
+          ▼
+      Create Booking
+          │
+          ▼
+   Send Notifications
+          │
+          ├── Client
+          └── Administrator
 ```
+
+---
 
 ## Database
 
-The database will contain core entities such as:
+The initial database design will include entities such as:
 
 - Users
-- Providers
-- Clients
-- ServiceCategories
 - Services
-- ProviderAvailability
-- ProviderBlockedTimes
+- Availability
+- BlockedTimes
 - Bookings
-- BookingStatusHistory
-- Payments
-- PaymentTransactions
 - Notifications
-- Reviews
 
-The database design will be documented separately in the `docs/` directory.
+Additional entities may be introduced as the system evolves.
+
+The database design will be documented in the `docs/` directory.
+
+---
+
+## Security
+
+The administrator portal will include authentication and authorization.
+
+Security considerations include:
+
+- Password hashing
+- Secure authentication
+- Role-based authorization
+- Input validation
+- Server-side validation
+- Protection against unauthorized administration access
+- Secure handling of client information
+- Protection against duplicate bookings
+- Environment-based configuration for secrets
+
+Sensitive credentials and API keys will not be stored in source control.
+
+---
+
+## Testing
+
+The project will include automated testing for important business logic.
+
+Testing will cover areas such as:
+
+- Service validation
+- Availability calculation
+- Booking creation
+- Booking validation
+- Duplicate booking prevention
+- Booking status changes
+- Notification triggers
+- Authentication and authorization
+
+Particular attention will be given to booking availability because preventing double-booking is a core requirement of the system.
+
+---
 
 ## Documentation
 
-Project documentation will be maintained alongside the source code.
+Additional project documentation will be maintained in the `docs/` directory.
 
-- [System Specification](docs/01-system-specification.md)
-- [Architecture](docs/02-architecture.md)
-- [Database Design](docs/03-database-design.md)
-- [API Specification](docs/04-api-specification.md)
-- [Booking Workflow](docs/05-booking-workflow.md)
-- [Availability Engine](docs/06-availability-engine.md)
-- [Payment Design](docs/07-payment-design.md)
-- [Notification Design](docs/08-notification-design.md)
-- [Security](docs/09-security.md)
-- [Testing Strategy](docs/10-testing-strategy.md)
-- [Deployment](docs/11-deployment.md)
+Planned documentation includes:
+
+- System specification
+- Architecture
+- Database design
+- API specification
+- Booking rules
+- Availability engine
+- Notification design
+- Security
+- Testing strategy
+- Deployment
+
+---
 
 ## Development Roadmap
 
-### Phase 1 — Foundation
+### Phase 1 — Project Foundation
 
-- Solution structure
-- Authentication and authorization
-- User roles
-- Provider profiles
-- Client profiles
+- Create NestJS project
+- Configure TypeScript
+- Configure PostgreSQL
+- Establish project structure
+- Configure environment variables
+- Set up Git workflow
 
 ### Phase 2 — Services
 
-- Service categories
-- Provider services
-- Pricing
-- Service duration
-- Deposit configuration
+- Service database model
+- Service API
+- Service management
+- Public service listing
 
 ### Phase 3 — Availability
 
-- Weekly working hours
-- Blocked dates and times
-- Calendar
+- Working hours
+- Blocked dates
+- Blocked times
 - Availability calculation
+- Calendar interface
 
-### Phase 4 — Booking
+### Phase 4 — Bookings
 
 - Booking creation
-- Booking status lifecycle
-- Double-booking protection
-- Client booking management
-- Provider booking management
+- Booking validation
+- Booking status
+- Client details
+- Double-booking prevention
 
-### Phase 5 — Payments
+### Phase 5 — Administrator Portal
 
-- Deposit calculation
-- Payment integration
-- Payment verification
-- Payment transaction history
+- Administrator authentication
+- Dashboard
+- Booking management
+- Service management
+- Calendar management
 
 ### Phase 6 — Notifications
 
-- Booking confirmations
-- Payment notifications
-- Cancellation notifications
-- SMS/email abstraction
+- Email confirmation
+- Administrator notification
+- SMS integration
+- Notification history
 
-### Phase 7 — Marketplace
-
-- Provider discovery
-- Search and filtering
-- Reviews and ratings
-- Provider profiles
-
-### Phase 8 — Quality & Deployment
+### Phase 7 — Testing
 
 - Unit tests
 - Integration tests
+- API tests
 - Booking concurrency tests
-- API testing
-- Security testing
+- Authentication tests
+
+### Phase 8 — Deployment
+
+- Production configuration
+- Database deployment
+- Application deployment
 - CI/CD
-- Production deployment
+- Monitoring and logging
+
+---
 
 ## Future Enhancements
 
 Potential future features include:
 
-- Booking reminders
-- Rescheduling and cancellation rules
-- Refund processing
-- Provider analytics
+- Online payments
+- Deposits
+- Automated appointment reminders
+- Rescheduling
+- Cancellation policies
+- Client booking lookup
+- Client accounts
+- Reviews and ratings
+- Promotional discounts
+- Multiple service providers
+- Multiple locations
+- Business analytics
 - Revenue reporting
-- Multiple provider staff members
-- Multiple service locations
-- Discounts and promotions
-- AI-powered booking assistant
-- AI-powered provider reporting assistant
+- Calendar synchronization
+- WhatsApp notifications
+- AI-powered booking assistance
 
-Example AI interactions:
+---
 
-> "I need a makeup artist in Pretoria for Saturday afternoon, with a budget of R700."
+## Why This Project?
 
-> "How many bookings did I have this month?"
+This project is designed to demonstrate practical full-stack development using a real-world business scenario.
 
-## Portfolio Purpose
+It demonstrates experience with:
 
-This project is being developed as a production-style portfolio application to demonstrate practical experience with:
-
-- Full-stack .NET development
-- REST API design
+- TypeScript
+- Node.js
+- NestJS
+- REST API development
+- PostgreSQL
 - Relational database design
-- Business-rule implementation
 - Authentication and authorization
-- Payment workflows
-- Availability and scheduling logic
-- External service integrations
+- Business-rule implementation
+- Appointment scheduling
+- Availability calculations
+- External service integration
+- Email and SMS notifications
 - Automated testing
 - CI/CD
 - Application architecture
-- AI integration
 
-## Status
+Although **Make Up by Glory** is used as the primary example, the underlying system is intentionally designed as a reusable service-booking platform that can be adapted to many different appointment-based businesses.
 
-**In development**
+---
 
-The repository will evolve incrementally, with architecture, database design, implementation, testing, and deployment documented as the project progresses.
+## Project Status
+
+**In Development**
+
+The project is being developed incrementally, with the architecture, database design, implementation, testing, and deployment documented throughout the development process.
+
+---
+
+## License
+
+This project is intended as a portfolio project and demonstration of software development practices.
