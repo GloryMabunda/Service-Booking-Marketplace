@@ -1,7 +1,12 @@
-# Makeup Booking System
+# Service Booking System
 
-A full-stack service booking and management system that allows clients to browse services, view availability, and make appointments online.
+An appointment booking and management system designed for service-based businesses.
 
+For this portfolio project, the system is implemented around a makeup artist business, allowing clients to browse makeup services, view availability, and make appointments online.
+
+The system also provides the makeup artist with a secure administration portal where they can manage services, availability, bookings, and client information.
+
+Although the example implementation is for a makeup artist, the underlying booking system is designed to be reusable for other appointment-based service providers such as hair stylists, nail technicians, photographers, tutors, personal trainers, beauty therapists, and similar businesses.
 For the purposes of this portfolio project, the system is demonstrated using a **makeup artist business** as the primary example. However, the system is designed to be reusable for any appointment-based service provider.
 
 Examples include:
