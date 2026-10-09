@@ -108,7 +108,7 @@ Key fields for each entity are listed below. The full design (types, constraints
 | Service | id, name, description, price, durationMinutes, isActive |
 | Availability | id, dayOfWeek, startTime, endTime, isWorkingDay |
 | BlockedTime | id, startAt, endAt, reason |
-| Booking | id, reference (e.g. BK-000123), serviceId, clientName, clientEmail, clientPhone, startAt, endAt, priceAtBooking, depositAmount, depositDueAt, bookingTokenHash, bookingTokenCreatedAt, amountReceived, paymentVerifiedAt, paymentVerifiedBy, refundedAt, cancelledAt, cancelledBy (client/admin), status, notes, createdAt |
+| Booking | id, reference (e.g. BK-000123), serviceId, clientName, clientEmail, clientPhone, startAt, endAt, occupiedUntil (endAt plus the buffer at booking time), priceAtBooking, depositAmount, depositDueAt, bookingTokenHash, bookingTokenCreatedAt, amountReceived, paymentVerifiedAt, paymentVerifiedBy, refundDue, refundedAt, cancelledAt, cancelledBy (client/admin), status, notes, createdAt |
 | PaymentProof | id, bookingId, storageKey, originalFilename, contentType, sizeBytes, sha256, status (Received/Accepted/Rejected), rejectionReason, uploadedAt, uploadedFromIp, reviewedAt, reviewedBy, fileDeletedAt |
 | Notification | id, bookingId, channel (email/sms), recipient, type, status, sentAt, error |
 | Setting | minNoticeHours, maxAdvanceDays, slotIntervalMinutes, bufferMinutes, depositPercent, depositRefundable, refundCutoffHours, depositHoldHours, timeZone, bankingDetails |
