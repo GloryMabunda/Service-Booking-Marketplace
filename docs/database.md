@@ -175,7 +175,7 @@ The administrator account, created by the seed script (#26). There is no sign-up
 | `is_active` | `boolean` | Default `true`. Inactive services are hidden from clients and can't be newly booked (BR-5) |
 | `created_at`, `updated_at` | `timestamptz` | |
 
-A service with bookings can't be deleted (foreign key `RESTRICT`); `DELETE /admin/services` deactivates it instead (#30).
+A service with bookings can't be deleted (foreign key `RESTRICT`, which raises SQLSTATE `23001` `restrict_violation`); `DELETE /admin/services` deactivates it instead (#30).
 
 ### 3.3 `availability`
 
@@ -313,7 +313,7 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 | `max_advance_days` | `integer` | 90 | `> 0` (BR-10) |
 | `slot_interval_minutes` | `integer` | 120 | `> 0` (BR-13; see open question 1) |
 | `buffer_minutes` | `integer` | 60 | `>= 0` (BR-13) |
-| `deposit_percent` | `numeric(5,2)` | to be confirmed in #28 | 0 to 100 (BR-7). 0 means no deposit |
+| `deposit_percent` | `numeric(5,2)` | 50 | 0 to 100 (BR-7). 0 means no deposit |
 | `deposit_refundable` | `boolean` | `true` | (BR-12) |
 | `refund_cutoff_hours` | `integer` | 24 | `>= 0` (BR-12) |
 | `deposit_hold_hours` | `integer` | 24 | `> 0` (BR-9) |
@@ -584,7 +584,7 @@ CREATE TABLE settings (
   max_advance_days      integer NOT NULL DEFAULT 90 CHECK (max_advance_days > 0),
   slot_interval_minutes integer NOT NULL DEFAULT 120 CHECK (slot_interval_minutes > 0),
   buffer_minutes        integer NOT NULL DEFAULT 60 CHECK (buffer_minutes >= 0),
-  deposit_percent       numeric(5,2) NOT NULL CHECK (deposit_percent BETWEEN 0 AND 100),
+  deposit_percent       numeric(5,2) NOT NULL DEFAULT 50 CHECK (deposit_percent BETWEEN 0 AND 100),
   deposit_refundable    boolean NOT NULL DEFAULT true,
   refund_cutoff_hours   integer NOT NULL DEFAULT 24 CHECK (refund_cutoff_hours >= 0),
   deposit_hold_hours    integer NOT NULL DEFAULT 24 CHECK (deposit_hold_hours > 0),
