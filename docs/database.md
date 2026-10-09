@@ -354,8 +354,8 @@ Primary keys and unique constraints create their own indexes. The table below li
 | Table | Index | Kind | Serves |
 | --- | --- | --- | --- |
 | `users` | `lower(email)` | Unique | Admin login (#27) |
-| `bookings` | `reference` | Unique | **Booking reference lookup** `GET /bookings/:reference` (C-6), and finding a booking from an EFT reference |
-| `bookings` | `booking_token_hash` | Unique, partial (`WHERE booking_token_hash IS NOT NULL`) | **Booking link lookup** `GET /booking/:token`: hash the token from the URL, then find the row (BR-15) |
+| `bookings` | `reference` | Unique | **Booking reference lookup** `POST /api/bookings/:reference/lookup` (C-6), and finding a booking from an EFT reference |
+| `bookings` | `booking_token_hash` | Unique, partial (`WHERE booking_token_hash IS NOT NULL`) | **Booking link lookup** `GET /api/booking/:token`: hash the token from the URL, then find the row (BR-15) |
 | `bookings` | `tstzrange(start_at, occupied_until)` | GiST, partial (Pending and Confirmed), created by `bookings_no_overlap` | Overlap check, and the slot calculation's "which bookings overlap this day" query |
 | `bookings` | `service_id` | B-tree | Foreign key; "does this service have bookings" before deactivating |
 | `bookings` | `start_at` | B-tree | Admin bookings list, dashboard, calendar (A-2, A-3, A-7) |

@@ -141,18 +141,21 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 
 ## 8. API surface
 
+All paths are under `/api` (for example `GET /api/services`); pages, including the booking link `/booking/<token>`, are served from the site root.
+
 | Method and path | Access | Purpose |
 | --- | --- | --- |
 | `GET /services` | Public | Active services with deposit amounts |
 | `GET /availability?serviceId&date` | Public | Open slots for a service on a date |
 | `POST /bookings` | Public | Create booking (Pending if a deposit applies); returns the reference and deposit summary (the booking link is sent by email only) |
-| `GET /bookings/:reference` | Public (reference + email) | View own booking, including proof statuses |
+| `POST /bookings/:reference/lookup` | Public (reference + email, email in the request body) | View own booking, including proof statuses |
 | `POST /bookings/:reference/resend-booking-link` | Public (reference + email) | Issue a new booking link and email it; rate-limited |
 | `GET /booking/:token` | Public (booking link) | Booking summary, status and refund eligibility for the booking page |
 | `POST /booking/:token/proofs` | Public (booking link) | Upload a proof of payment (`multipart/form-data`, field `file`); rate-limited |
 | `POST /booking/:token/cancel` | Public (booking link) | Cancel the booking (Pending or Confirmed, before the appointment starts) |
 | `POST /admin/bookings/:id/booking-link` | Admin | Regenerate the booking link and email it to the client |
 | `POST /auth/login` | Public | Administrator login |
+| `POST /auth/logout` | Admin | Sign out |
 | `GET /admin/dashboard` | Admin | Dashboard figures |
 | `GET /admin/bookings`, `GET /admin/bookings/:id` | Admin | List and detail, including proofs |
 | `GET /admin/payment-proofs/:id/file` | Admin | Stream or download a proof file |
@@ -162,9 +165,9 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 | `PATCH /admin/bookings/:id/status` | Admin | Cancel, complete or mark no-show |
 | `POST /admin/bookings/:id/refund` | Admin | Record that a refund due has been paid |
 | `GET /admin/calendar?from&to` | Admin | Appointments for the calendar view |
-| `POST/PATCH/DELETE /admin/services` | Admin | Manage services |
+| `GET/POST /admin/services`, `PATCH/DELETE /admin/services/:id` | Admin | List (including inactive) and manage services |
 | `GET/PUT /admin/availability` | Admin | Working hours |
-| `GET/POST/DELETE /admin/blocked-times` | Admin | List, block and unblock time |
+| `GET/POST /admin/blocked-times`, `DELETE /admin/blocked-times/:id` | Admin | List, block and unblock time |
 | `GET/PATCH /admin/settings` | Admin | All settings in A-8 |
 
 Upload errors: `400` invalid or missing file, `404` booking link not valid (unknown, regenerated or inactive, all with the same message), `409` booking not Pending or proof limit reached, `413` file too large, `415` unsupported file type, `429` rate limit. The full API specification lives in `docs/api.md`.
