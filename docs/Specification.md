@@ -1,6 +1,6 @@
 # Service Booking System — Specification
 
-*Version 0.7 · 9 October 2026 *
+*Version 1.0 · Approved · 10 October 2026*
 
 ## 1. Purpose
 
@@ -18,7 +18,7 @@ The Service Booking System lets appointment-based businesses publish services, e
 - Email notifications (real provider). SMS is deferred; the notification interface keeps it pluggable.
 - Automated tests, documentation in `docs/`, CI/CD and deployment.
 
-**Out of scope (v1)** — an online payment gateway (deposits are paid by EFT and verified manually in v1), automatic reading or validation of proof-of-payment documents (OCR, bank API checks), reminders, rescheduling, cancellation policies, client accounts, reviews, discounts, multiple providers or locations, analytics, calendar sync, AI assistance. See section 13.
+**Out of scope (v1)** — an online payment gateway (deposits are paid by EFT and verified manually in v1), automatic reading or validation of proof-of-payment documents (OCR, bank API checks), reminders, rescheduling, cancellation fees or policies beyond the deposit refund rule (BR-12), client accounts, reviews, discounts, multiple providers or locations, analytics, calendar sync, AI assistance. See section 13.
 
 ## 3. Users and roles
 
@@ -55,14 +55,14 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 | A-5 | Create, edit and deactivate services (name, description, price, duration, active flag). |
 | A-6 | Configure working days and hours; block whole dates or time ranges. |
 | A-7 | Calendar view of appointments (FullCalendar), with access to booking details. |
-| A-8 | Settings: minimum notice, maximum advance booking window, slot interval, buffer time, deposit percentage, deposit refund rule, deposit hold duration and banking details shown to clients. |
+| A-8 | Settings: minimum notice, maximum advance booking window, slot interval, buffer time, deposit percentage, deposit refund rule, deposit hold duration, time zone and banking details shown to clients. |
 | A-9 | **Review proof of payment.** View or download each uploaded proof in the portal, and mark it Accepted or Rejected (with a reason shown to the client, e.g. "amount does not match"). Rejecting a proof notifies the client and lets them upload again. Accepting a proof does not confirm the booking by itself; Confirm payment (A-4) remains a separate action taken after the bank check. |
 
 ## 5. Business rules
 
 **BR-1 Slot calculation.** A time is offered only if `start + service duration` fits inside working hours and does not overlap any active booking (Pending or Confirmed) or blocked period, and the start time is outside the minimum-notice window and within the maximum advance window. Multiple appointments per day are allowed.
 
-**BR-2 No double-booking.** Availability is authoritative on the server. Two simultaneous requests for overlapping times must result in exactly one success and one rejection. **Proposed:** enforce this at the database as well as in code, using a PostgreSQL exclusion constraint on the booking time range (`btree_gist`), ignoring cancelled and expired bookings but counting Pending ones, and map the violation to a friendly conflict error.
+**BR-2 No double-booking.** Availability is authoritative on the server. Two simultaneous requests for overlapping times must result in exactly one success and one rejection. This is enforced at the database as well as in code, using a PostgreSQL exclusion constraint on the booking time range (`btree_gist`), ignoring cancelled and expired bookings but counting Pending ones, and map the violation to a friendly conflict error.
 
 **BR-3 Booking statuses.** Pending (awaiting deposit), Confirmed, Completed, No-show, Cancelled, and Expired (deposit deadline passed). If the provider's deposit percentage is 0, bookings skip Pending and start Confirmed. **Transitions:**
 
@@ -74,11 +74,11 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 
 Only the administrator changes status, with two exceptions: a scheduled job sets Expired, and the client can cancel their own Pending or Confirmed booking through the booking link (BR-12). Cancelled and expired bookings free their slot. Uploading proof of payment never changes booking status; it is tracked separately on the PaymentProof record (BR-14).
 
-**BR-4 Price and duration snapshot.** **Proposed:** a booking stores the service price and duration at booking time so later edits to the service don't alter history.
+**BR-4 Price and duration snapshot.** A booking stores the service price and duration at booking time so later edits to the service don't alter history.
 
 **BR-5 Inactive services** are hidden from clients and cannot be newly booked; existing bookings are unaffected.
 
-**BR-6 Time zone.** **Proposed:** store UTC, interpret working hours in the business's configured time zone (South Africa Standard Time for the reference business).
+**BR-6 Time zone.** Times are stored in UTC, and working hours are interpreted in the business's configured time zone (South Africa Standard Time for the reference business).
 
 **BR-7 Deposits.** The provider sets one global deposit percentage in settings (0 means no deposit), applied to the service price when a booking is made. The resulting deposit amount is stored on the booking. A per-service override is a possible future option.
 
@@ -86,7 +86,7 @@ Only the administrator changes status, with two exceptions: a scheduled job sets
 
 **BR-9 Deposit hold.** A Pending booking holds its slot until its deposit deadline: the earlier of the hold duration after booking and the minimum-notice cutoff before the appointment. Hold duration is a provider setting; the reference business uses 24 hours. A scheduled job marks overdue bookings Expired and frees the slot. The owner can extend a deadline or cancel any Pending booking. Uploading a proof does not change the deadline or stop the expiry job: the owner is notified of every upload (BR-14) and decides whether to confirm payment, reject the proof, extend the deadline while she checks, or let the booking expire.
 
-**BR-10 Minimum notice and advance window.** A provider setting in hours (24 for the reference business) blocks bookings that start sooner, and a maximum advance window (**Proposed:** 90 days) blocks bookings too far ahead. Both are applied in slot calculation and re-checked at submission.
+**BR-10 Minimum notice and advance window.** A provider setting in hours (24 for the reference business) blocks bookings that start sooner, and a maximum advance window in days (90 for the reference business) blocks bookings too far ahead. Both are applied in slot calculation and re-checked at submission.
 
 **BR-11 Booking limits.** Each email address or phone number may have at most 2 active Pending bookings, and the booking endpoint is rate-limited.
 
@@ -94,13 +94,13 @@ Only the administrator changes status, with two exceptions: a scheduled job sets
 
 **BR-13 Slot interval and buffer.** Start times fall on a provider-set interval within working hours (`slotIntervalMinutes`; the reference business uses 120). After every booking a provider-set buffer (`bufferMinutes`; the reference business uses 60) blocks the following time. A booking therefore occupies its service duration plus the buffer, and a start time is offered only if that whole span is free. A per-service buffer override is a possible future option.
 
-**BR-14 Proof-of-payment upload.** **Proposed:** a client uploads proof only for a Pending booking, through its booking link (BR-15); uploads are refused for any other status. Accepted files are PDF, JPEG and PNG, checked from the file's content (magic bytes) rather than its extension, at most 5 MB each and 3 per booking, which allows a re-upload after a rejection. Files are stored privately outside the web root under a random key, never served from `public/` or a guessable URL, and only an authenticated administrator can view or download them. Each proof is Received, then Accepted or Rejected; a rejection reason is shown to the client, and rejected proofs are kept for the audit trail. A new upload notifies the administrator by email with the booking reference, client name, deposit amount, current deadline and a link to the booking in the portal; a rejection notifies the client with the reason and asks them to upload a new proof using the booking link in their original payment instructions email (or to request a new one from the booking details page, C-6). The rejection email does not contain a booking link. Proof files are deleted 90 days after the booking reaches a terminal state (Completed, No-show, Cancelled or Expired) by a daily scheduled job, keeping only the metadata, in line with POPIA. The 90-day period is a fixed system rule, not a provider setting, so it cannot be shortened or extended from the portal. The upload endpoint is rate-limited per booking and per IP address.
+**BR-14 Proof-of-payment upload.** A client uploads proof only for a Pending booking, through its booking link (BR-15); uploads are refused for any other status. Accepted files are PDF, JPEG and PNG, checked from the file's content (magic bytes) rather than its extension, at most 5 MB each and 3 per booking, which allows a re-upload after a rejection. Files are stored privately outside the web root under a random key, never served from `public/` or a guessable URL, and only an authenticated administrator can view or download them. Each proof is Received, then Accepted or Rejected; a rejection reason is shown to the client, and rejected proofs are kept for the audit trail. A new upload notifies the administrator by email with the booking reference, client name, deposit amount, current deadline and a link to the booking in the portal; a rejection notifies the client with the reason and asks them to upload a new proof using the booking link in their original payment instructions email (or to request a new one from the booking details page, C-6). The rejection email does not contain a booking link. Proof files are deleted 90 days after the booking reaches a terminal state (Completed, No-show, Cancelled or Expired) by a daily scheduled job, keeping only the metadata, in line with POPIA. The 90-day period is a fixed system rule, not a provider setting, so it cannot be shortened or extended from the portal. The upload endpoint is rate-limited per booking and per IP address.
 
-**BR-15 Booking link.** **Proposed:** when a booking is created, the server generates a random booking token (32 bytes from a cryptographically secure generator) and builds the link `/booking/<token>`, which is sent only in the booking email (payment instructions, or confirmation when no deposit applies) and never returned by the API or shown on screen. Only a SHA-256 hash of the token is stored, so a database leak does not expose working links. The link works while the booking is Pending or Confirmed and the appointment has not started. It shows a booking summary, allows proof upload only while Pending, and allows cancellation (BR-12); it cannot change the date, time or service. An unknown or inactive link gets the same generic "link not valid" response, so links cannot be probed. A new link can be issued by the client from the booking details page (C-6) or by the owner from the portal; either way the old link stops working and the new one is emailed to the booking's email address only.
+**BR-15 Booking link.** When a booking is created, the server generates a random booking token (32 bytes from a cryptographically secure generator) and builds the link `/booking/<token>`, which is sent only in the booking email (payment instructions, or confirmation when no deposit applies) and never returned by the API or shown on screen. Only a SHA-256 hash of the token is stored, so a database leak does not expose working links. The link works while the booking is Pending or Confirmed and the appointment has not started. It shows a booking summary, allows proof upload only while Pending, and allows cancellation (BR-12); it cannot change the date, time or service. An unknown or inactive link gets the same generic "link not valid" response, so links cannot be probed. A new link can be issued by the client from the booking details page (C-6) or by the owner from the portal; either way the old link stops working and the new one is emailed to the booking's email address only.
 
 ## 6. Domain model
 
-Entities named in the README: Users, Services, Availability, BlockedTimes, Bookings, Notifications. Fields below are **Proposed**.
+Key fields for each entity are listed below. The full design (types, constraints, indexes) lives in `docs/database.md`.
 
 | Entity | Key fields |
 | --- | --- |
@@ -109,11 +109,11 @@ Entities named in the README: Users, Services, Availability, BlockedTimes, Booki
 | Availability | id, dayOfWeek, startTime, endTime, isWorkingDay |
 | BlockedTime | id, startAt, endAt, reason |
 | Booking | id, reference (e.g. BK-000123), serviceId, clientName, clientEmail, clientPhone, startAt, endAt, priceAtBooking, depositAmount, depositDueAt, bookingTokenHash, bookingTokenCreatedAt, amountReceived, paymentVerifiedAt, paymentVerifiedBy, refundedAt, cancelledAt, cancelledBy (client/admin), status, notes, createdAt |
-| PaymentProof (added in 0.6) | id, bookingId, storageKey, originalFilename, contentType, sizeBytes, sha256, status (Received/Accepted/Rejected), rejectionReason, uploadedAt, uploadedFromIp, reviewedAt, reviewedBy, fileDeletedAt |
+| PaymentProof | id, bookingId, storageKey, originalFilename, contentType, sizeBytes, sha256, status (Received/Accepted/Rejected), rejectionReason, uploadedAt, uploadedFromIp, reviewedAt, reviewedBy, fileDeletedAt |
 | Notification | id, bookingId, channel (email/sms), recipient, type, status, sentAt, error |
-| Setting (added in 0.2) | minNoticeHours, maxAdvanceDays, slotIntervalMinutes, bufferMinutes, depositPercent, depositRefundable, refundCutoffHours, depositHoldHours, timeZone, bankingDetails |
+| Setting | minNoticeHours, maxAdvanceDays, slotIntervalMinutes, bufferMinutes, depositPercent, depositRefundable, refundCutoffHours, depositHoldHours, timeZone, bankingDetails |
 
-Relationships: Service 1—\* Booking; Booking 1—\* Notification; Booking 1—\* PaymentProof; User 1—\* PaymentProof (as reviewer). The `sha256` hash lets the owner spot the same file being reused across bookings. The database design will be documented in `docs/`.
+Relationships: Service 1—\* Booking; Booking 1—\* Notification; Booking 1—\* PaymentProof; User 1—\* PaymentProof (as reviewer). The `sha256` hash lets the owner spot the same file being reused across bookings.
 
 ## 7. Architecture
 
@@ -126,20 +126,20 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 | availability | Working hours, blocked times, slot calculation, notice and advance windows |
 | bookings | Create, view, status changes, conflict handling, deposit deadline and expiry job |
 | payments | Deposit calculation, `PaymentProvider` interface, manual EFT verification, proof-of-payment upload, validation and review |
-| storage (added in 0.6) | `FileStorage` interface for saving, reading and deleting files; local-disk provider for development and tests, private cloud blob provider for production |
+| storage | `FileStorage` interface for saving, reading and deleting files; local-disk provider for development and tests, private cloud blob provider for production |
 | notifications | Email (SMS later) behind an interface; mock and real providers |
-| settings | Minimum notice, advance window, deposit percentage, refund rule, deposit hold duration, banking details |
+| settings | Minimum notice, advance window, slot interval, buffer, deposit percentage, refund rule, deposit hold duration, time zone, banking details |
 | admin | Dashboard, calendar data, booking management and proof review endpoints |
 
 **Booking flow.** View services → select service → select date → availability check → select time → enter details → submit → server-side availability, notice and limit checks → on failure return error; otherwise create the booking (Pending if a deposit applies, else Confirmed) and its booking link → show the confirmation page → email the client (payment instructions with the booking link, or confirmation) and notify the administrator → client pays by EFT, then uploads proof through the booking link in the email (or sends it by email) → administrator is notified of the upload → owner checks the money is in the bank, reviews the proof and clicks Confirm payment, or extends the deadline while she checks → client receives confirmation. If the deadline passes before the owner confirms or extends it, the booking expires and the slot reopens. The client can cancel through the booking link at any point before the appointment.
 
 **Upload flow.** The client opens the booking link and sends a `multipart/form-data` request → the server hashes the token, finds the booking, and checks Pending status, proof count and rate limit → streams the file with a size cap (rejecting oversize uploads without buffering them in full) → checks content type from the file's bytes → computes the SHA-256 hash → saves through `FileStorage` → creates the PaymentProof record → emits a `ProofUploaded` domain event. If the database write fails, the stored file is deleted so no orphan files remain; a periodic cleanup also removes any stray files.
 
-**Notifications design.** The bookings and payments modules emit domain events; the notifications module subscribes, so providers (Nodemailer, an SMS gateway) are swappable and business logic is not coupled to them. **Proposed:** a notification failure is logged on the Notification record and never rolls back or blocks the booking or the upload.
+**Notifications design.** The bookings and payments modules emit domain events; the notifications module subscribes, so providers (Nodemailer, an SMS gateway) are swappable and business logic is not coupled to them. A notification failure is logged on the Notification record and never rolls back or blocks the booking or the upload.
 
 **Messages.** To the client: booking received with payment instructions, deadline and booking link; proof rejected with reason; booking confirmed; booking cancelled (by the client or the owner) or expired. To the administrator: every new booking; every new proof upload; every client cancellation, flagged when a refund is due.
 
-## 8. API surface (Proposed)
+## 8. API surface
 
 | Method and path | Access | Purpose |
 | --- | --- | --- |
@@ -160,12 +160,14 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 | `POST /admin/bookings/:id/confirm-payment` | Admin | Record amount received and confirm |
 | `PATCH /admin/bookings/:id/deadline` | Admin | Extend deposit deadline |
 | `PATCH /admin/bookings/:id/status` | Admin | Cancel, complete or mark no-show |
+| `POST /admin/bookings/:id/refund` | Admin | Record that a refund due has been paid |
+| `GET /admin/calendar?from&to` | Admin | Appointments for the calendar view |
 | `POST/PATCH/DELETE /admin/services` | Admin | Manage services |
-| `PUT /admin/availability` | Admin | Working hours |
-| `POST/DELETE /admin/blocked-times` | Admin | Block and unblock time |
-| `GET/PATCH /admin/settings` | Admin | Notice, advance window, deposit percentage, refund rule, hold duration, banking details |
+| `GET/PUT /admin/availability` | Admin | Working hours |
+| `GET/POST/DELETE /admin/blocked-times` | Admin | List, block and unblock time |
+| `GET/PATCH /admin/settings` | Admin | All settings in A-8 |
 
-Upload errors: `400` invalid or missing file, `404` booking link not valid (unknown, regenerated or inactive, all with the same message), `409` booking not Pending or proof limit reached, `413` file too large, `415` unsupported file type, `429` rate limit. A full API specification will live in `docs/`.
+Upload errors: `400` invalid or missing file, `404` booking link not valid (unknown, regenerated or inactive, all with the same message), `409` booking not Pending or proof limit reached, `413` file too large, `415` unsupported file type, `429` rate limit. The full API specification lives in `docs/api.md`.
 
 ## 9. Non-functional requirements
 
@@ -173,19 +175,19 @@ Upload errors: `400` invalid or missing file, `404` booking link not valid (unkn
 
 - Password hashing; secure authentication; role-based authorization on every admin route.
 - Client-side and server-side input validation; server is authoritative.
-- Client personal data (name, email, phone, proof-of-payment documents, which can show bank account details) handled securely; **Proposed:** consider POPIA obligations for a South African deployment.
+- Client personal data (name, email, phone, proof-of-payment documents, which can show bank account details) handled securely and in line with POPIA for a South African deployment; what is stored, why and for how long is documented in `docs/security.md`.
 - Secrets via environment configuration; no credentials in source control; `.env.example` committed.
 - Public booking lookup and proof upload must not allow enumeration of other clients' bookings: the same generic error is returned for a wrong reference and a wrong email, and for any invalid booking link.
 - Booking links are unguessable random tokens stored only as hashes (BR-15). The booking page sends `Referrer-Policy: no-referrer`, loads no third-party scripts, and request logging masks the token in `/booking/...` paths so links don't leak through logs or referrer headers. Opening the link (a `GET`) never changes a booking; cancelling needs a `POST` from the page's confirm button.
 - Booking creation is rate-limited and capped at 2 active Pending bookings per email or phone number.
-- Uploaded files are validated by content, size-capped while streaming, stored privately under random keys, never executed or served publicly, and returned to administrators with `Content-Disposition: attachment` (or rendered inline only for verified PDF and image types) plus `X-Content-Type-Options: nosniff`. **Proposed:** enable malware scanning on the production storage account if the hosting choice offers it.
+- Uploaded files are validated by content, size-capped while streaming, stored privately under random keys, never executed or served publicly, and returned to administrators with `Content-Disposition: attachment` (or rendered inline only for verified PDF and image types) plus `X-Content-Type-Options: nosniff`. Malware scanning is enabled on the production storage account if the hosting choice offers it.
 - Payment is confirmed only by an authenticated administrator after funds reflect in the bank account; each confirmation and each proof review is recorded with who and when.
 
 **Quality**
 
 - Business logic covered by automated tests (section 10).
 - Public pages responsive and usable on mobile, including uploading a screenshot or file from a phone.
-- **Proposed:** availability responses fast enough to feel instant on a single-provider dataset.
+- Availability responses fast enough to feel instant on a single-provider dataset.
 
 ## 10. Testing strategy
 
@@ -208,16 +210,19 @@ The concurrency test is the most important: preventing double-booking is the sys
 
 ## 12. Delivery plan
 
-| Phase | Outcome |
+Work is tracked as GitHub milestones and issues; each milestone is done when its "Done when" condition is met.
+
+| Milestone | Outcome |
 | --- | --- |
-| 1 Foundation | NestJS project, TypeScript, PostgreSQL, structure, environment config, Git workflow |
-| 2 Services | Model, API, admin management, public listing |
-| 3 Availability | Working hours, blocked dates and times, slot calculation, minimum notice and advance window, calendar interface |
-| 4 Bookings | Creation, validation, Pending/Confirmed lifecycle, booking link generation, deposit deadline and expiry job, booking limits, double-booking prevention |
-| 5 Notifications | Email provider (mock first, then Nodemailer), payment instructions email with the booking link, resend booking link, confirmations, admin notification of new bookings, notification history (SMS deferred) |
-| 6 Administrator portal and proof of payment | Authentication, dashboard, booking, payment verification, booking page, proof upload and client cancellation, proof review, admin notification of uploads, proof-rejected email, service, settings and calendar management |
-| 7 Testing | Unit, integration, API, concurrency, auth and upload security tests |
-| 8 Deployment | Production config, database, private blob storage, application, CI/CD, monitoring and logging |
+| M0 Requirements & design | Approved specification, database design, API, wireframes and email content in `docs/`; open question 1 decided; GitHub labels, milestones, templates and project board |
+| M1 Foundation | NestJS project, TypeScript, PostgreSQL in Docker, migrations, environment config, test framework, CI, static frontend layout, protected `main` and contribution workflow |
+| M2 Services | Administrator account and login, settings, service model, admin service management, public service listing |
+| M3 Availability | Working hours, blocked dates and times, time zone handling, slot calculation, minimum notice and advance window, date and time picker |
+| M4 Bookings | Creation, validation, booking references, deposit and deadline, Pending/Confirmed lifecycle, booking link, booking limits, expiry job, double-booking prevention, booking lookup |
+| M5 Notifications | Email provider (mock first, then Nodemailer), payment instructions email with the booking link, resend booking link, status emails, admin notification of new bookings, notification history (SMS deferred) |
+| M6 Admin portal & proof of payment | Dashboard, booking management, payment verification, booking page, proof upload and review, client cancellation, refunds due, settings and calendar |
+| M7 Testing & hardening | Upload, authorization, booking link and enumeration security tests, API contract and end-to-end tests, mobile and accessibility check, security and POPIA review |
+| M8 Deployment | Hosting decision, production resources and private blob storage, configuration and secrets, deployment workflow, monitoring and logging, v1.0 release |
 
 Repository layout: `src/{auth,bookings,services,availability,payments,storage,notifications,settings,admin}`, `public/`, `tests/`, `docs/`, `.env.example`, `README.md`. Local uploads go to a git-ignored `uploads/` folder outside `public/`.
 
@@ -240,5 +245,5 @@ A payment gateway with automatic confirmation and refunds (making proof upload u
 
 ## 15. Open questions
 
-1. **Slot interval.** Set to 2 hours for the reference business. With a 1-hour buffer, most bookings (1h30 to 2h30 plus buffer) will use two 2-hour slots, so a day fits about two appointments. A 30-minute interval would fit more. This is a setting, so it can change without code changes; revisit before phase 3.
-2. **Hosting target.** Recommended: Azure App Service plus Azure Database for PostgreSQL in South Africa North, deployed by GitHub Actions, with Azure Blob Storage (private container) for proof files. Decide before phase 8.
+1. **Slot interval.** Set to 2 hours for the reference business. With a 1-hour buffer, most bookings (1h30 to 2h30 plus buffer) will use two 2-hour slots, so a day fits about two appointments. A 30-minute interval would fit more. This is a setting, so it can change without code changes; to be decided in M0.
+2. **Hosting target.** Recommended: Azure App Service plus Azure Database for PostgreSQL in South Africa North, deployed by GitHub Actions, with Azure Blob Storage (private container) for proof files. To be decided in M8.
