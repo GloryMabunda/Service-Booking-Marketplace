@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your details · Wireframe</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../assets/wireframe.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Client · 3 Booking form (C-3, C-4)</span><a class="ms-auto" href="../index.html">All screens</a></div>
+
+  <nav class="navbar border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="services.html">Make Up by Glory</a>
+      <div class="d-flex gap-3 small"><a href="services.html">Services</a><a href="lookup.html">Find my booking</a></div>
+    </div>
+  </nav>
+
+  <main class="container py-4" style="max-width: 48rem;">
+    <nav class="small mb-3"><a href="pick-time.html"><i class="bi bi-arrow-left"></i> Change date or time</a></nav>
+    <ol class="list-inline small text-secondary mb-3">
+      <li class="list-inline-item">1 Date and time</li>
+      <li class="list-inline-item">› <strong class="text-dark">2 Your details</strong></li>
+      <li class="list-inline-item">› 3 Done</li>
+    </ol>
+
+    <div class="row g-4">
+      <div class="col-md-5 order-md-2">
+        <div class="card">
+          <div class="card-body small">
+            <h2 class="h6">Your booking</h2>
+            <dl class="row mb-0">
+              <dt class="col-5 fw-normal text-secondary">Service</dt><dd class="col-7">Soft Glam</dd>
+              <dt class="col-5 fw-normal text-secondary">When</dt><dd class="col-7">Tue 13 Oct 2026<br>09:00–10:30</dd>
+              <dt class="col-5 fw-normal text-secondary">Price</dt><dd class="col-7">R650</dd>
+              <dt class="col-5 fw-normal text-secondary">Deposit</dt><dd class="col-7"><strong>R325</strong></dd>
+            </dl>
+            <p class="mt-2 mb-0 text-secondary">Your booking is confirmed once the deposit reflects in our account. You'll have until the deadline in your email to pay.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-7 order-md-1">
+        <h1 class="h5">Your details</h1>
+        <form>
+          <div class="mb-3">
+            <label class="form-label" for="name">Full name</label>
+            <input class="form-control" id="name" value="Sarah Mokoena" autocomplete="name">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-control is-invalid" id="email" type="email" value="sarah@example" autocomplete="email">
+            <div class="invalid-feedback">Enter a valid email address.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="phone">Phone</label>
+            <input class="form-control" id="phone" type="tel" value="082 123 4567" autocomplete="tel">
+            <div class="form-text">South African number.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="notes">Notes <span class="text-secondary">(optional)</span></label>
+            <textarea class="form-control" id="notes" rows="3" maxlength="1000">Birthday makeup</textarea>
+            <div class="form-text">Anything we should know. 15 / 1,000</div>
+          </div>
+          <p class="small text-secondary">We use your details only to manage this booking. See our privacy notice.</p>
+          <a class="btn btn-dark w-100" href="confirmation.html">Book and get payment instructions</a>
+        </form>
+        <div class="wf-note">Client-side validation mirrors the server (#51); the server re-validates everything (C-4). The button is disabled with a spinner while submitting, so it can't be pressed twice. The privacy line links to the POPIA notice (#85).</div>
+
+        <span class="wf-state">State: the time was just taken</span>
+        <div class="alert alert-secondary">
+          <strong>Sorry, 09:00 on Tue 13 Oct has just been booked.</strong><br>
+          <span class="small">Your details are kept. Please choose another time.</span>
+          <div class="mt-2"><a class="btn btn-sm btn-outline-dark" href="pick-time.html">Choose another time</a></div>
+        </div>
+        <div class="wf-note"><code>409 SLOT_UNAVAILABLE</code> (C-4). The form keeps what the client typed, so they don't re-enter it.</div>
+
+        <span class="wf-state">State: booking limit reached</span>
+        <div class="alert alert-secondary small mb-0">You already have 2 bookings waiting for a deposit. Please pay for or cancel one of them first, or contact us.</div>
+        <div class="wf-note"><code>409 PENDING_LIMIT_REACHED</code> (BR-11). Rate limit (<code>429</code>) shows "Too many attempts, please try again in a few minutes".</div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

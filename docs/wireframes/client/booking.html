@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Your booking · Wireframe</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../assets/wireframe.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Client · 6 Booking page: upload and cancel (C-7, C-8)</span><a class="ms-auto" href="../index.html">All screens</a></div>
+
+  <nav class="navbar border-bottom">
+    <div class="container">
+      <span class="navbar-brand fw-semibold">Make Up by Glory</span>
+    </div>
+  </nav>
+
+  <main class="container py-4" style="max-width: 40rem;">
+    <div class="wf-note">Opened from the private link in the email, <code>/booking/&lt;token&gt;</code>. The page loads <code>GET /api/booking/:token</code>; opening it never changes the booking. No third-party scripts and <code>Referrer-Policy: no-referrer</code> (BR-15). The real page doesn't link to other pages, so the token can't leak through a referrer.</div>
+
+    <span class="wf-state">State: Pending, awaiting payment</span>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h1 class="h5 mb-0">Your booking <span class="font-monospace">BK-000123</span></h1>
+        <div class="small text-secondary">Soft Glam · Tue 13 Oct 2026, 09:00–10:30</div>
+      </div>
+      <span class="wf-status is-pending">Pending</span>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">1. Pay the deposit by EFT</h2>
+        <p class="small mb-2">Pay <strong>R325</strong> by <strong>Sun 11 Oct, 14:00</strong> (23 hours left). Your booking is confirmed only once the payment reflects in our account.</p>
+        <dl class="row small mb-0">
+          <dt class="col-5 fw-normal text-secondary">Account name</dt><dd class="col-7">Make Up by Glory</dd>
+          <dt class="col-5 fw-normal text-secondary">Bank</dt><dd class="col-7">Example Bank</dd>
+          <dt class="col-5 fw-normal text-secondary">Account number</dt><dd class="col-7">1234567890 <button class="btn btn-link btn-sm p-0" aria-label="Copy account number"><i class="bi bi-copy"></i></button></dd>
+          <dt class="col-5 fw-normal text-secondary">Branch code</dt><dd class="col-7">250655</dd>
+          <dt class="col-5 fw-normal text-secondary">Account type</dt><dd class="col-7">Cheque</dd>
+          <dt class="col-5 fw-normal text-secondary">Reference</dt><dd class="col-7"><strong class="font-monospace">BK-000123</strong> <button class="btn btn-link btn-sm p-0" aria-label="Copy reference"><i class="bi bi-copy"></i></button></dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">2. Upload your proof of payment</h2>
+        <div class="wf-box flex-column text-center p-3 mb-2" style="min-height: 8rem;">
+          <i class="bi bi-cloud-arrow-up fs-3"></i>
+          <span>Drag a file here, or</span>
+          <span><button class="btn btn-sm btn-dark mt-1" type="button">Choose file or take photo</button></span>
+        </div>
+        <p class="small text-secondary mb-2">PDF, JPG or PNG, up to 5 MB. You can upload 3 files in total; 3 remaining.</p>
+
+        <span class="wf-state">Uploading</span>
+        <div class="small mb-1">proof-of-payment.pdf · 118 KB</div>
+        <div class="progress mb-2" role="progressbar" aria-label="Upload progress" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 60%">60%</div></div>
+
+        <span class="wf-state">Uploaded</span>
+        <div class="alert alert-secondary small mb-2"><i class="bi bi-check-circle"></i> Thank you. Your booking will be confirmed once the payment reflects in our account. We'll email you.</div>
+
+        <span class="wf-state">Upload errors</span>
+        <ul class="small mb-0">
+          <li>"This file is larger than 5 MB. Please upload a smaller file or a screenshot." (<code>413</code>)</li>
+          <li>"Please upload a PDF, JPG or PNG." (<code>415</code>)</li>
+          <li>"You've uploaded the maximum of 3 files. Email your proof to bookings@example.com instead." (<code>409 PROOF_LIMIT_REACHED</code>)</li>
+          <li>"Too many uploads, please try again later." (<code>429</code>)</li>
+        </ul>
+        <div class="wf-note">Upload uses <code>POST /api/booking/:token/proofs</code> with <code>FormData</code> and a progress bar (C-7). "Take photo" uses the phone camera via <code>accept="image/*,application/pdf"</code>. Uploading doesn't change the status or the deadline (BR-9).</div>
+      </div>
+    </div>
+
+    <h2 class="h6">Your proofs</h2>
+    <ul class="list-unstyled small">
+      <li><i class="bi bi-hourglass"></i> proof-of-payment.pdf · Sat 10 Oct, 15:40 · Waiting for us to check our bank</li>
+    </ul>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">Can't make it?</h2>
+        <p class="small mb-2">Your deposit hasn't been confirmed yet, so no refund will be recorded. If you've already paid, please contact us at bookings@example.com.</p>
+        <button class="btn btn-outline-dark btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancel booking</button>
+        <div class="wf-note">The refund explanation comes from <code>cancellation.explanation</code> and is shown before cancelling (C-8, BR-12).</div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header"><h2 class="modal-title h6" id="cancelTitle">Cancel this booking?</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+          <div class="modal-body small">
+            <p>Soft Glam on Tue 13 Oct at 09:00 will be cancelled and the time released. This can't be undone.</p>
+            <p class="mb-0">No refund will be recorded, because your deposit hasn't been confirmed.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button>
+            <button type="button" class="btn btn-dark">Yes, cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-note">Two steps: the button opens this confirmation, and only "Yes, cancel" sends <code>POST /api/booking/:token/cancel</code>, so email link scanners can't cancel (BR-12). Afterwards: "Your booking has been cancelled. We've emailed you a confirmation."</div>
+
+    <span class="wf-state">State: Confirmed</span>
+    <div class="card mb-3">
+      <div class="card-body small">
+        <div class="d-flex justify-content-between"><strong>BK-000123 · Soft Glam · Tue 13 Oct, 09:00</strong><span class="wf-status is-confirmed">Confirmed</span></div>
+        <p class="mt-2 mb-2">Your deposit of R325 has been received. See you on Tuesday!</p>
+        <p class="mb-2">If you cancel by <strong>Mon 12 Oct, 09:00</strong>, your deposit of R325 will be refunded.</p>
+        <button class="btn btn-outline-dark btn-sm" type="button">Cancel booking</button>
+      </div>
+    </div>
+    <div class="wf-note">Once Confirmed, banking details and upload are hidden (<code>bankingDetails</code> is null, <code>canUploadProof</code> is false). The refund sentence changes after the cut-off: "Cancelling now won't refund your deposit."</div>
+
+    <span class="wf-state">State: link not valid</span>
+    <div class="text-center py-3">
+      <i class="bi bi-link-45deg fs-1"></i>
+      <h2 class="h5">This link isn't valid</h2>
+      <p class="small text-secondary">It may have been replaced by a newer link, or the booking is no longer active. You can find your booking with your reference and email.</p>
+      <a class="btn btn-outline-dark btn-sm" href="lookup.html">Find my booking</a>
+    </div>
+    <div class="wf-note">One message for an unknown, replaced or inactive link (<code>404 LINK_NOT_VALID</code>). This is the only page state with a link out, because the token is no longer usable.</div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

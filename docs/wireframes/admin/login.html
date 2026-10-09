@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin login · Wireframe</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/wireframe.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Admin · 1 Login (A-1)</span><a class="ms-auto" href="../index.html">All screens</a></div>
+
+  <main class="container py-5" style="max-width: 24rem;">
+    <h1 class="h4 text-center mb-1">Make Up by Glory</h1>
+    <p class="text-center text-secondary small mb-4">Admin portal</p>
+
+    <form>
+      <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-control" id="email" type="email" autocomplete="username" value="glory@example.com">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" id="password" type="password" autocomplete="current-password" value="••••••••••">
+      </div>
+      <a class="btn btn-dark w-100" href="dashboard.html">Log in</a>
+    </form>
+
+    <span class="wf-state">State: wrong details</span>
+    <div class="alert alert-secondary small">The email or password is incorrect.</div>
+
+    <span class="wf-state">State: too many attempts</span>
+    <div class="alert alert-secondary small mb-0">Too many attempts. Please try again in 15 minutes.</div>
+
+    <div class="wf-note"><code>POST /api/auth/login</code>. One message for a wrong email or password (<code>401 INVALID_CREDENTIALS</code>); rate-limited (<code>429</code>). No sign-up and no "forgot password" link: the owner resets her password with the seed script (spec section 3). Any admin page opened without a session redirects here, then back to that page after login.</div>
+  </main>
+</body>
+</html>

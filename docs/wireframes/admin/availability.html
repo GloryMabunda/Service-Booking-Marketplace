@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Availability · Wireframe</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../assets/wireframe.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Admin · 6 Availability and blocked times (A-6)</span><a class="ms-auto" href="../index.html">All screens</a></div>
+
+  <div class="d-md-none border-bottom p-2 d-flex justify-content-between align-items-center">
+    <strong>Make Up by Glory</strong>
+    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-label="Menu"><i class="bi bi-list"></i></button>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-3 col-lg-2 wf-sidebar p-3 collapse d-md-block" id="sidebar">
+        <div class="fw-semibold mb-3 d-none d-md-block">Make Up by Glory</div>
+        <ul class="nav flex-column gap-1">
+          <li><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+          <li><a class="nav-link" href="bookings.html"><i class="bi bi-journal-text"></i> Bookings</a></li>
+          <li><a class="nav-link" href="calendar.html"><i class="bi bi-calendar3"></i> Calendar</a></li>
+          <li><a class="nav-link" href="services.html"><i class="bi bi-brush"></i> Services</a></li>
+          <li><a class="nav-link active" href="availability.html"><i class="bi bi-clock"></i> Availability</a></li>
+          <li><a class="nav-link" href="settings.html"><i class="bi bi-gear"></i> Settings</a></li>
+          <li class="mt-3"><a class="nav-link" href="login.html"><i class="bi bi-box-arrow-right"></i> Log out</a></li>
+        </ul>
+      </nav>
+
+      <main class="col-md-9 col-lg-10 p-4">
+        <h1 class="h4">Availability</h1>
+
+        <div class="row g-4">
+          <section class="col-xl-6">
+            <h2 class="h6">Working hours <span class="text-secondary fw-normal small">(South African time)</span></h2>
+            <table class="table table-sm align-middle small">
+              <thead><tr><th>Day</th><th>Working</th><th>From</th><th>To</th></tr></thead>
+              <tbody>
+                <tr><td>Monday</td><td><input class="form-check-input" type="checkbox" checked aria-label="Monday working"></td><td><input class="form-control form-control-sm" type="time" value="09:00"></td><td><input class="form-control form-control-sm" type="time" value="17:00"></td></tr>
+                <tr><td>Tuesday</td><td><input class="form-check-input" type="checkbox" checked aria-label="Tuesday working"></td><td><input class="form-control form-control-sm" type="time" value="09:00"></td><td><input class="form-control form-control-sm" type="time" value="17:00"></td></tr>
+                <tr><td>Wednesday</td><td><input class="form-check-input" type="checkbox" checked aria-label="Wednesday working"></td><td><input class="form-control form-control-sm" type="time" value="09:00"></td><td><input class="form-control form-control-sm" type="time" value="17:00"></td></tr>
+                <tr><td>Thursday</td><td><input class="form-check-input" type="checkbox" checked aria-label="Thursday working"></td><td><input class="form-control form-control-sm" type="time" value="09:00"></td><td><input class="form-control form-control-sm" type="time" value="17:00"></td></tr>
+                <tr><td>Friday</td><td><input class="form-check-input" type="checkbox" checked aria-label="Friday working"></td><td><input class="form-control form-control-sm" type="time" value="09:00"></td><td><input class="form-control form-control-sm" type="time" value="17:00"></td></tr>
+                <tr><td>Saturday</td><td><input class="form-check-input" type="checkbox" checked aria-label="Saturday working"></td><td><input class="form-control form-control-sm" type="time" value="08:00"></td><td><input class="form-control form-control-sm" type="time" value="14:00"></td></tr>
+                <tr class="text-secondary"><td>Sunday</td><td><input class="form-check-input" type="checkbox" aria-label="Sunday working"></td><td><input class="form-control form-control-sm" type="time" disabled></td><td><input class="form-control form-control-sm" type="time" disabled></td></tr>
+              </tbody>
+            </table>
+            <button class="btn btn-dark btn-sm">Save working hours</button>
+            <div class="wf-note">Saves all seven days at once (<code>PUT /api/admin/availability</code>). Unticking a day disables its times. "To" must be after "From". Changes apply to the slots clients see from then on; existing bookings aren't touched.</div>
+          </section>
+
+          <section class="col-xl-6">
+            <h2 class="h6">Blocked times</h2>
+            <form class="card card-body small mb-3">
+              <div class="btn-group btn-group-sm mb-2" role="group" aria-label="Block type">
+                <input type="radio" class="btn-check" name="bt" id="bt1" checked><label class="btn btn-outline-dark" for="bt1">Whole day(s)</label>
+                <input type="radio" class="btn-check" name="bt" id="bt2"><label class="btn btn-outline-dark" for="bt2">Time range</label>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6"><label class="form-label" for="bf">From</label><input class="form-control form-control-sm" id="bf" type="date" value="2026-10-16"></div>
+                <div class="col-6"><label class="form-label" for="bto">To</label><input class="form-control form-control-sm" id="bto" type="date" value="2026-10-16"></div>
+              </div>
+              <div class="mb-2"><label class="form-label" for="br">Reason <span class="text-secondary">(only you see this)</span></label><input class="form-control form-control-sm" id="br" value="Wedding trial"></div>
+              <button class="btn btn-dark btn-sm" type="button">Block</button>
+            </form>
+
+            <span class="wf-state">State: overlaps existing bookings</span>
+            <div class="alert alert-secondary small"><i class="bi bi-exclamation-triangle"></i> Blocked. These bookings fall in this time and were <strong>not</strong> cancelled: <a href="booking.html">BK-000126</a>. Contact the client or cancel the booking if needed.</div>
+
+            <ul class="list-group small">
+              <li class="list-group-item d-flex justify-content-between align-items-center"><span><strong>Fri 16 Oct</strong> · whole day · Wedding trial</span><button class="btn btn-link btn-sm p-0">Remove</button></li>
+              <li class="list-group-item d-flex justify-content-between align-items-center"><span><strong>Wed 21 Oct, 12:00–14:00</strong> · Dentist</span><button class="btn btn-link btn-sm p-0">Remove</button></li>
+            </ul>
+            <div class="wf-note">Upcoming blocks only (<code>GET /api/admin/blocked-times</code>). "Whole day" sends midnight to midnight in the business time zone. Removing asks "Remove this block? The time becomes bookable again."</div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
