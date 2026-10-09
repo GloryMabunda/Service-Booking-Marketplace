@@ -138,8 +138,12 @@ erDiagram
         boolean deposit_refundable
         integer refund_cutoff_hours
         integer deposit_hold_hours
+        integer min_payment_window_hours
         text time_zone
         jsonb banking_details
+        text business_name
+        text business_email
+        text business_phone
         timestamptz updated_at
         uuid updated_by FK
     }
@@ -317,8 +321,12 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 | `deposit_refundable` | `boolean` | `true` | (BR-12) |
 | `refund_cutoff_hours` | `integer` | 24 | `>= 0` (BR-12) |
 | `deposit_hold_hours` | `integer` | 24 | `> 0` (BR-9) |
+| `min_payment_window_hours` | `integer` | 2 | `> 0` and not more than `deposit_hold_hours` (BR-9). Slots whose deposit deadline would be sooner than this are not offered |
 | `time_zone` | `text` | `Africa/Johannesburg` | An IANA time zone name, validated by the application (BR-6) |
 | `banking_details` | `jsonb` | | Object with `accountName`, `bank`, `accountNumber`, `branchCode`, `accountType`. Shown to clients in the payment instructions |
+| `business_name` | `text` | | 1 to 100 characters. Shown on the public pages and in emails (C-1) |
+| `business_email` | `text` | | Contact email shown to clients, including as the fallback for sending proof of payment (C-5) |
+| `business_phone` | `text` | | Nullable. Contact phone shown to clients |
 | `updated_at` | `timestamptz` | `now()` | |
 | `updated_by` | `uuid` | | Nullable. Foreign key to `users` |
 
@@ -391,12 +399,14 @@ Primary keys and unique constraints create their own indexes. The table below li
 
 ## 8. Additions to the specification
 
-This design adds two columns to the `Booking` fields in spec section 6, which has been updated to match:
+This design adds these fields to spec section 6, which has been updated to match:
 
 | Column | Why |
 | --- | --- |
-| `occupied_until` | The exclusion constraint needs each booking's full footprint (duration plus buffer) stored at booking time. See [section 4](#4-preventing-double-booking). |
-| `refund_due` | The dashboard's "refunds due" (A-2) and the owner's refund notification (BR-12) need to know, at cancellation time, whether a refund is owed. Working it out later from the current refund settings would give the wrong answer after the owner changes them. |
+| `occupied_until` (Booking) | The exclusion constraint needs each booking's full footprint (duration plus buffer) stored at booking time. See [section 4](#4-preventing-double-booking). |
+| `refund_due` (Booking) | The dashboard's "refunds due" (A-2) and the owner's refund notification (BR-12) need to know, at cancellation time, whether a refund is owed. Working it out later from the current refund settings would give the wrong answer after the owner changes them. |
+| `min_payment_window_hours` (Setting) | Without it, a client booking just outside the minimum notice gets a deadline minutes away (BR-9), and the booking expires almost immediately. |
+| `business_name`, `business_email`, `business_phone` (Setting) | The public pages need the business details (C-1) and a contact email for sending proof by email (C-5). Keeping them in settings means another business can use the system by changing configuration. |
 
 It also fixes some details the specification leaves open: UUID primary keys, ISO day-of-week numbering, E.164 phone numbers, the `banking_details` structure, the list of notification types, and the `pending`/`sent`/`failed` notification statuses.
 
@@ -588,9 +598,15 @@ CREATE TABLE settings (
   deposit_refundable    boolean NOT NULL DEFAULT true,
   refund_cutoff_hours   integer NOT NULL DEFAULT 24 CHECK (refund_cutoff_hours >= 0),
   deposit_hold_hours    integer NOT NULL DEFAULT 24 CHECK (deposit_hold_hours > 0),
+  min_payment_window_hours integer NOT NULL DEFAULT 2 CHECK (min_payment_window_hours > 0),
   time_zone             text NOT NULL DEFAULT 'Africa/Johannesburg',
   banking_details       jsonb NOT NULL CHECK (jsonb_typeof(banking_details) = 'object'),
+  business_name         text NOT NULL CHECK (char_length(business_name) BETWEEN 1 AND 100),
+  business_email        text NOT NULL,
+  business_phone        text,
   updated_at            timestamptz NOT NULL DEFAULT now(),
-  updated_by            uuid REFERENCES users (id) ON DELETE RESTRICT
+  updated_by            uuid REFERENCES users (id) ON DELETE RESTRICT,
+
+  CONSTRAINT settings_payment_window CHECK (min_payment_window_hours <= deposit_hold_hours)
 );
 ```

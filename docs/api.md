@@ -147,7 +147,7 @@ Every error has the same shape:
 | 404 | `NOT_FOUND` | No such resource (admin IDs) | Admin endpoints with `:id` |
 | 404 | `BOOKING_NOT_FOUND` | Wrong reference or wrong email (one message for both) | Booking lookup |
 | 404 | `LINK_NOT_VALID` | The booking link is unknown, was replaced by a newer one, or is no longer active (one message for all three) | Booking link endpoints |
-| 409 | `SLOT_UNAVAILABLE` | The time is no longer available: booked by someone else (`bookings_no_overlap`), blocked, outside working hours, not on the slot interval, inside the minimum notice or beyond the advance window | Create booking |
+| 409 | `SLOT_UNAVAILABLE` | The time is no longer available: booked by someone else (`bookings_no_overlap`), blocked, outside working hours, not on the slot interval, inside the minimum notice or minimum payment window, or beyond the advance window | Create booking |
 | 409 | `PENDING_LIMIT_REACHED` | The email or phone number already has 2 Pending bookings (BR-11) | Create booking |
 | 409 | `BOOKING_NOT_PENDING` | The booking isn't Pending, so proofs can't be uploaded | Proof upload |
 | 409 | `PROOF_LIMIT_REACHED` | The booking already has 3 proofs (BR-14) | Proof upload |
@@ -209,7 +209,7 @@ The numbers below are the initial values. They live in configuration so they can
 
 ### 4.1 `GET /api/services`
 
-Active services with their deposit amounts (C-1, BR-7). Inactive services are never included (BR-5).
+Business details, active services with their deposit amounts, and the bookable date range (C-1, C-2, BR-7). Inactive services are never included (BR-5). The client pages load this first.
 
 **Response `200`**
 
@@ -225,11 +225,31 @@ Active services with their deposit amounts (C-1, BR-7). Inactive services are ne
       "depositAmount": "325.00"
     }
   ],
-  "depositPercent": "50.00"
+  "depositPercent": "50.00",
+  "business": {
+    "name": "Make Up by Glory",
+    "email": "bookings@example.com",
+    "phone": "+27821234567"
+  },
+  "bookingWindow": {
+    "timeZone": "Africa/Johannesburg",
+    "earliestStartAt": "2026-10-11T12:00:00Z",
+    "latestStartAt": "2027-01-08T10:00:00Z",
+    "firstDate": "2026-10-11",
+    "lastDate": "2027-01-08"
+  }
 }
 ```
 
-Services are sorted by name. `depositAmount` is `depositPercent × price`, rounded to cents.
+| Field | Rule |
+| --- | --- |
+| `services` | Sorted by name. `depositAmount` is `depositPercent × price`, rounded half-up to cents |
+| `business` | From settings. `phone` can be `null`. `email` is also the fallback address for sending proof of payment (C-5) |
+| `bookingWindow.earliestStartAt` | Now plus `minNoticeHours`, plus `minPaymentWindowHours` when a deposit applies (BR-9, BR-10) |
+| `bookingWindow.latestStartAt` | Now plus `maxAdvanceDays` (BR-10) |
+| `bookingWindow.firstDate`, `lastDate` | The calendar days of those two instants in the business time zone. The date picker disables every other date (#40). A date inside the range can still have no slots |
+
+The response may be cached for 60 seconds, so the window can be up to a minute old; `POST /api/bookings` re-checks it.
 
 **Errors:** `429`.
 
@@ -258,7 +278,7 @@ The start times a client can book for a service on a date (C-2, BR-1, BR-6, BR-1
 }
 ```
 
-`slots` is empty when the day is not a working day, is fully booked or blocked, or falls outside the minimum notice or advance window. `endAt` is the appointment end, without the buffer.
+`slots` is empty when the day is not a working day, is fully booked or blocked, or falls outside the booking window. A start time is only offered if it is at least `earliestStartAt` and at most `latestStartAt` (see [4.1](#41-get-apiservices)), so a client always has at least the minimum payment window to pay the deposit (BR-9). `endAt` is the appointment end, without the buffer.
 
 **Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE`, `429`.
 
@@ -384,6 +404,7 @@ Data for the booking page (C-7). Opening it never changes the booking.
     "branchCode": "250655",
     "accountType": "Cheque"
   },
+  "business": { "name": "Make Up by Glory", "email": "bookings@example.com", "phone": "+27821234567" },
   "canUploadProof": true,
   "proofsRemaining": 2,
   "canCancel": true,
@@ -398,6 +419,7 @@ Data for the booking page (C-7). Opening it never changes the booking.
 | Field | Rule |
 | --- | --- |
 | `bankingDetails` | Present while Pending; `null` once Confirmed |
+| `business` | Business name and contact details, as in [4.1](#41-get-apiservices) |
 | `canUploadProof` | `true` while Pending and fewer than 3 proofs exist (BR-14) |
 | `proofsRemaining` | `3 −` number of proofs |
 | `canCancel` | `true` while the link is active (BR-12) |
@@ -832,6 +854,7 @@ All settings in A-8.
     "depositRefundable": true,
     "refundCutoffHours": 24,
     "depositHoldHours": 24,
+    "minPaymentWindowHours": 2,
     "timeZone": "Africa/Johannesburg",
     "bankingDetails": {
       "accountName": "Make Up by Glory",
@@ -840,6 +863,9 @@ All settings in A-8.
       "branchCode": "250655",
       "accountType": "Cheque"
     },
+    "businessName": "Make Up by Glory",
+    "businessEmail": "bookings@example.com",
+    "businessPhone": "+27821234567",
     "updatedAt": "2026-10-10T08:00:00Z"
   }
 }
@@ -857,8 +883,12 @@ All settings in A-8.
 | `depositRefundable` | Boolean |
 | `refundCutoffHours` | 0 to 720 |
 | `depositHoldHours` | 1 to 168 |
+| `minPaymentWindowHours` | 1 to 72, and not more than `depositHoldHours` |
 | `timeZone` | A valid IANA time zone name |
 | `bankingDetails` | All five fields required, each 1 to 100 characters |
+| `businessName` | 1 to 100 characters |
+| `businessEmail` | A valid email address |
+| `businessPhone` | A phone number, or `null` |
 
 New settings apply to new bookings and future slot calculations only. Existing bookings keep their price, deposit, deadline and occupied time.
 
@@ -876,4 +906,6 @@ Writing this document settled some details that spec section 8 left open. Sectio
 | Added `GET /api/admin/services` | The portal must list inactive services too; `GET /api/services` only returns active ones. |
 | Added `POST /api/auth/logout` | The portal needs a way to sign out. |
 | Admin cancellation of a Confirmed booking takes `refundDue` | BR-12 only defines the refund rule for client cancellations. When the owner cancels, she decides whether a refund is owed. |
+| `GET /api/services` returns `business` and `bookingWindow`; the booking page returns `business` | The date picker must disable dates outside the window (C-2, #40), and the pages must show the business details and the fallback email for proof (C-1, C-5) without hard-coding them. |
+| New settings `minPaymentWindowHours`, `businessName`, `businessEmail`, `businessPhone` | See BR-9 and A-8, updated in the spec. |
 | Added `410 FILE_DELETED` for proof downloads | Proof files are deleted after 90 days (BR-14) while their records remain. |
