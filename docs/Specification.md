@@ -55,7 +55,7 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 | A-5 | Create, edit and deactivate services (name, description, price, duration, active flag). |
 | A-6 | Configure working days and hours; block whole dates or time ranges. |
 | A-7 | Calendar view of appointments (FullCalendar), with access to booking details. |
-| A-8 | Settings: minimum notice, maximum advance booking window, slot interval, buffer time, deposit percentage, deposit refund rule, deposit hold duration, time zone and banking details shown to clients. |
+| A-8 | Settings: minimum notice, maximum advance booking window, slot interval, buffer time, deposit percentage, deposit refund rule, deposit hold duration, minimum payment window, time zone, banking details shown to clients, and business name and contact details. |
 | A-9 | **Review proof of payment.** View or download each uploaded proof in the portal, and mark it Accepted or Rejected (with a reason shown to the client, e.g. "amount does not match"). Rejecting a proof notifies the client and lets them upload again. Accepting a proof does not confirm the booking by itself; Confirm payment (A-4) remains a separate action taken after the bank check. |
 
 ## 5. Business rules
@@ -84,9 +84,9 @@ Only the administrator changes status, with two exceptions: a scheduled job sets
 
 **BR-8 Manual payment verification.** In v1 the client pays the deposit by EFT using the booking reference as the payment reference, then uploads proof of payment through the booking link (or sends it by email as a fallback). The owner confirms the booking only after the money reflects in her bank account, never from the proof alone: proofs can be forged, and an "immediate payment" notice can be reversed. The system records the amount received, the date and the confirming administrator. Payment sits behind a `PaymentProvider` interface (manual EFT first) so a gateway can replace it later without changing booking logic.
 
-**BR-9 Deposit hold.** A Pending booking holds its slot until its deposit deadline: the earlier of the hold duration after booking and the minimum-notice cutoff before the appointment. Hold duration is a provider setting; the reference business uses 24 hours. A scheduled job marks overdue bookings Expired and frees the slot. The owner can extend a deadline or cancel any Pending booking. Uploading a proof does not change the deadline or stop the expiry job: the owner is notified of every upload (BR-14) and decides whether to confirm payment, reject the proof, extend the deadline while she checks, or let the booking expire.
+**BR-9 Deposit hold.** A Pending booking holds its slot until its deposit deadline: the earlier of the hold duration after booking and the minimum-notice cutoff before the appointment. Hold duration is a provider setting; the reference business uses 24 hours. So that every client has time to pay, a slot is not offered when its deadline would be less than the **minimum payment window** after booking (`minPaymentWindowHours`, a provider setting; 2 hours for the reference business). In effect, when a deposit applies, the earliest bookable start is the minimum notice plus the minimum payment window from now. A scheduled job marks overdue bookings Expired and frees the slot. The owner can extend a deadline or cancel any Pending booking. Uploading a proof does not change the deadline or stop the expiry job: the owner is notified of every upload (BR-14) and decides whether to confirm payment, reject the proof, extend the deadline while she checks, or let the booking expire.
 
-**BR-10 Minimum notice and advance window.** A provider setting in hours (24 for the reference business) blocks bookings that start sooner, and a maximum advance window in days (90 for the reference business) blocks bookings too far ahead. Both are applied in slot calculation and re-checked at submission.
+**BR-10 Minimum notice and advance window.** A provider setting in hours (24 for the reference business) blocks bookings that start sooner, and a maximum advance window in days (90 for the reference business) blocks bookings too far ahead. Both are applied in slot calculation and re-checked at submission, together with the minimum payment window (BR-9). The public API exposes the resulting first and last bookable dates so the date picker can disable the rest.
 
 **BR-11 Booking limits.** Each email address or phone number may have at most 2 active Pending bookings, and the booking endpoint is rate-limited.
 
@@ -111,7 +111,7 @@ Key fields for each entity are listed below. The full design (types, constraints
 | Booking | id, reference (e.g. BK-000123), serviceId, clientName, clientEmail, clientPhone, startAt, endAt, occupiedUntil (endAt plus the buffer at booking time), priceAtBooking, depositAmount, depositDueAt, bookingTokenHash, bookingTokenCreatedAt, amountReceived, paymentVerifiedAt, paymentVerifiedBy, refundDue, refundedAt, cancelledAt, cancelledBy (client/admin), status, notes, createdAt |
 | PaymentProof | id, bookingId, storageKey, originalFilename, contentType, sizeBytes, sha256, status (Received/Accepted/Rejected), rejectionReason, uploadedAt, uploadedFromIp, reviewedAt, reviewedBy, fileDeletedAt |
 | Notification | id, bookingId, channel (email/sms), recipient, type, status, sentAt, error |
-| Setting | minNoticeHours, maxAdvanceDays, slotIntervalMinutes, bufferMinutes, depositPercent, depositRefundable, refundCutoffHours, depositHoldHours, timeZone, bankingDetails |
+| Setting | minNoticeHours, maxAdvanceDays, slotIntervalMinutes, bufferMinutes, depositPercent, depositRefundable, refundCutoffHours, depositHoldHours, minPaymentWindowHours, timeZone, bankingDetails, businessName, businessEmail, businessPhone |
 
 Relationships: Service 1—\* Booking; Booking 1—\* Notification; Booking 1—\* PaymentProof; User 1—\* PaymentProof (as reviewer). The `sha256` hash lets the owner spot the same file being reused across bookings.
 
@@ -128,7 +128,7 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 | payments | Deposit calculation, `PaymentProvider` interface, manual EFT verification, proof-of-payment upload, validation and review |
 | storage | `FileStorage` interface for saving, reading and deleting files; local-disk provider for development and tests, private cloud blob provider for production |
 | notifications | Email (SMS later) behind an interface; mock and real providers |
-| settings | Minimum notice, advance window, slot interval, buffer, deposit percentage, refund rule, deposit hold duration, time zone, banking details |
+| settings | Minimum notice, advance window, slot interval, buffer, deposit percentage, refund rule, deposit hold duration, minimum payment window, time zone, banking details, business name and contact details |
 | admin | Dashboard, calendar data, booking management and proof review endpoints |
 
 **Booking flow.** View services → select service → select date → availability check → select time → enter details → submit → server-side availability, notice and limit checks → on failure return error; otherwise create the booking (Pending if a deposit applies, else Confirmed) and its booking link → show the confirmation page → email the client (payment instructions with the booking link, or confirmation) and notify the administrator → client pays by EFT, then uploads proof through the booking link in the email (or sends it by email) → administrator is notified of the upload → owner checks the money is in the bank, reviews the proof and clicks Confirm payment, or extends the deadline while she checks → client receives confirmation. If the deadline passes before the owner confirms or extends it, the booking expires and the slot reopens. The client can cancel through the booking link at any point before the appointment.
@@ -141,18 +141,21 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 
 ## 8. API surface
 
+All paths are under `/api` (for example `GET /api/services`); pages, including the booking link `/booking/<token>`, are served from the site root.
+
 | Method and path | Access | Purpose |
 | --- | --- | --- |
 | `GET /services` | Public | Active services with deposit amounts |
 | `GET /availability?serviceId&date` | Public | Open slots for a service on a date |
 | `POST /bookings` | Public | Create booking (Pending if a deposit applies); returns the reference and deposit summary (the booking link is sent by email only) |
-| `GET /bookings/:reference` | Public (reference + email) | View own booking, including proof statuses |
+| `POST /bookings/:reference/lookup` | Public (reference + email, email in the request body) | View own booking, including proof statuses |
 | `POST /bookings/:reference/resend-booking-link` | Public (reference + email) | Issue a new booking link and email it; rate-limited |
 | `GET /booking/:token` | Public (booking link) | Booking summary, status and refund eligibility for the booking page |
 | `POST /booking/:token/proofs` | Public (booking link) | Upload a proof of payment (`multipart/form-data`, field `file`); rate-limited |
 | `POST /booking/:token/cancel` | Public (booking link) | Cancel the booking (Pending or Confirmed, before the appointment starts) |
 | `POST /admin/bookings/:id/booking-link` | Admin | Regenerate the booking link and email it to the client |
 | `POST /auth/login` | Public | Administrator login |
+| `POST /auth/logout` | Admin | Sign out |
 | `GET /admin/dashboard` | Admin | Dashboard figures |
 | `GET /admin/bookings`, `GET /admin/bookings/:id` | Admin | List and detail, including proofs |
 | `GET /admin/payment-proofs/:id/file` | Admin | Stream or download a proof file |
@@ -162,9 +165,9 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 | `PATCH /admin/bookings/:id/status` | Admin | Cancel, complete or mark no-show |
 | `POST /admin/bookings/:id/refund` | Admin | Record that a refund due has been paid |
 | `GET /admin/calendar?from&to` | Admin | Appointments for the calendar view |
-| `POST/PATCH/DELETE /admin/services` | Admin | Manage services |
+| `GET/POST /admin/services`, `PATCH/DELETE /admin/services/:id` | Admin | List (including inactive) and manage services |
 | `GET/PUT /admin/availability` | Admin | Working hours |
-| `GET/POST/DELETE /admin/blocked-times` | Admin | List, block and unblock time |
+| `GET/POST /admin/blocked-times`, `DELETE /admin/blocked-times/:id` | Admin | List, block and unblock time |
 | `GET/PATCH /admin/settings` | Admin | All settings in A-8 |
 
 Upload errors: `400` invalid or missing file, `404` booking link not valid (unknown, regenerated or inactive, all with the same message), `409` booking not Pending or proof limit reached, `413` file too large, `415` unsupported file type, `429` rate limit. The full API specification lives in `docs/api.md`.
