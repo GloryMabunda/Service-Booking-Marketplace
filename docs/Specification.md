@@ -1,8 +1,6 @@
 # Service Booking System — Specification
 
-*Version 0.7 · 9 October 2026 · Status: Draft for review*
-
-This specification is derived from the project README. Where the README is silent, content is marked **Proposed** so it can be accepted or changed.
+*Version 0.7 · 9 October 2026 *
 
 ## 1. Purpose
 
