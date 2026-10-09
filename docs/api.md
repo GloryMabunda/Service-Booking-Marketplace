@@ -821,6 +821,8 @@ Working hours (A-6), one entry per day of the week (1 = Monday … 7 = Sunday).
 
 Changes apply to the slots offered from then on. Existing bookings are not affected.
 
+**Errors:** only the common admin errors (`400 VALIDATION_FAILED` for a week that isn't exactly seven valid days).
+
 ### 7.14 Blocked times
 
 Block whole dates or time ranges (A-6).
@@ -891,6 +893,8 @@ All settings in A-8.
 | `businessPhone` | A phone number, or `null` |
 
 New settings apply to new bookings and future slot calculations only. Existing bookings keep their price, deposit, deadline and occupied time.
+
+**Errors:** only the common admin errors (`400 VALIDATION_FAILED` for any value outside the rules above, including a payment window longer than the deposit hold).
 
 ---
 
