@@ -117,7 +117,7 @@ Relationships: Service 1—\* Booking; Booking 1—\* Notification; Booking 1—
 
 ## 7. Architecture
 
-A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstrap/vanilla-JS frontend.
+A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstrap/vanilla-JS frontend. Every screen is wireframed in [`docs/wireframes/`](wireframes/README.md).
 
 | Module | Responsibility |
 | --- | --- |

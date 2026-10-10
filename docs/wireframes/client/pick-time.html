@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pick a time · Wireframe</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../assets/wireframe.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Client · 2 Date and time picker (C-2)</span><a class="ms-auto" href="../index.html">All screens</a></div>
+
+  <nav class="navbar border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="home.html">Make Up by Glory</a>
+      <div class="d-flex gap-3 small"><a href="services.html">Services</a><a href="lookup.html">Find my booking</a></div>
+    </div>
+  </nav>
+
+  <main class="container py-4" style="max-width: 48rem;">
+    <nav class="small mb-3"><a href="services.html"><i class="bi bi-arrow-left"></i> Services</a></nav>
+    <ol class="list-inline small text-secondary mb-3">
+      <li class="list-inline-item"><strong class="text-dark">1 Date and time</strong></li>
+      <li class="list-inline-item">› 2 Your details</li>
+      <li class="list-inline-item">› 3 Done</li>
+    </ol>
+
+    <div class="card mb-4">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div><strong>Soft Glam</strong><div class="small text-secondary">1h 30m · R650 · Deposit R325</div></div>
+        <a class="small" href="services.html">Change</a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-7">
+        <h1 class="h5">Choose a date</h1>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <button class="btn btn-sm btn-outline-secondary" disabled aria-label="Previous month"><i class="bi bi-chevron-left"></i></button>
+          <strong>October 2026</strong>
+          <button class="btn btn-sm btn-outline-secondary" aria-label="Next month"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="wf-month">
+          <div class="wf-dow">Mon</div><div class="wf-dow">Tue</div><div class="wf-dow">Wed</div><div class="wf-dow">Thu</div><div class="wf-dow">Fri</div><div class="wf-dow">Sat</div><div class="wf-dow">Sun</div>
+          <div></div><div></div><div></div>
+          <button disabled>1</button><button disabled>2</button><button disabled>3</button><button disabled>4</button>
+          <button disabled>5</button><button disabled>6</button><button disabled>7</button><button disabled>8</button><button disabled>9</button><button disabled>10</button><button>11</button>
+          <button>12</button><button class="is-selected">13</button><button>14</button><button>15</button><button>16</button><button>17</button><button>18</button>
+          <button>19</button><button>20</button><button>21</button><button>22</button><button>23</button><button>24</button><button>25</button>
+          <button>26</button><button>27</button><button>28</button><button>29</button><button>30</button><button>31</button>
+        </div>
+        <div class="wf-note">Dates outside <code>bookingWindow.firstDate</code>–<code>lastDate</code> (from <code>GET /api/services</code>) are disabled (#40). Here 1–10 October are disabled: today plus 24 h notice plus the 2 h payment window (BR-9, BR-10) means the first bookable start is Sunday 11 October at 16:00. The "previous" arrow is disabled before the first month; "next" stops at the last month (90 days).</div>
+      </div>
+
+      <div class="col-md-5">
+        <span class="wf-state">State: day with times</span>
+        <h2 class="h6">Tuesday 13 October</h2>
+        <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr;">
+          <button class="btn btn-outline-dark">09:00</button>
+          <button class="btn btn-outline-dark">13:00</button>
+        </div>
+        <p class="small text-secondary mt-2 mb-3">Times are South African time (SAST).</p>
+        <a class="btn btn-dark w-100" href="book.html">Continue with 09:00</a>
+        <div class="wf-note">Slots come from <code>GET /api/availability?serviceId&amp;date</code>. Choosing a time enables Continue. A loading spinner shows while slots load.</div>
+
+        <span class="wf-state">State: day with no times</span>
+        <h2 class="h6">Sunday 11 October</h2>
+        <div class="alert alert-secondary small mb-0">No times are available on this day. Please choose another date.</div>
+        <div class="wf-note">Shown when <code>slots</code> is empty: a non-working day, fully booked, blocked, or too soon (#40 "clear message").</div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
