@@ -1,6 +1,6 @@
 # API Specification
 
-*Service Booking System · REST API · for [Specification v1.0](Specification.md), section 8*
+*Service Booking System · REST API · for [Specification v1.0](Specification.md), section 8 (including the home page endpoints from C-9, A-10 and BR-16)*
 
 This document describes every endpoint: method, path, access, request, response and errors. Field names match the database design in [`database.md`](database.md), converted to `camelCase`.
 
@@ -27,6 +27,8 @@ This document describes every endpoint: method, path, access, request, response 
 | `GET /api/booking/:token` | Booking link | [5.1](#51-get-apibookingtoken) |
 | `POST /api/booking/:token/proofs` | Booking link | [5.2](#52-post-apibookingtokenproofs) |
 | `POST /api/booking/:token/cancel` | Booking link | [5.3](#53-post-apibookingtokencancel) |
+| `GET /api/site` | Public | [4.6](#46-get-apisite) |
+| `GET /media/:key` | Public | [4.7](#47-get-mediakey) |
 | `POST /api/auth/login` | Public | [6.1](#61-post-apiauthlogin) |
 | `POST /api/auth/logout` | Admin | [6.2](#62-post-apiauthlogout) |
 | `GET /api/admin/dashboard` | Admin | [7.1](#71-get-apiadmindashboard) |
@@ -51,6 +53,25 @@ This document describes every endpoint: method, path, access, request, response 
 | `DELETE /api/admin/blocked-times/:id` | Admin | [7.14](#714-blocked-times) |
 | `GET /api/admin/settings` | Admin | [7.15](#715-settings) |
 | `PATCH /api/admin/settings` | Admin | [7.15](#715-settings) |
+| `GET /api/admin/site-content` | Admin | [7.16](#716-site-content) |
+| `PATCH /api/admin/site-content` | Admin | [7.16](#716-site-content) |
+| `PUT /api/admin/site-content/images/:slot` | Admin | [7.16](#716-site-content) |
+| `DELETE /api/admin/site-content/images/:slot` | Admin | [7.16](#716-site-content) |
+| `GET /api/admin/gallery` | Admin | [7.17](#717-gallery) |
+| `POST /api/admin/gallery` | Admin | [7.17](#717-gallery) |
+| `PATCH /api/admin/gallery/:id` | Admin | [7.17](#717-gallery) |
+| `DELETE /api/admin/gallery/:id` | Admin | [7.17](#717-gallery) |
+| `PUT /api/admin/gallery/order` | Admin | [7.17](#717-gallery) |
+| `GET /api/admin/testimonials` | Admin | [7.18](#718-testimonials-and-faq) |
+| `POST /api/admin/testimonials` | Admin | [7.18](#718-testimonials-and-faq) |
+| `PATCH /api/admin/testimonials/:id` | Admin | [7.18](#718-testimonials-and-faq) |
+| `DELETE /api/admin/testimonials/:id` | Admin | [7.18](#718-testimonials-and-faq) |
+| `PUT /api/admin/testimonials/order` | Admin | [7.18](#718-testimonials-and-faq) |
+| `GET /api/admin/faqs` | Admin | [7.18](#718-testimonials-and-faq) |
+| `POST /api/admin/faqs` | Admin | [7.18](#718-testimonials-and-faq) |
+| `PATCH /api/admin/faqs/:id` | Admin | [7.18](#718-testimonials-and-faq) |
+| `DELETE /api/admin/faqs/:id` | Admin | [7.18](#718-testimonials-and-faq) |
+| `PUT /api/admin/faqs/order` | Admin | [7.18](#718-testimonials-and-faq) |
 
 ---
 
@@ -58,7 +79,7 @@ This document describes every endpoint: method, path, access, request, response 
 
 | Topic | Rule |
 | --- | --- |
-| Base path | Every endpoint is under `/api`. Pages are served from the site root, so the booking link `/booking/<token>` (BR-15) opens the booking page, and that page calls `GET /api/booking/<token>`. |
+| Base path | Every endpoint is under `/api`. Pages are served from the site root, so the booking link `/booking/<token>` (BR-15) opens the booking page, and that page calls `GET /api/booking/<token>`. The one exception is website photos, served as files from `/media/<key>` (BR-16). |
 | Format | Requests and responses are JSON (`Content-Type: application/json`), except the proof upload (`multipart/form-data`) and the proof download (the file itself). JSON request bodies are limited to 16 KB. |
 | Names | `camelCase` fields. Unknown fields in a request body are rejected with `400 VALIDATION_FAILED`. |
 | IDs | UUIDs, used in admin paths only. Clients only ever see booking references (`BK-000123`). |
@@ -140,7 +161,9 @@ Every error has the same shape:
 | 400 | `VALIDATION_FAILED` | Missing, malformed or out-of-range input | Any endpoint with input |
 | 400 | `SERVICE_UNAVAILABLE` | The service doesn't exist or is inactive (BR-5) | Availability, create booking |
 | 400 | `FILE_MISSING` | No file in the `file` field, or more than one file | Proof upload |
-| 400 | `FILE_INVALID` | The file is empty or couldn't be read | Proof upload |
+| 400 | `FILE_INVALID` | The file is empty or couldn't be read | Proof upload, photo uploads |
+| 400 | `CONSENT_REQUIRED` | Gallery upload without confirming permission from the people in the photos (BR-16) | Gallery upload |
+| 400 | `IMAGE_TOO_LARGE` | The image is more than 50 megapixels (BR-16) | Photo uploads |
 | 401 | `UNAUTHENTICATED` | No valid admin session | Every admin endpoint |
 | 401 | `INVALID_CREDENTIALS` | Wrong email or password (one message for both) | Login |
 | 403 | `FORBIDDEN` | Signed in, but the role isn't allowed | Every admin endpoint |
@@ -155,9 +178,10 @@ Every error has the same shape:
 | 409 | `PROOF_ALREADY_REVIEWED` | The proof was already accepted or rejected | Review proof |
 | 409 | `NO_REFUND_DUE` | The booking has no refund due, or it was already recorded | Record refund |
 | 409 | `SERVICE_NAME_TAKEN` | Another service already has this name | Create or edit service |
+| 409 | `GALLERY_FULL` | The gallery already has 200 photos (BR-16) | Gallery upload |
 | 410 | `FILE_DELETED` | The proof file was deleted by the 90-day retention rule; its details remain | Proof download |
-| 413 | `FILE_TOO_LARGE` | The file is over 5 MB. The upload is stopped as soon as the limit is passed | Proof upload |
-| 415 | `UNSUPPORTED_FILE_TYPE` | The file's content isn't PDF, JPEG or PNG, whatever its name says | Proof upload |
+| 413 | `FILE_TOO_LARGE` | The file is over the limit: 5 MB for proofs, 15 MB for photos. The upload is stopped as soon as the limit is passed | Proof upload, photo uploads |
+| 415 | `UNSUPPORTED_FILE_TYPE` | The file's content isn't an accepted type, whatever its name says: PDF, JPEG or PNG for proofs; JPEG, PNG or WebP for photos | Proof upload, photo uploads |
 | 429 | `RATE_LIMITED` | Too many requests; see `Retry-After` | Rate-limited endpoints |
 | 500 | `INTERNAL_ERROR` | Unexpected failure. Logged with a request ID; the message is generic | Any |
 
@@ -200,8 +224,11 @@ The numbers below are the initial values. They live in configuration so they can
 | `GET /api/booking/:token` | 30 per minute per IP |
 | `POST /api/booking/:token/proofs` | 5 per hour per booking, and 10 per hour per IP |
 | `POST /api/booking/:token/cancel` | 5 per hour per IP |
+| `GET /api/site` | 120 per minute per IP |
+| `GET /media/:key` | 600 per minute per IP |
 | `POST /api/auth/login` | 5 failed attempts per 15 minutes per IP and email, and 20 per hour per IP |
 | Admin endpoints | 300 per minute per session |
+| Admin photo uploads (gallery, hero, About) | 60 photos per hour per session |
 
 ---
 
@@ -377,6 +404,104 @@ Issue a new booking link and email it to the booking's email address (C-6, BR-15
 A new link is issued and sent only when the reference and email match a Pending or Confirmed booking whose appointment hasn't started. The email is the payment instructions email while Pending, or the confirmation email once Confirmed.
 
 **Errors:** `400 VALIDATION_FAILED`, `429`.
+
+### 4.6 `GET /api/site`
+
+Everything the home page needs in one call (C-9). Services still come from [`GET /api/services`](#41-get-apiservices). Cached for 60 seconds.
+
+**Response `200`**
+
+```json
+{
+  "business": { "name": "Make Up by Glory", "email": "bookings@example.com", "phone": "+27821234567" },
+  "content": {
+    "tagline": "Makeup for every occasion, from soft glam to bridal.",
+    "about": [
+      "Hi, I'm Glory. I've been doing makeup for weddings, matric dances and special occasions for eight years.",
+      "I travel to you, bringing everything needed for a flawless, long-lasting look."
+    ],
+    "heroImage": {
+      "alt": "Bride with soft glam makeup",
+      "large": { "url": "/media/3f9c2a7e5b1d4c8e9a0f6b2d7c1e4a90.webp", "width": 1600, "height": 1067 },
+      "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp", "width": 480, "height": 320 }
+    },
+    "aboutImage": null,
+    "location": { "type": "travel", "text": "Pretoria East and Centurion" },
+    "social": {
+      "whatsapp": { "number": "+27821234567", "url": "https://wa.me/27821234567" },
+      "instagram": "https://instagram.com/makeupbyglory",
+      "facebook": null,
+      "tiktok": null
+    }
+  },
+  "workingHours": {
+    "timeZone": "Africa/Johannesburg",
+    "days": [
+      { "dayOfWeek": 1, "isWorkingDay": true, "startTime": "09:00", "endTime": "17:00" },
+      { "dayOfWeek": 7, "isWorkingDay": false, "startTime": null, "endTime": null }
+    ]
+  },
+  "policies": {
+    "depositPercent": "50.00",
+    "depositHoldHours": 24,
+    "minPaymentWindowHours": 2,
+    "minNoticeHours": 24,
+    "maxAdvanceDays": 90,
+    "depositRefundable": true,
+    "refundCutoffHours": 24,
+    "text": [
+      "A 50% deposit secures your booking. You'll get banking details by email.",
+      "Pay within 24 hours of booking (sooner for appointments in the next two days), or the booking expires and the time is released.",
+      "Your booking is confirmed once the deposit reflects in our account.",
+      "Book at least 24 hours ahead, and up to 90 days ahead.",
+      "Cancel at least 24 hours before your appointment for a full deposit refund."
+    ]
+  },
+  "gallery": [
+    {
+      "id": "c4e8a1f2-6b3d-4e9a-8c7f-1d2e3f4a5b6c",
+      "caption": "Bridal, September",
+      "alt": "Bride with long-wear bridal makeup",
+      "service": { "id": "7a1b2c3d-4e5f-4a6b-9c8d-0e1f2a3b4c5d", "name": "Bridal Makeup" },
+      "large": { "url": "/media/5d2e8f1a3c6b4e9d7a0c1b2e3f4d5a6b.webp", "width": 1200, "height": 1600 },
+      "thumb": { "url": "/media/9e1d4c7b2a5f4d8e6c3b0a1f2e3d4c5b.webp", "width": 360, "height": 480 }
+    }
+  ],
+  "testimonials": [
+    { "clientName": "Lerato", "quote": "I felt like myself, just more glowing.", "service": { "id": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10", "name": "Soft Glam" } }
+  ],
+  "faqs": [
+    { "question": "Do you travel to me?", "answer": "Yes, within Pretoria East and Centurion. Further away by arrangement." }
+  ]
+}
+```
+
+| Field | Rule |
+| --- | --- |
+| `content.about` | The About text split into paragraphs at blank lines. Plain text: the page inserts it as text, never as HTML |
+| `content.heroImage`, `aboutImage` | `null` when not set. `alt` falls back to the business name |
+| `content.location` | `null` when not set; `type` is `travel` or `studio` |
+| `content.social` | Each link `null` when not set |
+| `workingHours.days` | All seven days, from Availability (A-6). The page groups days with the same hours |
+| `policies.text` | Sentences generated from settings, in this order, so they always match the real rules. Deposit sentences are left out when the deposit is 0%; the refund sentence reads "Deposits aren't refundable." when `depositRefundable` is `false` |
+| `gallery` | Visible items in display order (at most 200). `service` is `null` for untagged photos. Thumbnail sizes keep the large version's proportions |
+| `testimonials`, `faqs` | Visible items in display order |
+
+**Errors:** `429`.
+
+### 4.7 `GET /media/:key`
+
+A website photo (BR-16). Not under `/api`, because it returns a file. `:key` is a large or thumbnail key from `GET /api/site`.
+
+**Response `200`**: the WebP image, with:
+
+- `Content-Type: image/webp`
+- `Cache-Control: public, max-age=31536000, immutable` (keys are random and never reused, so a key always means the same file)
+- `X-Content-Type-Options: nosniff`
+
+Only keys in the `images` table are served, from the public storage area. Proof-of-payment files are in the private area and can never be reached here.
+
+**Errors:** `404 NOT_FOUND` (unknown or deleted key), `429`.
 
 ---
 
@@ -896,6 +1021,121 @@ New settings apply to new bookings and future slot calculations only. Existing b
 
 **Errors:** only the common admin errors (`400 VALIDATION_FAILED` for any value outside the rules above, including a payment window longer than the deposit hold).
 
+
+### Photo uploads
+
+The hero, About and gallery uploads share the same processing (BR-16): `multipart/form-data`, type checked from the file's content (JPEG, PNG or WebP), at most 15 MB and 50 megapixels, rotated upright, all metadata removed, saved as a large WebP (1600 px) and a thumbnail (480 px). The original isn't kept.
+
+| Status | Code | Cause |
+| --- | --- | --- |
+| 400 | `FILE_MISSING`, `FILE_INVALID` | No file, or a file that can't be read as an image |
+| 400 | `IMAGE_TOO_LARGE` | More than 50 megapixels |
+| 400 | `CONSENT_REQUIRED` | Gallery upload without `consent=true` |
+| 409 | `GALLERY_FULL` | The gallery already has 200 photos |
+| 413 | `FILE_TOO_LARGE` | Over 15 MB |
+| 415 | `UNSUPPORTED_FILE_TYPE` | Not JPEG, PNG or WebP by content |
+| 429 | `RATE_LIMITED` | More than 60 photos in an hour |
+
+**`AdminImage`**: `{ "id", "altText", "width", "height", "large": { "url" }, "thumb": { "url" }, "duplicateOf": ["gallery item ids with the same SHA-256"], "uploadedAt" }`.
+
+### 7.16 Site content
+
+About, contact and area, and the hero and About photos (A-10).
+
+**`GET /api/admin/site-content`** → `200`:
+
+```json
+{
+  "content": {
+    "tagline": "Makeup for every occasion, from soft glam to bridal.",
+    "aboutText": "Hi, I'm Glory...\n\nI travel to you...",
+    "heroImage": { "id": "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e", "altText": "Bride with soft glam makeup", "width": 1600, "height": 1067, "large": { "url": "/media/3f9c2a7e5b1d4c8e9a0f6b2d7c1e4a90.webp" }, "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp" }, "duplicateOf": [], "uploadedAt": "2026-10-10T08:00:00Z" },
+    "aboutImage": null,
+    "locationType": "travel",
+    "locationText": "Pretoria East and Centurion",
+    "whatsappNumber": "+27821234567",
+    "instagramUrl": "https://instagram.com/makeupbyglory",
+    "facebookUrl": null,
+    "tiktokUrl": null,
+    "updatedAt": "2026-10-10T08:00:00Z"
+  }
+}
+```
+
+**`PATCH /api/admin/site-content`** accepts any subset of the text fields and returns the full content.
+
+| Field | Rule |
+| --- | --- |
+| `tagline` | At most 120 characters, or `null` |
+| `aboutText` | At most 5,000 characters of plain text; blank lines separate paragraphs |
+| `locationType`, `locationText` | Set together: `travel` or `studio` with 1 to 200 characters, or both `null` |
+| `whatsappNumber` | A phone number in any common format, stored in E.164; or `null` |
+| `instagramUrl`, `facebookUrl`, `tiktokUrl` | An `https://` link on that network's domain (`instagram.com`, `facebook.com`, `tiktok.com`); or `null` |
+| `heroImageAlt`, `aboutImageAlt` | At most 250 characters; updates the photo's alt text |
+
+**`PUT /api/admin/site-content/images/:slot`**, where `:slot` is `hero` or `about`: upload a photo (field `file`, optional field `altText`) to replace the current one. The old photo's files and row are deleted. Response `200 { "content": ... }`. Errors: see [Photo uploads](#photo-uploads); `404 NOT_FOUND` for an unknown slot.
+
+**`DELETE /api/admin/site-content/images/:slot`** removes the photo and its files. Response `204`.
+
+### 7.17 Gallery
+
+Gallery photos (A-10, BR-16).
+
+**`GET /api/admin/gallery`** → `200 { "items": [GalleryItem], "count": 42, "limit": 200 }`, all items including hidden ones, in display order.
+
+**`GalleryItem`**: `{ "id", "caption", "service": { "id", "name" } | null, "isVisible", "position", "image": AdminImage, "consentConfirmedAt", "consentConfirmedBy": { "email" }, "createdAt" }`.
+
+**`POST /api/admin/gallery`**: `multipart/form-data` with 1 to 10 files in the field `files`, the field `consent=true`, and optionally `serviceId` to tag them all. Each file is processed on its own, so one bad file doesn't stop the others. New items are added at the end, visible.
+
+**Response `201`**:
+
+```json
+{
+  "results": [
+    { "filename": "bride-sept.jpg", "status": "created", "item": { "...": "GalleryItem" } },
+    { "filename": "big-scan.png", "status": "failed", "error": { "code": "IMAGE_TOO_LARGE", "message": "This image is more than 50 megapixels. Please upload a smaller version." } }
+  ]
+}
+```
+
+The request as a whole fails only for `400 CONSENT_REQUIRED`, `400 FILE_MISSING` (no files, or more than 10), `409 GALLERY_FULL` (not enough room for all the files) or `429`. Per-file errors are the [photo upload](#photo-uploads) codes.
+
+**`PATCH /api/admin/gallery/:id`** accepts `caption` (at most 200 characters or `null`), `altText` (at most 250 or `null`), `serviceId` (a service or `null`) and `isVisible`. Response `200 { "item": GalleryItem }`. Errors: `404 NOT_FOUND`.
+
+**`DELETE /api/admin/gallery/:id`** deletes the item, its image row and both files. Response `204`. Errors: `404 NOT_FOUND`.
+
+**`PUT /api/admin/gallery/order`** sets the display order: `{ "ids": [...] }` listing every gallery item exactly once, first to last. Response `200 { "items": [GalleryItem] }`. Errors: `400 VALIDATION_FAILED` if the list is missing, repeats or adds items.
+
+### 7.18 Testimonials and FAQ
+
+Both work the same way (A-10).
+
+| Endpoint | Request | Response |
+| --- | --- | --- |
+| `GET /api/admin/testimonials` | — | `200 { "items": [Testimonial] }`, all items in display order |
+| `POST /api/admin/testimonials` | `{ "clientName", "quote", "serviceId", "isVisible" }` | `201 { "item": Testimonial }`, added at the end |
+| `PATCH /api/admin/testimonials/:id` | Any of the same fields | `200 { "item": Testimonial }` |
+| `DELETE /api/admin/testimonials/:id` | — | `204` |
+| `PUT /api/admin/testimonials/order` | `{ "ids": [...] }`, every item exactly once | `200 { "items": [Testimonial] }` |
+| `GET /api/admin/faqs` | — | `200 { "items": [Faq] }` |
+| `POST /api/admin/faqs` | `{ "question", "answer", "isVisible" }` | `201 { "item": Faq }` |
+| `PATCH /api/admin/faqs/:id` | Any of the same fields | `200 { "item": Faq }` |
+| `DELETE /api/admin/faqs/:id` | — | `204` |
+| `PUT /api/admin/faqs/order` | `{ "ids": [...] }`, every item exactly once | `200 { "items": [Faq] }` |
+
+**`Testimonial`**: `{ "id", "clientName", "quote", "service": { "id", "name" } | null, "isVisible", "position", "createdAt", "updatedAt" }`. **`Faq`**: `{ "id", "question", "answer", "isVisible", "position", "createdAt", "updatedAt" }`.
+
+| Field | Rule |
+| --- | --- |
+| `clientName` | 1 to 60 characters |
+| `quote` | 1 to 500 characters of plain text |
+| `serviceId` | A service, or `null` |
+| `question` | 1 to 200 characters |
+| `answer` | 1 to 2,000 characters of plain text |
+| `isVisible` | Boolean, default `true` |
+
+**Errors:** `404 NOT_FOUND`; `400 VALIDATION_FAILED` for an order list that is missing, repeats or adds items.
+
 ---
 
 ## 8. Changes to the specification
@@ -913,3 +1153,4 @@ Writing this document settled some details that spec section 8 left open. Sectio
 | `GET /api/services` returns `business` and `bookingWindow`; the booking page returns `business` | The date picker must disable dates outside the window (C-2, #40), and the pages must show the business details and the fallback email for proof (C-1, C-5) without hard-coding them. |
 | New settings `minPaymentWindowHours`, `businessName`, `businessEmail`, `businessPhone` | See BR-9 and A-8, updated in the spec. |
 | Added `410 FILE_DELETED` for proof downloads | Proof files are deleted after 90 days (BR-14) while their records remain. |
+| Home page endpoints (`GET /api/site`, `GET /media/:key`, site content, gallery, testimonials, FAQ) | Added with C-9, A-10 and BR-16 (#102). `/media/` sits outside `/api` because it serves files. |
