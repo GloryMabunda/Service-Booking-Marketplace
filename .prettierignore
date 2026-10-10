@@ -1,0 +1,11 @@
+# Hand-formatted documentation, wireframes and the style guide
+docs/
+*.md
+
+# Generated files
+dist/
+coverage/
+package-lock.json
+
+# GitHub workflows and scripts
+.github/
