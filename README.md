@@ -544,9 +544,10 @@ Project documentation is maintained in the `docs/` directory.
 | Document | Status |
 |---|---|
 | [Specification](docs/Specification.md) | ✅ v1.0 approved |
-| Database design (`docs/database.md`) | Planned (M0) |
-| API specification (`docs/api.md`) | Planned (M0) |
-| Wireframes (`docs/wireframes/`) | Planned (M0) |
+| [Database design](docs/database.md) | ✅ Done |
+| [API specification](docs/api.md) | ✅ Done |
+| [Wireframes](docs/wireframes/README.md) | ✅ Done |
+| [Style guide](docs/style-guide.md) | ✅ v1 (colours, fonts, components, logo) |
 | Email content (`docs/emails.md`) | Planned (M0) |
 | Security and POPIA (`docs/security.md`) | Planned (M7) |
 | Deployment (`docs/deployment.md`) | Planned (M8) |
