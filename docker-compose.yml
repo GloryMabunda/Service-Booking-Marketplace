@@ -1,0 +1,39 @@
+# Local PostgreSQL for development and automated tests (issue #17).
+#
+#   npm run db:up      start it in the background and wait until it is ready
+#   npm run db:down    stop it (data is kept)
+#   npm run db:reset   stop it, delete all data and start again
+#
+# Connection details (local only, never used in production):
+#   development  postgres://booking:booking@localhost:5432/booking
+#   tests        postgres://booking:booking@localhost:5432/booking_test
+# Set DB_PORT to use a different port on your computer, e.g. DB_PORT=5433.
+
+name: service-booking
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking
+      POSTGRES_DB: booking
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # Runs once, when the data volume is first created.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    # -h 127.0.0.1: during first-time setup PostgreSQL only listens on its
+    # socket, so this stays unhealthy until the init scripts have finished.
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U booking -d booking_test']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  db-data:

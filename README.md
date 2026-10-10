@@ -316,7 +316,9 @@ The administrator can also switch to a calendar view to manage appointments and 
 
 ## Database
 
-- PostgreSQL (run locally with Docker Compose)
+- PostgreSQL 17 (run locally with Docker Compose)
+
+With Docker Desktop running, `npm run db:up` starts PostgreSQL with two databases: `booking` for development and `booking_test` for automated tests, both with the `btree_gist` extension. `npm run db:down` stops it, `npm run db:reset` wipes and recreates it, and `npm run db:psql` opens a SQL prompt. Connection details are in [`docker-compose.yml`](docker-compose.yml).
 
 ## Libraries
 
@@ -647,6 +649,8 @@ Service-Booking-Marketplace/
 │
 ├── docs/
 │
+├── docker/postgres/init/   (database setup run on first start)
+│
 ├── uploads/          (local proof-of-payment files, git-ignored)
 ├── .env.example
 ├── .gitignore
@@ -660,7 +664,7 @@ Service-Booking-Marketplace/
 
 # 🚧 Project Status
 
-**Currently in development.** The specification is approved (v1.0); design work (M0) is in progress.
+**Currently in development.** Requirements and design (M0) are complete; the foundation (M1) is in progress.
 
 The project is being developed incrementally, with the architecture, database design, implementation, testing, and deployment documented throughout the development process.
 
