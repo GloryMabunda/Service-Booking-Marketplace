@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home · Wireframe</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../assets/wireframe.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Client · 0 Home (C-1, C-9)</span><a class="ms-auto" href="../index.html">All screens</a></div>
+
+  <nav class="navbar navbar-expand-md border-bottom sticky-top bg-white" style="top: 2.5rem;">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="home.html">Make Up by Glory</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-label="Menu"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto small">
+          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+          <li class="nav-item"><a class="nav-link" href="#policies">Booking info</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="lookup.html">Find my booking</a></li>
+          <li class="nav-item ms-md-2"><a class="btn btn-dark btn-sm mt-1 mt-md-0" href="services.html">Book now</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="position-relative">
+    <div class="wf-box rounded-0" style="min-height: 22rem;">Hero photo (set by the owner)</div>
+    <div class="position-absolute top-50 start-50 translate-middle text-center bg-white bg-opacity-75 p-3 rounded" style="max-width: 32rem;">
+      <h1 class="h3 mb-1">Make Up by Glory</h1>
+      <p class="mb-3">Makeup for every occasion, from soft glam to bridal.</p>
+      <a class="btn btn-dark" href="services.html">Book now</a>
+    </div>
+  </header>
+  <div class="container" style="max-width: 60rem;">
+    <div class="wf-note">Everything on this page comes from <code>GET /api/site</code> (owner-managed in the portal's Website section) and <code>GET /api/services</code>. Any section with no content is hidden. Navigation links scroll to the sections; "Book now" goes to the services list.</div>
+  </div>
+
+  <main class="container" style="max-width: 60rem;">
+    <!-- About -->
+    <section id="about" class="py-4 border-bottom">
+      <div class="row g-4 align-items-center">
+        <div class="col-md-5"><div class="wf-box" style="min-height: 14rem;">Portrait photo</div></div>
+        <div class="col-md-7">
+          <h2 class="h4">About</h2>
+          <p>Hi, I'm Glory. I've been doing makeup for weddings, matric dances and special occasions for eight years.</p>
+          <p class="mb-0">I travel to you, bringing everything needed for a flawless, long-lasting look.</p>
+        </div>
+      </div>
+      <div class="wf-note">About text is plain text; line breaks become paragraphs (never HTML).</div>
+    </section>
+
+    <!-- Services preview -->
+    <section id="services" class="py-4 border-bottom">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <h2 class="h4 mb-0">Services</h2>
+        <a class="small" href="services.html">All services and booking</a>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4"><div class="card h-100"><div class="wf-box rounded-0 rounded-top" style="min-height: 8rem;">Photo</div><div class="card-body"><h3 class="h6 mb-1">Soft Glam</h3><div class="small mb-2">1h 30m · R650 · Deposit R325</div><div class="d-flex gap-2"><a class="btn btn-dark btn-sm" href="pick-time.html">Book</a><a class="btn btn-outline-dark btn-sm" href="#gallery">See photos</a></div></div></div></div>
+        <div class="col-md-4"><div class="card h-100"><div class="wf-box rounded-0 rounded-top" style="min-height: 8rem;">Photo</div><div class="card-body"><h3 class="h6 mb-1">Full Glam</h3><div class="small mb-2">2h · R850 · Deposit R425</div><div class="d-flex gap-2"><a class="btn btn-dark btn-sm" href="pick-time.html">Book</a><a class="btn btn-outline-dark btn-sm" href="#gallery">See photos</a></div></div></div></div>
+        <div class="col-md-4"><div class="card h-100"><div class="wf-box rounded-0 rounded-top" style="min-height: 8rem;">Photo</div><div class="card-body"><h3 class="h6 mb-1">Bridal Makeup</h3><div class="small mb-2">2h 30m · R1,200 · Deposit R600</div><div class="d-flex gap-2"><a class="btn btn-dark btn-sm" href="pick-time.html">Book</a><a class="btn btn-outline-dark btn-sm" href="#gallery">See photos</a></div></div></div></div>
+      </div>
+      <div class="wf-note">The card photo is the first gallery photo tagged with that service. "See photos" scrolls to the gallery with that service's filter selected.</div>
+    </section>
+
+    <!-- Gallery -->
+    <section id="gallery" class="py-4 border-bottom">
+      <h2 class="h4">Gallery</h2>
+      <div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Filter by service">
+        <input type="radio" class="btn-check" name="gf" id="g0" checked><label class="btn btn-sm btn-outline-dark" for="g0">All</label>
+        <input type="radio" class="btn-check" name="gf" id="g1"><label class="btn btn-sm btn-outline-dark" for="g1">Bridal</label>
+        <input type="radio" class="btn-check" name="gf" id="g2"><label class="btn btn-sm btn-outline-dark" for="g2">Full Glam</label>
+        <input type="radio" class="btn-check" name="gf" id="g3"><label class="btn btn-sm btn-outline-dark" for="g3">Soft Glam</label>
+      </div>
+      <div class="row g-2">
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+        <div class="col-6 col-md-3"><div class="wf-box" style="aspect-ratio: 4/5;">Photo</div></div>
+      </div>
+      <div class="text-center mt-3"><button class="btn btn-outline-dark btn-sm">Show more</button></div>
+      <div class="wf-note">Thumbnails (480 px) load lazily; tapping a photo opens the large version (1600 px) in a lightbox with its caption, swipeable on a phone. Filters show only services that have photos. Every photo has alt text. Photos are served from <code>/media/...</code> with metadata already removed.</div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="py-4 border-bottom">
+      <h2 class="h4">Kind words</h2>
+      <div class="row g-3">
+        <div class="col-md-4"><figure class="card card-body h-100 mb-0"><blockquote class="mb-2 small">"I felt like myself, just more glowing. It lasted all night!"</blockquote><figcaption class="small text-secondary">Lerato · Soft Glam</figcaption></figure></div>
+        <div class="col-md-4"><figure class="card card-body h-100 mb-0"><blockquote class="mb-2 small">"Calm, on time, and my bridal look was perfect in every photo."</blockquote><figcaption class="small text-secondary">Naledi K. · Bridal Makeup</figcaption></figure></div>
+        <div class="col-md-4"><figure class="card card-body h-100 mb-0"><blockquote class="mb-2 small">"Booking was easy and the deposit process was clear."</blockquote><figcaption class="small text-secondary">Thandi · Full Glam</figcaption></figure></div>
+      </div>
+      <div class="wf-note">Owner-entered quotes she has permission to show (first name or initial). Clients can't post reviews; that stays out of scope.</div>
+    </section>
+
+    <!-- Policies and FAQ -->
+    <section id="policies" class="py-4 border-bottom">
+      <h2 class="h4">Booking information</h2>
+      <ul class="small">
+        <li>A <strong>50% deposit</strong> secures your booking. You'll get banking details by email.</li>
+        <li>Pay within <strong>24 hours</strong> of booking (sooner for appointments in the next two days), or the booking expires and the time is released.</li>
+        <li>Your booking is confirmed once the deposit reflects in our account.</li>
+        <li>Book at least <strong>24 hours</strong> ahead, and up to <strong>90 days</strong> ahead.</li>
+        <li>Cancel at least <strong>24 hours</strong> before your appointment for a full deposit refund.</li>
+      </ul>
+      <div class="wf-note">These sentences are generated from settings (deposit %, time to pay, minimum notice, advance window, refund rule), so they always match the real rules. When the deposit is 0%, the deposit lines are left out.</div>
+
+      <h3 class="h6 mt-3">Questions</h3>
+      <div class="accordion" id="faq">
+        <div class="accordion-item"><h4 class="accordion-header"><button class="accordion-button small" type="button" data-bs-toggle="collapse" data-bs-target="#f1">Do you travel to me?</button></h4><div id="f1" class="accordion-collapse collapse show" data-bs-parent="#faq"><div class="accordion-body small">Yes, within Pretoria East and Centurion. Further away by arrangement.</div></div></div>
+        <div class="accordion-item"><h4 class="accordion-header"><button class="accordion-button small collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f2">Should I arrive with a clean face?</button></h4><div id="f2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Yes, please moisturise but skip foundation.</div></div></div>
+        <div class="accordion-item"><h4 class="accordion-header"><button class="accordion-button small collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f3">Do you do trials for brides?</button></h4><div id="f3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Yes, contact me to arrange a trial before your wedding day.</div></div></div>
+      </div>
+    </section>
+
+    <!-- Hours, area, contact -->
+    <section id="contact" class="py-4">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h2 class="h6">Hours</h2>
+          <table class="table table-sm small mb-0">
+            <tr><td>Mon–Fri</td><td>09:00–17:00</td></tr>
+            <tr><td>Saturday</td><td>08:00–14:00</td></tr>
+            <tr><td>Sunday</td><td>Closed</td></tr>
+          </table>
+          <div class="wf-note">From Availability (A-6); consecutive days with the same hours are grouped.</div>
+        </div>
+        <div class="col-md-4">
+          <h2 class="h6">Where</h2>
+          <p class="small mb-0"><i class="bi bi-geo-alt"></i> I travel to you in Pretoria East and Centurion.</p>
+          <div class="wf-note">Owner enters either a studio address or a travel area. No embedded map, so no third-party scripts on the page.</div>
+        </div>
+        <div class="col-md-4">
+          <h2 class="h6">Contact</h2>
+          <ul class="list-unstyled small">
+            <li><i class="bi bi-whatsapp"></i> <a href="#">WhatsApp 082 123 4567</a></li>
+            <li><i class="bi bi-instagram"></i> <a href="#">@makeupbyglory</a></li>
+            <li><i class="bi bi-envelope"></i> <a href="#">bookings@example.com</a></li>
+          </ul>
+          <a class="btn btn-dark btn-sm" href="services.html">Book now</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-top py-3 small text-secondary">
+    <div class="container" style="max-width: 60rem;">© Make Up by Glory · <a href="lookup.html">Find my booking</a> · Privacy notice</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Wireframes
 
-Low-fidelity, clickable wireframes for every v1 screen (#12). They show layout, content, states and flow, not visual design: grey boxes, sample data, and yellow notes explaining behaviour with links to the [specification](../Specification.md) and [API](../api.md).
+Low-fidelity, clickable wireframes for every v1 screen (#12). C-9 and A-10 (home page and Website section) are being added to the specification in #102. They show layout, content, states and flow, not visual design: grey boxes, sample data, and yellow notes explaining behaviour with links to the [specification](../Specification.md) and [API](../api.md).
 
 ## Viewing them
 
@@ -15,7 +15,8 @@ The wireframes are plain HTML pages using Bootstrap from a CDN, so they need a b
 
 | # | Screen | File | Covers | States shown |
 | --- | --- | --- | --- | --- |
-| 1 | Services | [client/services.html](client/services.html) | C-1, BR-5, BR-7 | Service list with deposits; business details from settings |
+| 0 | Home | [client/home.html](client/home.html) | C-1, C-9 | Hero with Book now; About; services preview; gallery with service filter; testimonials; booking policies generated from settings; FAQ; hours, area and contact |
+| 1 | Services | [client/services.html](client/services.html) | C-1, BR-5, BR-7 | Full service list with deposits; where every Book now lands |
 | 2 | Date and time picker | [client/pick-time.html](client/pick-time.html) | C-2, BR-9, BR-10 | Dates outside the booking window disabled; day with times; day with no times |
 | 3 | Booking form | [client/book.html](client/book.html) | C-3, C-4, BR-11 | Validation error; time just taken (`409`); booking limit reached |
 | 4 | Confirmation | [client/confirmation.html](client/confirmation.html) | C-5 | Pending with payment steps; Confirmed when no deposit applies |
@@ -34,12 +35,14 @@ The wireframes are plain HTML pages using Bootstrap from a CDN, so they need a b
 | 6 | Availability | [admin/availability.html](admin/availability.html) | A-6 | Weekly hours; blocked times; block overlapping existing bookings |
 | 7 | Settings | [admin/settings.html](admin/settings.html) | A-8 | All settings grouped: business, booking rules, deposits and refunds, banking |
 | 8 | Calendar | [admin/calendar.html](admin/calendar.html) | A-7 | Week view; Pending, Confirmed and blocked shown differently |
+| 9 | Website | [admin/website.html](admin/website.html) | A-10 | Tabs for About and hero photo, contact and area, gallery (upload with consent, caption, service tag, reorder, hide), testimonials, FAQ |
 
 ## Main flows
 
-- **Book:** Services → Date and time → Booking form → Confirmation
+- **Book:** Home → Book now → Services → Date and time → Booking form → Confirmation
 - **Pay:** Booking page (from the email link) → upload proof → admin Booking detail → Confirm payment
 - **Cancel:** Booking page → Cancel booking → confirm
+- **Update the website:** admin Website → About, gallery, testimonials, FAQ → View site
 - **Find a booking:** Find my booking → details → email me a new booking link
 
 ## Conventions
