@@ -379,7 +379,7 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 | `id` | `smallint` | `1` | Always 1 |
 | `min_notice_hours` | `integer` | 24 | `>= 0` (BR-10) |
 | `max_advance_days` | `integer` | 90 | `> 0` (BR-10) |
-| `slot_interval_minutes` | `integer` | 120 | `> 0` (BR-13; see open question 1) |
+| `slot_interval_minutes` | `integer` | 60 | `> 0` (BR-13; decided in #14) |
 | `buffer_minutes` | `integer` | 60 | `>= 0` (BR-13) |
 | `deposit_percent` | `numeric(5,2)` | 50 | 0 to 100 (BR-7). 0 means no deposit |
 | `deposit_refundable` | `boolean` | `true` | (BR-12) |
@@ -748,7 +748,7 @@ CREATE TABLE settings (
   id                    smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   min_notice_hours      integer NOT NULL DEFAULT 24 CHECK (min_notice_hours >= 0),
   max_advance_days      integer NOT NULL DEFAULT 90 CHECK (max_advance_days > 0),
-  slot_interval_minutes integer NOT NULL DEFAULT 120 CHECK (slot_interval_minutes > 0),
+  slot_interval_minutes integer NOT NULL DEFAULT 60 CHECK (slot_interval_minutes > 0),
   buffer_minutes        integer NOT NULL DEFAULT 60 CHECK (buffer_minutes >= 0),
   deposit_percent       numeric(5,2) NOT NULL DEFAULT 50 CHECK (deposit_percent BETWEEN 0 AND 100),
   deposit_refundable    boolean NOT NULL DEFAULT true,
