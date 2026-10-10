@@ -763,7 +763,7 @@ One booking with its proofs (A-3).
 
 ### 7.4 `POST /api/admin/bookings/:id/confirm-payment`
 
-Record the amount received and confirm the booking, after the owner has seen the money in her bank account (A-4, BR-8). Records who confirmed and when. Goes through the `PaymentProvider` interface (manual EFT in v1). The client is emailed a confirmation.
+Record the amount received and confirm the booking, after the owner has seen the money in her bank account (A-4, BR-8). Records who confirmed and when. Goes through the `PaymentProvider` interface (manual EFT in v1). A fresh booking link is issued (the previous one stops working) and sent in the client's confirmation email, with the refund deadline (BR-15).
 
 **Request**
 

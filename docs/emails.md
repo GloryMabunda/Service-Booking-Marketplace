@@ -23,7 +23,7 @@ The subject, preview text and body of each email the system sends. The notificat
 | Sender | From: `{{business.name}} <bookings address>`. Reply-To: `{{business.email}}`, so a client's reply reaches the owner. |
 | Format | HTML following the [style guide](style-guide.md) (logo, white background, magenta links, orange button for the main action), with a plain-text version of the same words. Width at most 600 px; readable on a phone. |
 | Dates and times | Business time zone, written out: "Tuesday 13 October 2026 at 09:00". Times as `HH:mm`. Money as "R325" or "R1,200" (no cents unless there are cents). |
-| Booking link | Appears **only** in an email sent at the moment the link is created: payment instructions, the no-deposit confirmation, and a resent link (BR-15). Only the link's hash is stored, so later emails can't include it; they point to the booking details page instead. The link is never shown in owner emails, logs or the notification history. |
+| Booking link | Appears **only** in an email sent at the moment the link is created: payment instructions, both booking confirmations (a fresh link is issued when payment is confirmed), and a resent link (BR-15). Only the link's hash is stored, so other emails can't include it; they point to the booking details page instead. The link is never shown in owner emails, logs or the notification history. |
 | Personal data | Only what the recipient needs (POPIA). Client emails never show other clients' details; owner emails show the client's name, email and phone. |
 | Transactional only | These are service emails about a booking the client made, so they carry no marketing and need no unsubscribe link. |
 | Failure | A failed send is recorded on the notification and never blocks the booking (spec section 7). |
@@ -168,10 +168,15 @@ your booking is confirmed.
 
 The balance of {{booking.balance}} is payable on the day.
 
-Need to cancel? Cancel at least {{refund.cutoffHours}} hours before your
-appointment (by {{refund.cutoff}}) and your deposit will be refunded. Use the booking link in
-your payment instructions email, or get a new link from your booking details
-page: {{site.lookupUrl}}
+Plans changed? Cancel by {{refund.cutoff}} (at least {{refund.cutoffHours}}
+hours before your appointment) and your deposit of
+{{payment.amountReceived}} will be refunded.
+
+[Button: View or cancel my booking] → {{booking.link}}
+
+This is your private booking link; it replaces the one in your payment
+instructions email, which no longer works. Please keep this email and don't
+share the link.
 
 I'm looking forward to seeing you!
 Glory
@@ -179,7 +184,7 @@ Glory
 [Client footer]
 ```
 
-**Notes:** No booking link here: it can't be retrieved after it's created (section 1). The refund sentence follows the settings: when deposits aren't refundable it reads "Please note that deposits aren't refundable." and the cut-off text is left out; when the cut-off has already passed it reads "Cancelling now won't refund your deposit."
+**Notes:** Confirming payment issues a fresh booking link (BR-15), so this email can carry it and the client always has a working cancel link in their latest email. The refund sentence follows the settings: when deposits aren't refundable it reads "Please note that deposits aren't refundable." and the cut-off text is left out; when the cut-off has already passed it reads "Cancelling now won't refund your deposit."
 
 #### b) No deposit needed
 
@@ -416,7 +421,7 @@ The time has been released for other bookings.
 | Proof uploaded | — | 5.2 New proof of payment |
 | Proof rejected | 4.3 Proof not accepted | — |
 | Proof accepted | — (accepting doesn't confirm the booking) | — |
-| Payment confirmed | 4.2a Booking confirmed | — |
+| Payment confirmed | 4.2a Booking confirmed, with a fresh booking link | — |
 | Deadline extended | — | — |
 | Client cancels | 4.4 Booking cancelled (client variant) | 5.3 Client cancellation |
 | Owner cancels | 4.4 Booking cancelled (owner variant) | — |
