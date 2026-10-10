@@ -9,7 +9,7 @@ labels: ["type: feature"]
 <!-- What this delivers, in one or two sentences. -->
 
 ## Spec reference
-<!-- e.g. C-3, BR-2, Section 8 — https://github.com/GloryMabunda/Service-Booking-Marketplace/blob/main/docs/Specification.md -->
+<!-- e.g. C-3, BR-2, Section 8 — https://github.com/GloryMabunda/Service-Booking-Marketplace/blob/main/docs/specification.md -->
 
 ## Acceptance criteria
 - [ ] 

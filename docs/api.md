@@ -1,6 +1,6 @@
 # API Specification
 
-*Service Booking System · REST API · for [Specification v1.0](Specification.md), section 8 (including the home page endpoints from C-9, A-10 and BR-16)*
+*Service Booking System · REST API · for [Specification v1.0](specification.md), section 8 (including the home page endpoints from C-9, A-10 and BR-16)*
 
 This document describes every endpoint: method, path, access, request, response and errors. Field names match the database design in [`database.md`](database.md), converted to `camelCase`.
 

@@ -26,7 +26,7 @@ Examples include:
 
 The goal is to build a practical booking system that can be adapted to different service businesses by changing configuration, not booking logic.
 
-📄 **The full requirements live in the [Specification](docs/Specification.md) (v1.0).** Where this README and the specification differ, the specification wins.
+📄 **The full requirements live in the [Specification](docs/specification.md) (v1.0).** Where this README and the specification differ, the specification wins.
 
 ---
 
@@ -543,7 +543,7 @@ Project documentation is maintained in the `docs/` directory.
 
 | Document | Status |
 |---|---|
-| [Specification](docs/Specification.md) | ✅ v1.0 approved |
+| [Specification](docs/specification.md) | ✅ v1.0 approved |
 | [Database design](docs/database.md) | ✅ Done |
 | [API specification](docs/api.md) | ✅ Done |
 | [Wireframes](docs/wireframes/README.md) | ✅ Done |

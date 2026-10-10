@@ -1,6 +1,6 @@
 # Style Guide
 
-*Make Up by Glory · v1 · for [Specification v1.0](Specification.md), sections 9 and 11*
+*Make Up by Glory · v1 · for [Specification v1.0](specification.md), sections 9 and 11*
 
 How every page of the booking site looks: colours, type, shapes, components, logo and photos (#103). The live version, with every component rendered, is [`style-guide/index.html`](style-guide/index.html): open it in a browser. The values below are implemented as CSS variables in [`style-guide/tokens.css`](style-guide/tokens.css), which the frontend loads after Bootstrap 5.3 (#23).
 

@@ -1,6 +1,6 @@
 # Database Design
 
-*Service Booking System · PostgreSQL · for [Specification v1.0](Specification.md), section 6 (including the home page tables from C-9, A-10 and BR-16)*
+*Service Booking System · PostgreSQL · for [Specification v1.0](specification.md), section 6 (including the home page tables from C-9, A-10 and BR-16)*
 
 This document describes every table, column, key, constraint and index in the v1 database, and the reasoning behind them. The reference SQL at the end is the target for the first migration (#19); the ORM or query library (#18) must be able to express it, using raw SQL where needed.
 
