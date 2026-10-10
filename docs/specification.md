@@ -147,7 +147,7 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 
 **Notifications design.** The bookings and payments modules emit domain events; the notifications module subscribes, so providers (Nodemailer, an SMS gateway) are swappable and business logic is not coupled to them. A notification failure is logged on the Notification record and never rolls back or blocks the booking or the upload.
 
-**Messages.** To the client: booking received with payment instructions, deadline and booking link; proof rejected with reason; booking confirmed; booking cancelled (by the client or the owner) or expired. To the administrator: every new booking; every new proof upload; every client cancellation, flagged when a refund is due.
+**Messages.** To the client: booking received with payment instructions, deadline and booking link; proof rejected with reason; booking confirmed; booking cancelled (by the client or the owner) or expired. To the administrator: every new booking; every new proof upload; every client cancellation, flagged when a refund is due. The approved wording of every email is in [`emails.md`](emails.md).
 
 ## 8. API surface
 
