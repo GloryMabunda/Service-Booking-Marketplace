@@ -548,7 +548,7 @@ Project documentation is maintained in the `docs/` directory.
 | [API specification](docs/api.md) | ✅ Done |
 | [Wireframes](docs/wireframes/README.md) | ✅ Done |
 | [Style guide](docs/style-guide.md) | ✅ v1 (colours, fonts, components, logo) |
-| Email content (`docs/emails.md`) | Planned (M0) |
+| [Email content](docs/emails.md) | ✅ Done |
 | Security and POPIA (`docs/security.md`) | Planned (M7) |
 | Deployment (`docs/deployment.md`) | Planned (M8) |
 
