@@ -975,7 +975,7 @@ All settings in A-8.
   "settings": {
     "minNoticeHours": 24,
     "maxAdvanceDays": 90,
-    "slotIntervalMinutes": 120,
+    "slotIntervalMinutes": 60,
     "bufferMinutes": 60,
     "depositPercent": "50.00",
     "depositRefundable": true,

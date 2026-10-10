@@ -56,13 +56,18 @@
       <div class="col-md-5">
         <span class="wf-state">State: day with times</span>
         <h2 class="h6">Tuesday 13 October</h2>
-        <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr;">
+        <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr 1fr;">
           <button class="btn btn-outline-dark">09:00</button>
+          <button class="btn btn-outline-dark">10:00</button>
+          <button class="btn btn-outline-dark">11:00</button>
+          <button class="btn btn-outline-dark">12:00</button>
           <button class="btn btn-outline-dark">13:00</button>
+          <button class="btn btn-outline-dark">14:00</button>
+          <button class="btn btn-outline-dark">15:00</button>
         </div>
         <p class="small text-secondary mt-2 mb-3">Times are South African time (SAST).</p>
         <a class="btn btn-dark w-100" href="book.html">Continue with 09:00</a>
-        <div class="wf-note">Slots come from <code>GET /api/availability?serviceId&amp;date</code>. Choosing a time enables Continue. A loading spinner shows while slots load.</div>
+        <div class="wf-note">Slots come from <code>GET /api/availability?serviceId&amp;date</code>: start times every hour (BR-13, decided in #14). The last start, 15:00, ends at 16:30; its 1-hour break may run past closing. Choosing a time enables Continue. A loading spinner shows while slots load.</div>
 
         <span class="wf-state">State: day with no times</span>
         <h2 class="h6">Sunday 11 October</h2>
