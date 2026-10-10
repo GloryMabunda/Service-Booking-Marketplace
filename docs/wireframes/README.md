@@ -1,6 +1,6 @@
 # Wireframes
 
-Low-fidelity, clickable wireframes for every v1 screen (#12). C-9 and A-10 (home page and Website section) are being added to the specification in #102. They show layout, content, states and flow, not visual design: grey boxes, sample data, and yellow notes explaining behaviour with links to the [specification](../Specification.md) and [API](../api.md).
+Low-fidelity, clickable wireframes for every v1 screen (#12). The home page and Website section are specified in C-9, A-10 and BR-16. They show layout, content, states and flow, not visual design: grey boxes, sample data, and yellow notes explaining behaviour with links to the [specification](../Specification.md) and [API](../api.md).
 
 ## Viewing them
 

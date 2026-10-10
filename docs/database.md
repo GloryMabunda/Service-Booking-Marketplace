@@ -1,6 +1,6 @@
 # Database Design
 
-*Service Booking System · PostgreSQL · for [Specification v1.0](Specification.md), section 6*
+*Service Booking System · PostgreSQL · for [Specification v1.0](Specification.md), section 6 (including the home page tables from C-9, A-10 and BR-16)*
 
 This document describes every table, column, key, constraint and index in the v1 database, and the reasoning behind them. The reference SQL at the end is the target for the first migration (#19); the ORM or query library (#18) must be able to express it, using raw SQL where needed.
 
@@ -28,7 +28,7 @@ This document describes every table, column, key, constraint and index in the v1
 | Money | `numeric(10,2)` in South African Rand. Never floating point. |
 | Enumerations | PostgreSQL `enum` types for fixed sets (booking status, proof status). Adding a value later is a one-line migration. |
 | Audit columns | `created_at` on every table; `updated_at` on tables the owner edits. Both default to `now()`. |
-| Deleting | Rows that bookings depend on are never deleted: services are deactivated (BR-5), proofs keep their metadata after the file is deleted (BR-14). Foreign keys use `ON DELETE RESTRICT`. |
+| Deleting | Rows that bookings depend on are never deleted: services are deactivated (BR-5), proofs keep their metadata after the file is deleted (BR-14). Foreign keys use `ON DELETE RESTRICT`. Website content is the exception: the owner can delete gallery photos, testimonials and FAQ entries outright, and a deleted service only clears their optional service tag (`ON DELETE SET NULL`). |
 | Extensions | `btree_gist` (BR-2). v1's exclusion constraint only needs a range, which GiST supports natively, but `btree_gist` lets a future `provider_id` be added to the same constraint with `WITH =`. The first migration enables it (#19). |
 
 ## 2. Entity-relationship diagram
@@ -41,6 +41,11 @@ erDiagram
     USERS ||--o{ PAYMENT_PROOFS : "reviews"
     USERS ||--o{ BOOKINGS : "verifies payment for"
     USERS ||--o{ SETTINGS : "last updated"
+    IMAGES ||--o| GALLERY_ITEMS : "shown as"
+    IMAGES |o--o| SITE_CONTENT : "hero or About photo"
+    SERVICES |o--o{ GALLERY_ITEMS : "tags"
+    SERVICES |o--o{ TESTIMONIALS : "tags"
+    USERS ||--o{ IMAGES : "uploads"
 
     USERS {
         uuid id PK
@@ -147,9 +152,68 @@ erDiagram
         timestamptz updated_at
         uuid updated_by FK
     }
+    SITE_CONTENT {
+        smallint id PK "always 1"
+        text tagline
+        text about_text
+        uuid hero_image_id FK
+        uuid about_image_id FK
+        location_type location_type "travel or studio"
+        text location_text
+        text whatsapp_number
+        text instagram_url
+        text facebook_url
+        text tiktok_url
+        timestamptz updated_at
+        uuid updated_by FK
+    }
+    IMAGES {
+        uuid id PK
+        text large_key UK
+        text thumb_key UK
+        integer width
+        integer height
+        integer large_bytes
+        integer thumb_bytes
+        bytea sha256
+        text alt_text
+        timestamptz uploaded_at
+        uuid uploaded_by FK
+    }
+    GALLERY_ITEMS {
+        uuid id PK
+        uuid image_id FK,UK
+        text caption
+        uuid service_id FK
+        boolean is_visible
+        integer position
+        timestamptz consent_confirmed_at
+        uuid consent_confirmed_by FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    TESTIMONIALS {
+        uuid id PK
+        text client_name
+        text quote
+        uuid service_id FK
+        boolean is_visible
+        integer position
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    FAQS {
+        uuid id PK
+        text question
+        text answer
+        boolean is_visible
+        integer position
+        timestamptz created_at
+        timestamptz updated_at
+    }
 ```
 
-`AVAILABILITY` and `BLOCKED_TIMES` have no foreign keys: in v1 they belong to the single provider. When multiple providers are added, each gets a `provider_id`.
+`AVAILABILITY`, `BLOCKED_TIMES` and `FAQS` have no foreign keys: in v1 they belong to the single provider. When multiple providers are added, each gets a `provider_id`.
 
 ## 3. Tables
 
@@ -332,6 +396,83 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 
 Changing a setting affects new bookings only: each booking already stores its own price, deposit, deadline and occupied time.
 
+### 3.9 `site_content`
+
+The home page's text and links (C-9, A-10). A single row (`id = 1`), like `settings`. Business name, email and phone stay in `settings`; working hours come from `availability`; the booking policies text is generated from `settings` and never stored, so it can't drift from the real rules.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | `smallint` | Always 1 |
+| `tagline` | `text` | Nullable. At most 120 characters |
+| `about_text` | `text` | Default empty. At most 5,000 characters of plain text; blank lines separate paragraphs |
+| `hero_image_id` | `uuid` | Nullable. Foreign key to `images`, `SET NULL` |
+| `about_image_id` | `uuid` | Nullable. Foreign key to `images`, `SET NULL` |
+| `location_type` | `location_type` | Nullable enum: `travel` (the owner travels to clients) or `studio` (clients come to her). Set together with `location_text` |
+| `location_text` | `text` | Nullable. The travel area or studio address, at most 200 characters |
+| `whatsapp_number` | `text` | Nullable. E.164 (`+27821234567`); the site builds the `https://wa.me/` link |
+| `instagram_url`, `facebook_url`, `tiktok_url` | `text` | Nullable. Must start with `https://`; the application also checks the host matches the network |
+| `updated_at` | `timestamptz` | |
+| `updated_by` | `uuid` | Nullable. Foreign key to `users` |
+
+### 3.10 `images`
+
+One processed website photo (BR-16). The uploaded original is never stored: only the two WebP versions the server produces, with all metadata removed.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | `uuid` | Primary key |
+| `large_key` | `text` | Unique. Random key of the large version (1600 px on the long edge) in the public storage area; served at `/media/<large_key>` |
+| `thumb_key` | `text` | Unique. Random key of the thumbnail (480 px on the long edge) |
+| `width`, `height` | `integer` | Size of the large version in pixels, `> 0`. Lets pages reserve space before the photo loads |
+| `large_bytes`, `thumb_bytes` | `integer` | File sizes, `> 0` |
+| `sha256` | `bytea` | 32 bytes, of the uploaded file. Warns the owner when she uploads the same photo twice |
+| `alt_text` | `text` | Nullable. At most 250 characters. When empty, pages fall back to the caption |
+| `uploaded_at` | `timestamptz` | |
+| `uploaded_by` | `uuid` | Foreign key to `users` |
+
+An image is used by exactly one place: a gallery item, or the hero or About slot in `site_content`. When a photo is deleted or replaced, the application deletes the files and the row.
+
+### 3.11 `gallery_items`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | `uuid` | Primary key |
+| `image_id` | `uuid` | Foreign key to `images`, unique, `ON DELETE CASCADE` |
+| `caption` | `text` | Nullable. At most 200 characters, shown in the lightbox |
+| `service_id` | `uuid` | Nullable. Foreign key to `services`, `SET NULL`. Drives the gallery filter and each service card's photo |
+| `is_visible` | `boolean` | Default `true` |
+| `position` | `integer` | Display order, lowest first; ties are broken by `created_at` |
+| `consent_confirmed_at` | `timestamptz` | When the owner confirmed she has permission from the people in the photo (BR-16). Required |
+| `consent_confirmed_by` | `uuid` | Foreign key to `users`: who confirmed. Required |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+The limit of 200 photos is enforced by the application when uploading.
+
+### 3.12 `testimonials`
+
+Quotes the owner enters with the client's permission. Clients can't post them.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | `uuid` | Primary key |
+| `client_name` | `text` | 1 to 60 characters; first name or initial recommended |
+| `quote` | `text` | 1 to 500 characters of plain text |
+| `service_id` | `uuid` | Nullable. Foreign key to `services`, `SET NULL` |
+| `is_visible` | `boolean` | Default `true` |
+| `position` | `integer` | Display order |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+### 3.13 `faqs`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | `uuid` | Primary key |
+| `question` | `text` | 1 to 200 characters |
+| `answer` | `text` | 1 to 2,000 characters of plain text |
+| `is_visible` | `boolean` | Default `true` |
+| `position` | `integer` | Display order |
+| `created_at`, `updated_at` | `timestamptz` | |
+
 ## 4. Preventing double-booking
 
 BR-2 requires that two simultaneous requests for overlapping times give exactly one success. Checking availability in the application first isn't enough on its own: two requests can both check, both see a free slot, and both insert. The database therefore enforces it with an **exclusion constraint**:
@@ -379,6 +520,18 @@ Primary keys and unique constraints create their own indexes. The table below li
 | `payment_proofs` | `uploaded_at` | B-tree, partial (`WHERE file_deleted_at IS NULL`) | Retention job: files not yet deleted (BR-14) |
 | `notifications` | `booking_id` | B-tree | Notification history for a booking |
 
+Home page tables:
+
+| Table | Index | Kind | Serves |
+| --- | --- | --- | --- |
+| `images` | `large_key`, `thumb_key` | Unique | `GET /media/:key` lookups |
+| `images` | `sha256` | B-tree | Duplicate photo warning |
+| `gallery_items` | `image_id` | Unique | One gallery item per image |
+| `gallery_items` | `(position, created_at)` | B-tree, partial (`WHERE is_visible`) | Public gallery in display order |
+| `gallery_items` | `service_id` | B-tree | Gallery filter; each service card's photo |
+| `testimonials` | `(position, created_at)` | B-tree, partial (`WHERE is_visible`) | Public testimonials in order |
+| `faqs` | `(position, created_at)` | B-tree, partial (`WHERE is_visible`) | Public FAQ in order |
+
 ## 6. Concurrency and jobs
 
 | Operation | How it stays correct |
@@ -395,6 +548,7 @@ Primary keys and unique constraints create their own indexes. The table below li
 | Data | Kept for | Mechanism |
 | --- | --- | --- |
 | Proof-of-payment files | 90 days after the booking reaches a terminal status | Daily job deletes the file through `FileStorage` and sets `file_deleted_at` (BR-14, #77). The row's metadata stays for the audit trail. |
+| Website photos, testimonials, FAQ | Until the owner deletes them | Deleting a gallery photo deletes its files and rows straight away. |
 | Bookings, proofs (metadata), notifications | Not deleted in v1 | Retention for the remaining personal data is decided in the security and POPIA review (#85). |
 
 ## 8. Additions to the specification
@@ -407,6 +561,8 @@ This design adds these fields to spec section 6, which has been updated to match
 | `refund_due` (Booking) | The dashboard's "refunds due" (A-2) and the owner's refund notification (BR-12) need to know, at cancellation time, whether a refund is owed. Working it out later from the current refund settings would give the wrong answer after the owner changes them. |
 | `min_payment_window_hours` (Setting) | Without it, a client booking just outside the minimum notice gets a deadline minutes away (BR-9), and the booking expires almost immediately. |
 | `business_name`, `business_email`, `business_phone` (Setting) | The public pages need the business details (C-1) and a contact email for sending proof by email (C-5). Keeping them in settings means another business can use the system by changing configuration. |
+
+The home page tables (`site_content`, `images`, `gallery_items`, `testimonials`, `faqs`) are the entities added to spec section 6 by C-9, A-10 and BR-16.
 
 It also fixes some details the specification leaves open: UUID primary keys, ISO day-of-week numbering, E.164 phone numbers, the `banking_details` structure, the list of notification types, and the `pending`/`sent`/`failed` notification statuses.
 
@@ -609,4 +765,84 @@ CREATE TABLE settings (
 
   CONSTRAINT settings_payment_window CHECK (min_payment_window_hours <= deposit_hold_hours)
 );
+
+-- Home page: website photos
+
+CREATE TYPE location_type AS ENUM ('travel', 'studio');
+
+CREATE TABLE images (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  large_key   text NOT NULL UNIQUE,
+  thumb_key   text NOT NULL UNIQUE,
+  width       integer NOT NULL CHECK (width > 0),
+  height      integer NOT NULL CHECK (height > 0),
+  large_bytes integer NOT NULL CHECK (large_bytes > 0),
+  thumb_bytes integer NOT NULL CHECK (thumb_bytes > 0),
+  sha256      bytea NOT NULL CHECK (octet_length(sha256) = 32),
+  alt_text    text CHECK (char_length(alt_text) <= 250),
+  uploaded_at timestamptz NOT NULL DEFAULT now(),
+  uploaded_by uuid NOT NULL REFERENCES users (id) ON DELETE RESTRICT
+);
+CREATE INDEX images_sha256_idx ON images (sha256);
+
+-- Home page: text and links
+
+CREATE TABLE site_content (
+  id              smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  tagline         text CHECK (char_length(tagline) <= 120),
+  about_text      text NOT NULL DEFAULT '' CHECK (char_length(about_text) <= 5000),
+  hero_image_id   uuid REFERENCES images (id) ON DELETE SET NULL,
+  about_image_id  uuid REFERENCES images (id) ON DELETE SET NULL,
+  location_type   location_type,
+  location_text   text CHECK (char_length(location_text) BETWEEN 1 AND 200),
+  whatsapp_number text CHECK (whatsapp_number ~ '^\+[1-9][0-9]{7,14}$'),
+  instagram_url   text CHECK (instagram_url ~ '^https://'),
+  facebook_url    text CHECK (facebook_url ~ '^https://'),
+  tiktok_url      text CHECK (tiktok_url ~ '^https://'),
+  updated_at      timestamptz NOT NULL DEFAULT now(),
+  updated_by      uuid REFERENCES users (id) ON DELETE RESTRICT,
+
+  CONSTRAINT site_content_location_together CHECK ((location_type IS NULL) = (location_text IS NULL)),
+  CONSTRAINT site_content_distinct_images CHECK (hero_image_id IS NULL OR about_image_id IS NULL OR hero_image_id <> about_image_id)
+);
+
+-- Home page: gallery, testimonials, FAQ
+
+CREATE TABLE gallery_items (
+  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  image_id             uuid NOT NULL UNIQUE REFERENCES images (id) ON DELETE CASCADE,
+  caption              text CHECK (char_length(caption) <= 200),
+  service_id           uuid REFERENCES services (id) ON DELETE SET NULL,
+  is_visible           boolean NOT NULL DEFAULT true,
+  position             integer NOT NULL DEFAULT 0,
+  consent_confirmed_at timestamptz NOT NULL,
+  consent_confirmed_by uuid NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+  created_at           timestamptz NOT NULL DEFAULT now(),
+  updated_at           timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX gallery_items_visible_order_idx ON gallery_items (position, created_at) WHERE is_visible;
+CREATE INDEX gallery_items_service_id_idx ON gallery_items (service_id);
+
+CREATE TABLE testimonials (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_name text NOT NULL CHECK (char_length(client_name) BETWEEN 1 AND 60),
+  quote       text NOT NULL CHECK (char_length(quote) BETWEEN 1 AND 500),
+  service_id  uuid REFERENCES services (id) ON DELETE SET NULL,
+  is_visible  boolean NOT NULL DEFAULT true,
+  position    integer NOT NULL DEFAULT 0,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  updated_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX testimonials_visible_order_idx ON testimonials (position, created_at) WHERE is_visible;
+
+CREATE TABLE faqs (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  question   text NOT NULL CHECK (char_length(question) BETWEEN 1 AND 200),
+  answer     text NOT NULL CHECK (char_length(answer) BETWEEN 1 AND 2000),
+  is_visible boolean NOT NULL DEFAULT true,
+  position   integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX faqs_visible_order_idx ON faqs (position, created_at) WHERE is_visible;
 ```

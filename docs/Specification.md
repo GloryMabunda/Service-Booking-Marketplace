@@ -12,13 +12,13 @@ The Service Booking System lets appointment-based businesses publish services, e
 
 **In scope (v1)**
 
-- Public client website: browse services, view availability, book without an account, receive instructions and confirmation, view booking details, upload proof of payment and cancel through the booking link.
+- Public client website: a home page presenting the business (About, services, gallery, testimonials, booking policies, FAQ, hours, area and contact), browse services, view availability, book without an account, receive instructions and confirmation, view booking details, upload proof of payment and cancel through the booking link.
 - Deposit workflow: one fixed deposit percentage applied to every service, manual EFT payment, proof of payment uploaded through the booking link (or sent by email as a fallback), owner verification before confirmation.
-- Administrator portal: dashboard, bookings, proof-of-payment review, services, availability and blocked times, calendar view, settings.
+- Administrator portal: dashboard, bookings, proof-of-payment review, services, availability and blocked times, calendar view, website content (About, gallery photos, testimonials, FAQ, contact and area), settings.
 - Email notifications (real provider). SMS is deferred; the notification interface keeps it pluggable.
 - Automated tests, documentation in `docs/`, CI/CD and deployment.
 
-**Out of scope (v1)** — an online payment gateway (deposits are paid by EFT and verified manually in v1), automatic reading or validation of proof-of-payment documents (OCR, bank API checks), reminders, rescheduling, cancellation fees or policies beyond the deposit refund rule (BR-12), client accounts, reviews, discounts, multiple providers or locations, analytics, calendar sync, AI assistance. See section 13.
+**Out of scope (v1)** — an online payment gateway (deposits are paid by EFT and verified manually in v1), automatic reading or validation of proof-of-payment documents (OCR, bank API checks), reminders, rescheduling, cancellation fees or policies beyond the deposit refund rule (BR-12), client accounts, client-posted reviews (testimonials the owner enters are in scope), discounts, multiple providers or locations, analytics, calendar sync, AI assistance. See section 13.
 
 ## 3. Users and roles
 
@@ -43,6 +43,7 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 | C-6 | Client can view their booking details by entering the booking reference and the email used to book. The details page shows the payment status (awaiting payment, proof received, proof rejected with reason, confirmed) and, while the booking is Pending or Confirmed, a button to resend the booking email with a new booking link. |
 | C-7 | **Booking page.** Opening the booking link shows a short booking summary (reference, service, date and time, status, deposit amount, deadline, banking details). While the booking is Pending it has an upload control for proof of payment (rules in BR-14), with upload progress, a clear error for invalid files, and a success message stating that the booking is confirmed only once the owner sees the money in her account. |
 | C-8 | **Cancel booking.** While the booking is Pending or Confirmed and the appointment has not started, the booking page has a Cancel booking button. Before confirming, the client sees whether their deposit is refundable under BR-12. After cancelling, the client receives a cancellation email and the slot is freed. |
+| C-9 | **Home page.** The site opens on a home page presenting the business, built entirely from content the owner manages (A-10) and from settings, so another business can reuse it without code changes. Sections: a hero photo with the business name, tagline and a Book now button; About (text and an optional photo); a services preview where each service links to booking and to its photos; a gallery of photos that can be filtered by service and opened larger; testimonials; booking policies written from the settings (deposit, time to pay, minimum notice, advance window, refund rule) so they always match the real rules; FAQ; working hours (from A-6); where the business works (a studio address or a travel area); and contact details with WhatsApp, Instagram, other social links and email. Sections with no content are hidden. |
 
 ### 4.2 Administrator portal
 
@@ -57,6 +58,7 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 | A-7 | Calendar view of appointments (FullCalendar), with access to booking details. |
 | A-8 | Settings: minimum notice, maximum advance booking window, slot interval, buffer time, deposit percentage, deposit refund rule, deposit hold duration, minimum payment window, time zone, banking details shown to clients, and business name and contact details. |
 | A-9 | **Review proof of payment.** View or download each uploaded proof in the portal, and mark it Accepted or Rejected (with a reason shown to the client, e.g. "amount does not match"). Rejecting a proof notifies the client and lets them upload again. Accepting a proof does not confirm the booking by itself; Confirm payment (A-4) remains a separate action taken after the bank check. |
+| A-10 | **Website content.** Manage what the home page shows (C-9): tagline, About text, hero and About photos; studio address or travel area; WhatsApp number and social links; gallery photos (upload several at once, caption, alt text, tag with a service, reorder, show or hide, delete); testimonials (quote, client name, optional service, reorder, show or hide); FAQ (question and answer, reorder, show or hide). Uploading gallery photos requires confirming that the owner has permission from the people in them (BR-16). |
 
 ## 5. Business rules
 
@@ -98,6 +100,8 @@ Only the administrator changes status, with two exceptions: a scheduled job sets
 
 **BR-15 Booking link.** When a booking is created, the server generates a random booking token (32 bytes from a cryptographically secure generator) and builds the link `/booking/<token>`, which is sent only in the booking email (payment instructions, or confirmation when no deposit applies) and never returned by the API or shown on screen. Only a SHA-256 hash of the token is stored, so a database leak does not expose working links. The link works while the booking is Pending or Confirmed and the appointment has not started. It shows a booking summary, allows proof upload only while Pending, and allows cancellation (BR-12); it cannot change the date, time or service. An unknown or inactive link gets the same generic "link not valid" response, so links cannot be probed. A new link can be issued by the client from the booking details page (C-6) or by the owner from the portal; either way the old link stops working and the new one is emailed to the booking's email address only.
 
+**BR-16 Website photos.** Photos for the home page (hero, About and gallery) are uploaded only by an authenticated administrator. Accepted files are JPEG, PNG and WebP, checked from the file's content, at most 15 MB each and at most 50 megapixels, so oversized images can't exhaust memory. Every photo is rotated upright and then has **all metadata removed** (GPS location, camera details, dates), because photos of clients must never reveal where they were taken. Each photo is stored as two WebP versions, large (1600 pixels on the long edge) and thumbnail (480 pixels); the uploaded original is not kept. Gallery uploads are refused unless the administrator confirms she has permission from the people in the photos, and the confirmation is recorded with who and when (POPIA). The gallery holds at most 200 photos. Website photos are stored separately from proof-of-payment files; both are private in storage, and the application serves website photos publicly from `/media/` while proofs stay admin-only. Deleting a photo deletes its files. Website text (tagline, About, testimonials, FAQ) is plain text, never HTML.
+
 ## 6. Domain model
 
 Key fields for each entity are listed below. The full design (types, constraints, indexes) lives in `docs/database.md`.
@@ -112,8 +116,13 @@ Key fields for each entity are listed below. The full design (types, constraints
 | PaymentProof | id, bookingId, storageKey, originalFilename, contentType, sizeBytes, sha256, status (Received/Accepted/Rejected), rejectionReason, uploadedAt, uploadedFromIp, reviewedAt, reviewedBy, fileDeletedAt |
 | Notification | id, bookingId, channel (email/sms), recipient, type, status, sentAt, error |
 | Setting | minNoticeHours, maxAdvanceDays, slotIntervalMinutes, bufferMinutes, depositPercent, depositRefundable, refundCutoffHours, depositHoldHours, minPaymentWindowHours, timeZone, bankingDetails, businessName, businessEmail, businessPhone |
+| SiteContent | tagline, aboutText, heroImageId, aboutImageId, locationType (travel/studio), locationText, whatsappNumber, instagramUrl, facebookUrl, tiktokUrl, updatedAt, updatedBy |
+| Image | id, largeKey, thumbKey, width, height, largeBytes, thumbBytes, sha256, altText, uploadedAt, uploadedBy |
+| GalleryItem | id, imageId, caption, serviceId, isVisible, position, consentConfirmedAt, consentConfirmedBy, createdAt |
+| Testimonial | id, clientName, quote, serviceId, isVisible, position, createdAt |
+| Faq | id, question, answer, isVisible, position, createdAt |
 
-Relationships: Service 1—\* Booking; Booking 1—\* Notification; Booking 1—\* PaymentProof; User 1—\* PaymentProof (as reviewer). The `sha256` hash lets the owner spot the same file being reused across bookings.
+Relationships: Service 1—\* Booking; Booking 1—\* Notification; Booking 1—\* PaymentProof; User 1—\* PaymentProof (as reviewer); Image 1—1 GalleryItem; SiteContent —1 Image (hero, About); Service 1—\* GalleryItem and Testimonial (optional tag). The `sha256` hash lets the owner spot the same file being reused across bookings.
 
 ## 7. Architecture
 
@@ -126,7 +135,8 @@ A modular NestJS REST API in front of PostgreSQL, serving a static HTML/Bootstra
 | availability | Working hours, blocked times, slot calculation, notice and advance windows |
 | bookings | Create, view, status changes, conflict handling, deposit deadline and expiry job |
 | payments | Deposit calculation, `PaymentProvider` interface, manual EFT verification, proof-of-payment upload, validation and review |
-| storage | `FileStorage` interface for saving, reading and deleting files; local-disk provider for development and tests, private cloud blob provider for production |
+| storage | `FileStorage` interface for saving, reading and deleting files, with two areas: private (proofs of payment) and public (website photos, served by the application from `/media/`); local-disk provider for development and tests, private cloud blob provider for production |
+| site | Home page content: About, contact and area, gallery, testimonials, FAQ, booking policies text generated from settings; photo processing (BR-16) and the public `/media/` route |
 | notifications | Email (SMS later) behind an interface; mock and real providers |
 | settings | Minimum notice, advance window, slot interval, buffer, deposit percentage, refund rule, deposit hold duration, minimum payment window, time zone, banking details, business name and contact details |
 | admin | Dashboard, calendar data, booking management and proof review endpoints |
@@ -169,6 +179,12 @@ All paths are under `/api` (for example `GET /api/services`); pages, including t
 | `GET/PUT /admin/availability` | Admin | Working hours |
 | `GET/POST /admin/blocked-times`, `DELETE /admin/blocked-times/:id` | Admin | List, block and unblock time |
 | `GET/PATCH /admin/settings` | Admin | All settings in A-8 |
+| `GET /site` | Public | Everything the home page needs (C-9) |
+| `GET /media/:key` (not under `/api`) | Public | A website photo |
+| `GET/PATCH /admin/site-content`, `PUT/DELETE /admin/site-content/images/:slot` | Admin | About, contact and area; hero and About photos (A-10) |
+| `GET/POST /admin/gallery`, `PATCH/DELETE /admin/gallery/:id`, `PUT /admin/gallery/order` | Admin | Gallery photos (A-10, BR-16) |
+| `GET/POST /admin/testimonials`, `PATCH/DELETE /admin/testimonials/:id`, `PUT /admin/testimonials/order` | Admin | Testimonials (A-10) |
+| `GET/POST /admin/faqs`, `PATCH/DELETE /admin/faqs/:id`, `PUT /admin/faqs/order` | Admin | FAQ (A-10) |
 
 Upload errors: `400` invalid or missing file, `404` booking link not valid (unknown, regenerated or inactive, all with the same message), `409` booking not Pending or proof limit reached, `413` file too large, `415` unsupported file type, `429` rate limit. The full API specification lives in `docs/api.md`.
 
@@ -185,6 +201,7 @@ Upload errors: `400` invalid or missing file, `404` booking link not valid (unkn
 - Booking creation is rate-limited and capped at 2 active Pending bookings per email or phone number.
 - Uploaded files are validated by content, size-capped while streaming, stored privately under random keys, never executed or served publicly, and returned to administrators with `Content-Disposition: attachment` (or rendered inline only for verified PDF and image types) plus `X-Content-Type-Options: nosniff`. Malware scanning is enabled on the production storage account if the hosting choice offers it.
 - Payment is confirmed only by an authenticated administrator after funds reflect in the bank account; each confirmation and each proof review is recorded with who and when.
+- Website photos are processed as in BR-16: content-checked, size- and pixel-limited, metadata removed, re-encoded. Website text is stored and shown as plain text; social links must be `https` URLs.
 
 **Quality**
 
@@ -196,17 +213,17 @@ Upload errors: `400` invalid or missing file, `404` booking link not valid (unkn
 
 | Level | Coverage |
 | --- | --- |
-| Unit | Service validation, availability calculation, booking validation, status transitions, deposit calculation, minimum-notice and deadline logic, file type and size validation, proof status transitions, notification triggers |
-| Integration | Database operations, booking creation, availability checks, expiry job freeing slots (including bookings with an unreviewed proof), Pending-booking limits, booking link creation, hashing and regeneration, proof upload to local storage and record creation, orphan-file cleanup, retention deletion after 90 days, client cancellation freeing the slot and flagging refunds due, authentication, authorization |
+| Unit | Service validation, availability calculation, booking validation, status transitions, deposit calculation, minimum-notice and deadline logic, file type and size validation, proof status transitions, notification triggers, booking policies text, photo processing (rotation, metadata removal, sizes) |
+| Integration | Database operations, booking creation, availability checks, expiry job freeing slots (including bookings with an unreviewed proof), Pending-booking limits, booking link creation, hashing and regeneration, proof upload to local storage and record creation, orphan-file cleanup, retention deletion after 90 days, client cancellation freeing the slot and flagging refunds due, website photo upload with consent, gallery ordering, authentication, authorization |
 | Concurrency | Two clients booking the same or overlapping slot simultaneously: exactly one succeeds. Parallel uploads to one booking never exceed the proof limit |
-| API | Endpoint contracts and error responses, including every upload error code; a file with a `.pdf` extension but other content is rejected; a client cannot upload to or view another client's booking; an invalid, regenerated or inactive booking link returns the same `404`; proof files are unreachable without admin authentication; opening the booking link never changes the booking; cancelling after the appointment has started is refused |
+| API | Endpoint contracts and error responses, including every upload error code; a file with a `.pdf` extension but other content is rejected; a client cannot upload to or view another client's booking; an invalid, regenerated or inactive booking link returns the same `404`; proof files are unreachable without admin authentication; opening the booking link never changes the booking; cancelling after the appointment has started is refused; uploaded website photos carry no metadata; an image over the pixel limit is refused; `/media/` never serves proof-of-payment files |
 
 The concurrency test is the most important: preventing double-booking is the system's core requirement.
 
 ## 11. Technology
 
 - **Backend:** Node.js, TypeScript, NestJS, REST, PostgreSQL with an ORM or query library. File uploads through NestJS's Multer integration (`FileInterceptor`) with size limits, and content-type detection from file bytes (for example the `file-type` package).
-- **File storage:** local disk in development and tests; private blob storage in production (Azure Blob Storage if the hosting recommendation is accepted), behind the `FileStorage` interface.
+- **File storage:** local disk in development and tests; private blob storage in production (Azure Blob Storage if the hosting recommendation is accepted), behind the `FileStorage` interface. Website photos are processed with `sharp`.
 - **Frontend:** HTML5, CSS3, Bootstrap, Bootstrap Icons, vanilla JavaScript (`FormData` and `fetch` for uploads), FullCalendar. No React, Angular or Vue, by design.
 - **Notifications:** Nodemailer for email; SMS provider to be selected.
 - **Tooling:** Git, GitHub, GitHub Actions, npm.
@@ -217,21 +234,21 @@ Work is tracked as GitHub milestones and issues; each milestone is done when its
 
 | Milestone | Outcome |
 | --- | --- |
-| M0 Requirements & design | Approved specification, database design, API, wireframes and email content in `docs/`; open question 1 decided; GitHub labels, milestones, templates and project board |
+| M0 Requirements & design | Approved specification, database design, API, wireframes, home page and website content specification, style guide and email content in `docs/`; open question 1 decided; GitHub labels, milestones, templates and project board |
 | M1 Foundation | NestJS project, TypeScript, PostgreSQL in Docker, migrations, environment config, test framework, CI, static frontend layout, protected `main` and contribution workflow |
-| M2 Services | Administrator account and login, settings, service model, admin service management, public service listing |
+| M2 Services | Administrator account and login, settings, service model, admin service management, public service listing, site content and the home page |
 | M3 Availability | Working hours, blocked dates and times, time zone handling, slot calculation, minimum notice and advance window, date and time picker |
 | M4 Bookings | Creation, validation, booking references, deposit and deadline, Pending/Confirmed lifecycle, booking link, booking limits, expiry job, double-booking prevention, booking lookup |
 | M5 Notifications | Email provider (mock first, then Nodemailer), payment instructions email with the booking link, resend booking link, status emails, admin notification of new bookings, notification history (SMS deferred) |
-| M6 Admin portal & proof of payment | Dashboard, booking management, payment verification, booking page, proof upload and review, client cancellation, refunds due, settings and calendar |
-| M7 Testing & hardening | Upload, authorization, booking link and enumeration security tests, API contract and end-to-end tests, mobile and accessibility check, security and POPIA review |
+| M6 Admin portal & proof of payment | Dashboard, booking management, payment verification, booking page, proof upload and review, client cancellation, refunds due, settings and calendar, photo processing and public media, gallery, admin website pages |
+| M7 Testing & hardening | Upload (proofs and website photos), authorization, booking link and enumeration security tests, API contract and end-to-end tests, mobile and accessibility check, security and POPIA review |
 | M8 Deployment | Hosting decision, production resources and private blob storage, configuration and secrets, deployment workflow, monitoring and logging, v1.0 release |
 
 Repository layout: `src/{auth,bookings,services,availability,payments,storage,notifications,settings,admin}`, `public/`, `tests/`, `docs/`, `.env.example`, `README.md`. Local uploads go to a git-ignored `uploads/` folder outside `public/`.
 
 ## 13. Future enhancements
 
-A payment gateway with automatic confirmation and refunds (making proof upload unnecessary for card payments), automatic proof checks (OCR of amount and reference), automated reminders, rescheduling, cancellation policies, client accounts, reviews, promotions, multiple providers and locations, analytics and revenue reporting, calendar synchronization, SMS notifications, AI-powered booking assistance.
+A payment gateway with automatic confirmation and refunds (making proof upload unnecessary for card payments), automatic proof checks (OCR of amount and reference), automated reminders, rescheduling, cancellation policies, client accounts, client-posted reviews, promotions, multiple providers and locations, analytics and revenue reporting, calendar synchronization, SMS notifications, AI-powered booking assistance.
 
 ## 14. Acceptance criteria for v1
 
@@ -245,6 +262,7 @@ A payment gateway with automatic confirmation and refunds (making proof upload u
 8. CI runs the test suite on every push and the app is deployed.
 9. After submitting a booking, a client receives an email with payment instructions and a booking link, and can use it to upload a valid proof of payment from a phone or desktop while the booking is Pending; the administrator is notified of each upload; invalid, oversized or excess files are rejected with clear messages; only an authenticated administrator can view proofs; and uploading a proof never confirms a booking on its own.
 10. A client can cancel their own Pending or Confirmed booking through the booking link before the appointment starts; the slot reopens, the client and the owner are emailed, and the owner is told when a refund is due.
+11. The home page shows the business with content the owner manages in the portal (About, gallery, testimonials, FAQ, contact and area), its booking policies match the settings, and no website photo carries location or camera metadata.
 
 ## 15. Open questions
 
