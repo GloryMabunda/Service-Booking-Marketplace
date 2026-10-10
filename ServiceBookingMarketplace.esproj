@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1184077">
+  <!-- Visual Studio project for the NestJS app. VS Code and the command line use package.json directly. -->
+  <PropertyGroup>
+    <!-- F5 / Start in Visual Studio runs the app in watch mode. -->
+    <StartupCommand>npm run start:dev</StartupCommand>
+    <BuildCommand>npm run build</BuildCommand>
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+    <TestCommand>npm test</TestCommand>
+    <TestFramework>Vitest</TestFramework>
+  </PropertyGroup>
+</Project>

@@ -24,3 +24,6 @@ Thumbs.db
 !.vscode/settings.json
 .idea/
 .vs/
+obj/
+bin/
+*.esproj.user
