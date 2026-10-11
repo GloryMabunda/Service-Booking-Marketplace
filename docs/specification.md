@@ -222,7 +222,7 @@ The concurrency test is the most important: preventing double-booking is the sys
 
 ## 11. Technology
 
-- **Backend:** Node.js, TypeScript, NestJS, REST, PostgreSQL with an ORM or query library. File uploads through NestJS's Multer integration (`FileInterceptor`) with size limits, and content-type detection from file bytes (for example the `file-type` package).
+- **Backend:** Node.js, TypeScript, NestJS, REST, PostgreSQL accessed with raw SQL through the `pg` (node-postgres) driver, decided in #18: parameterised queries only, SQL kept in a repository class per feature, and plain SQL migration files. File uploads through NestJS's Multer integration (`FileInterceptor`) with size limits, and content-type detection from file bytes (for example the `file-type` package).
 - **File storage:** local disk in development and tests; private blob storage in production (Azure Blob Storage if the hosting recommendation is accepted), behind the `FileStorage` interface. Website photos are processed with `sharp`.
 - **Frontend:** HTML5, CSS3, Bootstrap, Bootstrap Icons, vanilla JavaScript (`FormData` and `fetch` for uploads), FullCalendar. No React, Angular or Vue, by design. The look (colours, fonts, components, logo use; light mode only) follows the [style guide](style-guide.md).
 - **Notifications:** Nodemailer for email; SMS provider to be selected.
