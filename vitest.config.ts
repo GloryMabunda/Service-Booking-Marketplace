@@ -1,16 +1,12 @@
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { envFileValues } from './test/setup/env-file.js';
 
+// Unit tests (npm test): one piece of logic at a time, next to the code it
+// tests, with no database, network or .env. They should take milliseconds.
 export default defineConfig({
-  // Resolves the path aliases declared in tsconfig.json, including the ones
-  // added by `nest g library`.
-  plugins: [tsconfigPaths()],
+  resolve: { tsconfigPaths: true },
   test: {
     globals: true,
     root: './',
-    include: ['**/*.spec.ts'],
-    // Variables from .env, unless already set in the real environment (#20).
-    env: envFileValues(),
+    include: ['src/**/*.spec.ts'],
   },
 });
