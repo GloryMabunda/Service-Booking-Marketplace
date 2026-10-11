@@ -6,26 +6,39 @@
 //   npm run db:migrate:down             undo the most recent migration
 //   npm run db:migrate:list             show which migrations have run
 //
-// The connection strings default to the local Docker database (docker-compose.yml).
-// DATABASE_URL and TEST_DATABASE_URL override them; #20 moves them into .env.
+// Connection strings come from DATABASE_URL and TEST_DATABASE_URL in .env (#20).
+import { existsSync } from 'node:fs';
 import { PostgresDialect } from 'kysely';
 import { defineConfig } from 'kysely-ctl';
 import pg from 'pg';
+import { validateEnv } from './src/config/env.js';
 
-const DEV_URL = 'postgres://booking:booking@localhost:5432/booking';
-const TEST_URL = 'postgres://booking:booking@localhost:5432/booking_test';
+// Real environment variables win; loadEnvFile never overwrites them.
+if (existsSync('.env')) process.loadEnvFile('.env');
+const env = validateEnv(process.env);
 
 function dialect(connectionString: string) {
   return new PostgresDialect({ pool: new pg.Pool({ connectionString }) });
 }
 
+function testDatabaseUrl(): string {
+  if (!env.TEST_DATABASE_URL) {
+    throw new Error(
+      'TEST_DATABASE_URL is required to migrate the test database. Add it to .env (see .env.example).',
+    );
+  }
+  return env.TEST_DATABASE_URL;
+}
+
 export default defineConfig({
-  dialect: dialect(process.env.DATABASE_URL ?? DEV_URL),
+  dialect: dialect(env.DATABASE_URL),
   migrations: {
     migrationFolder: 'src/database/migrations',
   },
   // Selected with --environment test (see the db:migrate:test script).
   $test: {
-    dialect: dialect(process.env.TEST_DATABASE_URL ?? TEST_URL),
+    get dialect() {
+      return dialect(testDatabaseUrl());
+    },
   },
 });
