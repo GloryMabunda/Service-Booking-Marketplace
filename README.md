@@ -326,7 +326,7 @@ With Docker Desktop running, `npm run db:up` starts PostgreSQL with two database
 - Nodemailer — email notifications
 - Multer (through NestJS) — proof-of-payment uploads
 - `file-type` — checks uploaded files by their content
-- An ORM or query library for PostgreSQL (to be chosen in M1)
+- Kysely: type-safe SQL query builder on the `pg` (node-postgres) driver, no ORM (decided in #18)
 - Additional lightweight libraries where they provide clear value
 
 The project intentionally avoids large frontend frameworks such as React, Angular, or Vue.
