@@ -58,14 +58,17 @@ async function rerunLinkedPullRequests({ github, context, core }) {
     const { data } = await github.rest.actions.listWorkflowRunsForRepo({
       owner, repo, event: 'pull_request', head_sha: pr.head.sha, per_page: 100,
     });
-    const run = data.workflow_runs.find((r) => r.path === '.github/workflows/checklist.yml');
-    if (!run) continue;
-    if (run.status !== 'completed') {
-      core.info(`Run ${run.id} for PR #${pr.number} is still in progress`);
-      continue;
+    // A push and a PR edit at the same moment leave two runs on one commit, and
+    // branch protection reads both, so every run has to be re-run.
+    const runs = data.workflow_runs.filter((r) => r.path === '.github/workflows/checklist.yml');
+    for (const run of runs) {
+      if (run.status !== 'completed') {
+        core.info(`Run ${run.id} for PR #${pr.number} is still in progress`);
+        continue;
+      }
+      await github.rest.actions.reRunWorkflow({ owner, repo, run_id: run.id });
+      core.info(`Re-ran checklist run ${run.id} for PR #${pr.number}`);
     }
-    await github.rest.actions.reRunWorkflow({ owner, repo, run_id: run.id });
-    core.info(`Re-ran checklist for PR #${pr.number}`);
   }
 }
 
