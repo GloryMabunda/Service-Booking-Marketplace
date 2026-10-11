@@ -568,7 +568,9 @@ It also fixes some details the specification leaves open: UUID primary keys, ISO
 
 ## 9. Reference SQL
 
-The target schema for the first migration (#19). It runs on PostgreSQL 13 or later.
+The schema created by the first migration, [`src/database/migrations/1791743572683_initial_schema.ts`](../src/database/migrations/1791743572683_initial_schema.ts) (#19), which contains this SQL exactly. It runs on PostgreSQL 13 or later.
+
+**Changing the schema.** Never edit a migration that has already run. Add a new one (`npm run db:migrate:make -- <name>`), update the tables in section 3 to match, then run `npm run db:migrate` and `npm run db:types` so the generated TypeScript types follow. This section stays as the v1 starting point.
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS btree_gist;

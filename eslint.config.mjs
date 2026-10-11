@@ -28,6 +28,11 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Migrations are frozen in time, so they take Kysely<any> (see the first migration).
+    files: ['src/database/migrations/**/*.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
+  },
   // Turns off formatting rules that would fight with Prettier; keep this last.
   eslintConfigPrettier,
 );
