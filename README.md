@@ -318,6 +318,8 @@ The administrator can also switch to a calendar view to manage appointments and 
 
 - PostgreSQL 17 (run locally with Docker Compose)
 
+Settings such as the database address are read from a `.env` file: copy [`.env.example`](.env.example) to `.env` (it is git-ignored, so secrets never reach GitHub). The app checks every variable at startup and refuses to start, naming the problem, if one is missing or invalid; the rules are in `src/config/env.ts`.
+
 With Docker Desktop running, `npm run db:up` starts PostgreSQL with two databases: `booking` for development and `booking_test` for automated tests, both with the `btree_gist` extension. `npm run db:down` stops it, `npm run db:reset` wipes and recreates it, and `npm run db:psql` opens a SQL prompt. Connection details are in [`docker-compose.yml`](docker-compose.yml).
 
 The schema is built by migrations in `src/database/migrations/`, run with [kysely-ctl](https://github.com/kysely-org/kysely-ctl):
@@ -666,7 +668,7 @@ Service-Booking-Marketplace/
 ├── docker/postgres/init/   (database setup run on first start)
 │
 ├── uploads/          (local proof-of-payment files, git-ignored)
-├── .env.example
+├── .env.example      (copy to .env; every setting the app reads)
 ├── .gitignore
 ├── docker-compose.yml
 ├── package.json

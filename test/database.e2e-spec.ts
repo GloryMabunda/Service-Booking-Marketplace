@@ -4,17 +4,16 @@ import type { DB } from '../src/database/database.types.js';
 
 // Checks the migrated test database (#19). Each test runs inside a
 // transaction that is rolled back, so nothing is left behind.
-const TEST_URL =
-  process.env.TEST_DATABASE_URL ??
-  'postgres://booking:booking@localhost:5432/booking_test';
-
 describe('Database schema (e2e)', () => {
   let db: Kysely<DB>;
 
   beforeAll(() => {
+    // From .env (vitest.config.e2e.ts) or the real environment (#20).
+    const connectionString = process.env.TEST_DATABASE_URL;
+    if (!connectionString) throw new Error('TEST_DATABASE_URL is not set');
     db = new Kysely<DB>({
       dialect: new PostgresDialect({
-        pool: new pg.Pool({ connectionString: TEST_URL }),
+        pool: new pg.Pool({ connectionString }),
       }),
     });
   });
