@@ -694,6 +694,7 @@ Service-Booking-Marketplace/
 ├── .gitignore
 ├── docker-compose.yml
 ├── package.json
+├── CONTRIBUTING.md   (how to make a change)
 ├── README.md
 └── tsconfig.json
 ```
@@ -705,6 +706,12 @@ Service-Booking-Marketplace/
 **Currently in development.** Requirements and design (M0) are complete; the foundation (M1) is in progress.
 
 The project is being developed incrementally, with the architecture, database design, implementation, testing, and deployment documented throughout the development process.
+
+---
+
+# 🤝 Contributing
+
+Every change goes through an issue, a branch named after it (`feature/12-short-name`), and a pull request into `main` that says `Closes #12`. Pull requests merge only when CI passes and every checkbox on the pull request and its issue is ticked. The full workflow, commit style and project conventions are in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 

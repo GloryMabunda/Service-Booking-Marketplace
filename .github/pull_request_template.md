@@ -1,3 +1,5 @@
+<!-- How to make a change, and what the checks need: CONTRIBUTING.md -->
+
 ## What this changes
 <!-- Short description of the change. -->
 
