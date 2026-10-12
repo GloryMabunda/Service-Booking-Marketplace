@@ -1,5 +1,7 @@
+import { join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { validateEnv } from './config/env.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ServicesModule } from './services/services.module.js';
@@ -19,6 +21,15 @@ import { AdminModule } from './admin/admin.module.js';
       isGlobal: true,
       cache: true,
       validate: validateEnv,
+    }),
+    // The public website: files in public/ at the site root (#23). This file
+    // is src/app.module.ts or dist/app.module.js, so public/ is one level up.
+    // renderPath '/' means only the home page falls back to index.html; an
+    // unknown address is a 404, not the home page. /api stays with the API.
+    ServeStaticModule.forRoot({
+      rootPath: join(import.meta.dirname, '..', 'public'),
+      renderPath: '/',
+      exclude: ['/api/{*path}'],
     }),
     AuthModule,
     ServicesModule,

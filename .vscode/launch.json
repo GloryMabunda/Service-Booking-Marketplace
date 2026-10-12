@@ -12,7 +12,7 @@
       "skipFiles": ["<node_internals>/**"],
       "serverReadyAction": {
         "pattern": "Nest application successfully started",
-        "uriFormat": "http://localhost:3000/api",
+        "uriFormat": "http://localhost:3000",
         "action": "openExternally"
       }
     },

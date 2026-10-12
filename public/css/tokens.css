@@ -1,0 +1,161 @@
+/*
+ * Make Up by Glory: design tokens and Bootstrap 5.3 theme.
+ * Load after Bootstrap. Light mode only.
+ * Source of truth: docs/style-guide.md (#103).
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Alex+Brush&family=Josefin+Sans:wght@600;700&family=Nunito+Sans:wght@400;600;700&display=swap");
+
+:root {
+  /* Brand colours (from the logo) */
+  --mbg-magenta: #A02080;        /* primary: buttons, links, headings */
+  --mbg-magenta-dark: #831A69;   /* primary hover */
+  --mbg-orange: #FFA040;         /* action: Book now only */
+  --mbg-orange-dark: #F08A1C;    /* action hover */
+  --mbg-on-orange: #3A1A00;      /* text on orange */
+  --mbg-pink: #E04060;           /* large headings, flourishes, decoration; never small text */
+  --mbg-pink-text: #C42B52;      /* small pink text: prices, labels, errors */
+  --mbg-gold: #FFC060;           /* stars, highlights */
+  --mbg-green: #2E7D3E;          /* success, Confirmed */
+  --mbg-plum: #673656;           /* logo ink */
+
+  /* Neutrals */
+  --mbg-ink: #2A1A26;            /* body text */
+  --mbg-muted: #7A5A6E;          /* secondary text */
+  --mbg-line: #F1D9E4;           /* borders, dividers */
+  --mbg-white: #FFFFFF;
+
+  /* Section tints */
+  --mbg-tint-pink: #FFE3EC;
+  --mbg-tint-cream: #FFF1D6;
+  --mbg-tint-lilac: #F3E3F6;
+  --mbg-tint-mint: #E9F6EC;
+  --mbg-tint-blush: #FFF6F9;
+
+  /* Feedback */
+  --mbg-info-bg: #F3E3F6;   --mbg-info-fg: #5A1A4A;   --mbg-info-line: #A02080;
+  --mbg-success-bg: #E9F6EC; --mbg-success-fg: #1F5A2A; --mbg-success-line: #2E7D3E;
+  --mbg-warning-bg: #FFF1D6; --mbg-warning-fg: #6E3B00; --mbg-warning-line: #F08A1C;
+  --mbg-error-bg: #FFE3EC;   --mbg-error-fg: #8E1E3B;   --mbg-error-line: #C42B52;
+
+  /* Typography */
+  --mbg-font-heading: "Josefin Sans", system-ui, sans-serif;
+  --mbg-font-body: "Nunito Sans", system-ui, sans-serif;
+  --mbg-font-script: "Alex Brush", cursive;
+  --mbg-size-hero: clamp(2rem, 1.4rem + 2.4vw, 2.75rem);      /* 32 to 44 px */
+  --mbg-size-h2: clamp(1.5rem, 1.2rem + 1.2vw, 1.875rem);     /* 24 to 30 px */
+  --mbg-size-h3: clamp(1.125rem, 1.05rem + .3vw, 1.25rem);    /* 18 to 20 px */
+  --mbg-size-label: .75rem;                                    /* 12 px */
+  --mbg-size-body: 1rem;                                       /* 16 px */
+  --mbg-size-small: .875rem;                                   /* 14 px */
+  --mbg-size-script: clamp(2.25rem, 1.8rem + 1.8vw, 3rem);     /* 36 to 48 px */
+  --mbg-line-height: 1.6;
+
+  /* Spacing (4 px base) */
+  --mbg-space-1: .25rem;  /* 4 */
+  --mbg-space-2: .5rem;   /* 8 */
+  --mbg-space-3: 1rem;    /* 16 */
+  --mbg-space-4: 1.5rem;  /* 24 */
+  --mbg-space-5: 2rem;    /* 32 */
+  --mbg-space-6: 3rem;    /* 48 */
+  --mbg-section-y: clamp(3rem, 2rem + 4vw, 5rem); /* 48 to 80 px */
+
+  /* Shape and depth */
+  --mbg-radius-pill: 50rem;
+  --mbg-radius-card: .75rem;  /* 12 */
+  --mbg-radius-input: .5rem;  /* 8 */
+  --mbg-shadow: 0 8px 24px rgba(42, 26, 38, .08);
+  --mbg-focus: 0 0 0 .25rem rgba(160, 32, 128, .35);
+  --mbg-max-width: 1140px;
+
+  /* Bootstrap theme */
+  --bs-body-font-family: var(--mbg-font-body);
+  --bs-body-font-size: var(--mbg-size-body);
+  --bs-body-line-height: var(--mbg-line-height);
+  --bs-body-color: var(--mbg-ink);
+  --bs-body-bg: var(--mbg-white);
+  --bs-secondary-color: var(--mbg-muted);
+  --bs-border-color: var(--mbg-line);
+  --bs-border-radius: var(--mbg-radius-input);
+  --bs-border-radius-lg: var(--mbg-radius-card);
+  --bs-primary: var(--mbg-magenta);
+  --bs-primary-rgb: 160, 32, 128;
+  --bs-link-color: var(--mbg-magenta);
+  --bs-link-color-rgb: 160, 32, 128;
+  --bs-link-hover-color: var(--mbg-magenta-dark);
+  --bs-link-hover-color-rgb: 131, 26, 105;
+  --bs-focus-ring-color: rgba(160, 32, 128, .35);
+  --bs-heading-color: var(--mbg-magenta);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 { font-family: var(--mbg-font-heading); font-weight: 600; line-height: 1.2; }
+.mbg-hero-title { font-size: var(--mbg-size-hero); }
+h2, .h2 { font-size: var(--mbg-size-h2); }
+h3, .h3 { font-size: var(--mbg-size-h3); font-weight: 700; }
+.mbg-label { font-family: var(--mbg-font-heading); font-size: var(--mbg-size-label); font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--mbg-pink-text); }
+.mbg-script { font-family: var(--mbg-font-script); font-size: var(--mbg-size-script); line-height: 1; color: var(--mbg-pink); }
+.mbg-price { color: var(--mbg-pink-text); font-weight: 700; }
+
+/* Buttons: pill shaped, bold */
+.btn { --bs-btn-font-weight: 700; --bs-btn-border-radius: var(--mbg-radius-pill); --bs-btn-padding-x: 1.25rem; --bs-btn-padding-y: .6rem; --bs-btn-focus-box-shadow: var(--mbg-focus); }
+.btn-primary { --bs-btn-bg: var(--mbg-magenta); --bs-btn-border-color: var(--mbg-magenta); --bs-btn-hover-bg: var(--mbg-magenta-dark); --bs-btn-hover-border-color: var(--mbg-magenta-dark); --bs-btn-active-bg: var(--mbg-magenta-dark); --bs-btn-active-border-color: var(--mbg-magenta-dark); --bs-btn-disabled-bg: #CDB8C6; --bs-btn-disabled-border-color: #CDB8C6; --bs-btn-disabled-color: #FFFFFF; }
+.btn-outline-primary { --bs-btn-color: var(--mbg-magenta); --bs-btn-border-color: var(--mbg-magenta); --bs-btn-hover-bg: var(--mbg-magenta); --bs-btn-hover-border-color: var(--mbg-magenta); --bs-btn-hover-color: #FFFFFF; --bs-btn-active-bg: var(--mbg-magenta-dark); --bs-btn-border-width: 2px; }
+.btn-book { --bs-btn-color: var(--mbg-on-orange); --bs-btn-bg: var(--mbg-orange); --bs-btn-border-color: var(--mbg-orange); --bs-btn-hover-color: var(--mbg-on-orange); --bs-btn-hover-bg: var(--mbg-orange-dark); --bs-btn-hover-border-color: var(--mbg-orange-dark); --bs-btn-active-color: var(--mbg-on-orange); --bs-btn-active-bg: var(--mbg-orange-dark); --bs-btn-disabled-bg: #FFD9AE; --bs-btn-disabled-border-color: #FFD9AE; --bs-btn-disabled-color: #7A5A3E; }
+
+/* Forms */
+.form-control, .form-select { border-color: #D9C2CF; border-radius: var(--mbg-radius-input); }
+.form-control:focus, .form-select:focus { border-color: var(--mbg-magenta); box-shadow: var(--mbg-focus); }
+.form-label { font-weight: 600; }
+.form-control.is-invalid, .form-select.is-invalid { border-color: var(--mbg-pink-text); }
+.invalid-feedback { color: var(--mbg-pink-text); font-weight: 600; }
+.form-check-input:checked { background-color: var(--mbg-magenta); border-color: var(--mbg-magenta); }
+.form-check-input:focus { box-shadow: var(--mbg-focus); }
+
+/* Cards */
+.card { --bs-card-border-color: var(--mbg-line); --bs-card-border-radius: var(--mbg-radius-card); --bs-card-inner-border-radius: var(--mbg-radius-card); }
+.mbg-card-raised { border-color: transparent; box-shadow: var(--mbg-shadow); }
+
+/* Alerts: tinted, with a coloured edge; always pair with an icon */
+.alert { border: 0; border-left: 4px solid; border-radius: var(--mbg-radius-input); }
+.alert-info { background: var(--mbg-info-bg); color: var(--mbg-info-fg); border-left-color: var(--mbg-info-line); }
+.alert-success { background: var(--mbg-success-bg); color: var(--mbg-success-fg); border-left-color: var(--mbg-success-line); }
+.alert-warning { background: var(--mbg-warning-bg); color: var(--mbg-warning-fg); border-left-color: var(--mbg-warning-line); }
+.alert-danger { background: var(--mbg-error-bg); color: var(--mbg-error-fg); border-left-color: var(--mbg-error-line); }
+
+/* Booking statuses: word + icon + shape, never colour alone */
+.mbg-status { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .65rem; border-radius: var(--mbg-radius-input); font-size: var(--mbg-size-small); font-weight: 700; line-height: 1.4; border: 1px solid transparent; }
+.mbg-status-pending { background: var(--mbg-tint-cream); color: #6E3B00; border: 1px dashed #B26A00; }
+.mbg-status-confirmed { background: var(--mbg-green); color: #FFFFFF; }
+.mbg-status-completed { background: var(--mbg-tint-lilac); color: #5A1A4A; border-color: #C9A3BF; }
+.mbg-status-no_show { background: var(--mbg-tint-pink); color: var(--mbg-error-fg); border-color: var(--mbg-pink-text); }
+.mbg-status-cancelled, .mbg-status-expired { background: transparent; color: var(--mbg-muted); border-color: var(--mbg-line); text-decoration: line-through; }
+
+/* Chips (filters, tags) */
+.mbg-chip { display: inline-block; padding: .3rem .8rem; border-radius: var(--mbg-radius-pill); border: 1px solid var(--mbg-line); background: var(--mbg-white); color: var(--mbg-ink); font-size: var(--mbg-size-small); font-weight: 600; }
+.mbg-chip.is-active { background: var(--mbg-magenta); border-color: var(--mbg-magenta); color: #FFFFFF; }
+
+/* Sections and layout */
+.mbg-section { padding-block: var(--mbg-section-y); }
+.mbg-section-pink { background: var(--mbg-tint-pink); }
+.mbg-section-cream { background: var(--mbg-tint-cream); }
+.mbg-section-lilac { background: var(--mbg-tint-lilac); }
+.mbg-section-blush { background: var(--mbg-tint-blush); }
+.mbg-hero { background: linear-gradient(120deg, var(--mbg-tint-pink), var(--mbg-tint-cream) 50%, var(--mbg-tint-lilac)); }
+.mbg-container { max-width: var(--mbg-max-width); margin-inline: auto; padding-inline: var(--mbg-space-3); }
+.mbg-readable { max-width: 70ch; }
+.mbg-stars { color: var(--mbg-gold); letter-spacing: .1em; }
+
+/* Photos */
+.mbg-photo { border-radius: var(--mbg-radius-card); object-fit: cover; width: 100%; }
+.mbg-photo-portrait { aspect-ratio: 4 / 5; }
+.mbg-photo-wide { aspect-ratio: 16 / 9; }
+
+/* Touch screens: controls at least 44 px tall */
+@media (pointer: coarse) {
+  .btn, .form-control, .form-select, .mbg-chip { min-height: 44px; }
+  .btn, .mbg-chip { display: inline-flex; align-items: center; justify-content: center; }
+}
+
+/* Keyboard focus is always visible */
+:focus-visible { outline: 3px solid var(--mbg-magenta); outline-offset: 2px; }

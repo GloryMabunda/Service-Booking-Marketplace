@@ -33,6 +33,17 @@ export default tseslint.config(
     files: ['src/database/migrations/**/*.ts'],
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
+  {
+    // The public website's plain browser JavaScript (#23): no TypeScript
+    // project, browser globals instead of Node's.
+    files: ['public/**/*.js'],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
+      sourceType: 'module',
+      globals: { ...globals.browser },
+    },
+  },
   // Turns off formatting rules that would fight with Prettier; keep this last.
   eslintConfigPrettier,
 );
