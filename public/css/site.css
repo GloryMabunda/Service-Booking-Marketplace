@@ -114,3 +114,33 @@ site-footer {
 site-header {
   min-height: 65px;
 }
+
+/* Admin portal (#27) */
+
+/* Hide portal content until the session check has passed, so nothing flashes
+   before a signed-out visitor is sent to the login page. */
+html:not(.mbg-signed-in) admin-header,
+html:not(.mbg-signed-in) .mbg-admin-main {
+  visibility: hidden;
+}
+admin-header {
+  display: block;
+  min-height: 65px;
+}
+
+.mbg-login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--mbg-space-4) var(--mbg-space-3);
+}
+.mbg-login-card {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+.mbg-login-logo {
+  height: 60px;
+  width: auto;
+}

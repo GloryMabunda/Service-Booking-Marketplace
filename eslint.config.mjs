@@ -24,7 +24,7 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', ignoreRestSiblings: true },
       ],
     },
   },

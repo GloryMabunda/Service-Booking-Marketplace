@@ -1,6 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import { envFileValues } from './tests/setup/env-file.js';
 
+// Variables from .env, unless already set in the real environment (#20).
+const fileEnv = envFileValues();
+const testDatabaseUrl =
+  process.env.TEST_DATABASE_URL ?? fileEnv.TEST_DATABASE_URL;
+
 // Integration, API and concurrency tests (npm run test:integration): the real
 // database and the whole app. Needs Docker running (npm run db:up).
 export default defineConfig({
@@ -9,8 +14,12 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['tests/**/*.spec.ts'],
-    // Variables from .env, unless already set in the real environment (#20).
-    env: envFileValues(),
+    env: {
+      ...fileEnv,
+      // The app under test uses the test database too, so tests never read or
+      // change development data (#27).
+      ...(testDatabaseUrl ? { DATABASE_URL: testDatabaseUrl } : {}),
+    },
     // Migrates the test database before the tests run (#19).
     globalSetup: ['./tests/setup/migrate-test-database.ts'],
     // Test files share one database, so they run one after another.

@@ -173,6 +173,14 @@ export interface Services {
   updated_at: Generated<Timestamp>;
 }
 
+export interface Sessions {
+  created_at: Generated<Timestamp>;
+  expires_at: Timestamp;
+  last_used_at: Generated<Timestamp>;
+  token_hash: Buffer;
+  user_id: string;
+}
+
 export interface Settings {
   banking_details: Json;
   buffer_minutes: Generated<number>;
@@ -238,6 +246,7 @@ export interface DB {
   notifications: Notifications;
   payment_proofs: PaymentProofs;
   services: Services;
+  sessions: Sessions;
   settings: Settings;
   site_content: SiteContent;
   testimonials: Testimonials;

@@ -1,6 +1,7 @@
 import type { Kysely } from 'kysely';
 import { verifyPassword } from '../../src/auth/password.js';
 import { seedAdmin } from '../../src/auth/seed-admin.js';
+import { createSession, findSession } from '../../src/auth/sessions.js';
 import type { DB } from '../../src/database/database.types.js';
 import {
   createTestDatabase,
@@ -47,11 +48,14 @@ describe('seedAdmin', () => {
         email: 'owner@example.com',
         password: 'first-password-123',
       });
+      const token = await createSession(trx, first.id);
       const second = await seedAdmin(trx, {
         email: 'OWNER@example.com',
         password: 'second-password-456',
       });
       expect(second).toEqual({ action: 'password-reset', id: first.id });
+      // Resetting the password signs out every existing session (#27).
+      await expect(findSession(trx, token)).resolves.toBeNull();
 
       const [admin] = await admins(trx);
       await expect(

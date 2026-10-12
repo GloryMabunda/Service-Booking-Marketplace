@@ -1,8 +1,11 @@
 import { join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ApiExceptionFilter } from './common/api-error.js';
 import { validateEnv } from './config/env.js';
+import { DatabaseModule } from './database/database.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ServicesModule } from './services/services.module.js';
 import { AvailabilityModule } from './availability/availability.module.js';
@@ -31,6 +34,7 @@ import { AdminModule } from './admin/admin.module.js';
       renderPath: '/',
       exclude: ['/api/{*path}'],
     }),
+    DatabaseModule,
     AuthModule,
     ServicesModule,
     AvailabilityModule,
@@ -41,5 +45,7 @@ import { AdminModule } from './admin/admin.module.js';
     SettingsModule,
     AdminModule,
   ],
+  // Every error leaves the API in the shape from docs/api.md section 2.
+  providers: [{ provide: APP_FILTER, useClass: ApiExceptionFilter }],
 })
 export class AppModule {}

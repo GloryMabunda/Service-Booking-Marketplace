@@ -473,6 +473,20 @@ Quotes the owner enters with the client's permission. Clients can't post them.
 | `position` | `integer` | Display order |
 | `created_at`, `updated_at` | `timestamptz` | |
 
+### 3.14 `sessions`
+
+Admin sessions (#27), added by the second migration. The browser keeps a random key in an HttpOnly cookie; only its hash is stored here. See [api.md section 6](api.md#6-authentication).
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `token_hash` | `bytea` | Primary key. SHA-256 of the cookie's key, exactly 32 bytes |
+| `user_id` | `uuid` | The signed-in user. `ON DELETE CASCADE`: removing a user ends their sessions |
+| `created_at` | `timestamptz` | When the user signed in |
+| `last_used_at` | `timestamptz` | Updated on every request; a session idle for 12 hours has ended |
+| `expires_at` | `timestamptz` | `created_at` + 7 days, the longest a session can last. Must be after `created_at` |
+
+Indexes on `user_id` (signing out everywhere after a password reset) and `expires_at` (tidying expired sessions at each login). Ended sessions are deleted, not kept.
+
 ## 4. Preventing double-booking
 
 BR-2 requires that two simultaneous requests for overlapping times give exactly one success. Checking availability in the application first isn't enough on its own: two requests can both check, both see a free slot, and both insert. The database therefore enforces it with an **exclusion constraint**:
