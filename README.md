@@ -111,7 +111,7 @@ git --version
    npm run start:dev
    ```
 
-   Wait for **"Nest application successfully started"**, then open **<http://localhost:3000>**. The API lives under <http://localhost:3000/api>.
+   Wait for **"Nest application successfully started"**, then open **<http://localhost:3000>**. The admin portal is at **<http://localhost:3000/admin/>**: sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. The API lives under <http://localhost:3000/api>.
 
    Or press **F5**: in VS Code (**Run the app**), or in Visual Studio after opening `ServiceBookingMarketplace.sln`.
 

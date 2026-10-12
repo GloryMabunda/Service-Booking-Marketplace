@@ -2,6 +2,7 @@ import type { Kysely } from 'kysely';
 import { z } from 'zod';
 import type { DB } from '../database/database.types.js';
 import { hashPassword } from './password.js';
+import { deleteUserSessions } from './sessions.js';
 
 // The single administrator account is created from ADMIN_EMAIL and
 // ADMIN_PASSWORD by `npm run seed:admin` (#26). There is no sign-up and no
@@ -76,6 +77,8 @@ export async function seedAdmin(
       .set({ password_hash: passwordHash, role: 'admin' })
       .where('id', '=', sameEmail.id)
       .execute();
+    // A new password signs the admin out everywhere (#27).
+    await deleteUserSessions(db, sameEmail.id);
     return { action: 'password-reset', id: sameEmail.id };
   }
 
@@ -94,6 +97,7 @@ export async function seedAdmin(
       .set({ email, password_hash: passwordHash })
       .where('id', '=', existingAdmin.id)
       .execute();
+    await deleteUserSessions(db, existingAdmin.id);
     return { action: 'email-changed', id: existingAdmin.id };
   }
 

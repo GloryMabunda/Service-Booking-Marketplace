@@ -31,6 +31,7 @@ This document describes every endpoint: method, path, access, request, response 
 | `GET /media/:key` | Public | [4.7](#47-get-mediakey) |
 | `POST /api/auth/login` | Public | [6.1](#61-post-apiauthlogin) |
 | `POST /api/auth/logout` | Admin | [6.2](#62-post-apiauthlogout) |
+| `GET /api/auth/me` | Admin | [6.3](#63-get-apiauthme) |
 | `GET /api/admin/dashboard` | Admin | [7.1](#71-get-apiadmindashboard) |
 | `GET /api/admin/bookings` | Admin | [7.2](#72-get-apiadminbookings) |
 | `GET /api/admin/bookings/:id` | Admin | [7.3](#73-get-apiadminbookingsid) |
@@ -598,7 +599,18 @@ The slot is freed immediately. The client and the owner are emailed; the owner's
 
 Admin endpoints require a signed-in administrator. Without a valid session they return `401 UNAUTHENTICATED`; with a session whose role isn't allowed they return `403 FORBIDDEN` (A-1). Every admin route is protected by the same guard, and a test generated from the route list checks that none is missed (#79).
 
-Whether the session is a secure HTTP-only cookie or a bearer token is decided in #27. This document is written so that either works; if cookies are chosen, state-changing requests also need CSRF protection.
+**Sessions (decided in #27): a server-side session in a secure cookie.**
+
+| Topic | Rule |
+| --- | --- |
+| Cookie | `mbg_session`, holding a random 256-bit key. `HttpOnly` (page scripts can't read it), `SameSite=Strict` (never sent with requests started by other sites), `Path=/`, and `Secure` in production (HTTPS only). The key is never in a response body |
+| Storage | The `sessions` table keeps only the key's SHA-256 hash ([database design](database.md)), so a copy of the database can't be used to sign in |
+| Lifetime | Ends after **12 hours without a request** or **7 days** after signing in, whichever comes first; each request restarts the 12-hour timer. Logging out ends it at once, and resetting the password with `npm run seed:admin` ends all of the admin's sessions |
+| CSRF | Besides `SameSite=Strict`, every `POST`, `PATCH`, `PUT` and `DELETE` is refused with `403 FORBIDDEN` when the browser marks it as cross-site (`Sec-Fetch-Site: cross-site`, or an `Origin` that isn't this site) |
+| Guard | Every route under `/api/admin/` requires a session automatically; other routes opt in (logout, `me`). The allowed roles default to `admin` and can be set per route, ready for more roles |
+| Portal pages | `/admin/login.html` signs in; pages under `/admin/` ask `GET /api/auth/me` and send a signed-out visitor to the login page, which returns them to that page afterwards. The pages contain no data: everything comes from `/api/admin`, which the server protects |
+
+Why not a token: a JWT can't be cancelled before it expires without extra machinery, and a token readable by page scripts can be stolen by an injected script. One administrator on one site gains nothing from stateless tokens.
 
 ### 6.1 `POST /api/auth/login`
 
@@ -614,13 +626,17 @@ Whether the session is a secure HTTP-only cookie or a bearer token is decided in
 { "user": { "email": "glory@example.com", "role": "admin" } }
 ```
 
-Plus the session cookie or token, as decided in #27.
+Plus `Set-Cookie: mbg_session=…; Max-Age=604800; Path=/; HttpOnly; SameSite=Strict` (and `Secure` in production), and `Cache-Control: no-store`. The email is matched case-insensitively.
 
-**Errors:** `400 VALIDATION_FAILED`, `401 INVALID_CREDENTIALS` (same response for a wrong email or a wrong password), `429`.
+**Errors:** `400 VALIDATION_FAILED` (unknown fields too), `401 INVALID_CREDENTIALS` (same response, and similar timing, for a wrong email or a wrong password), `429 RATE_LIMITED` with `Retry-After` (section 3). Hitting the limit blocks even the right password until the wait is over.
 
 ### 6.2 `POST /api/auth/logout`
 
-Ends the session. **Response `204`**. **Errors:** `401`.
+Ends the session and clears the cookie. **Response `204`**. **Errors:** `401`.
+
+### 6.3 `GET /api/auth/me`
+
+Who is signed in; the portal pages use it to decide whether to show the login page. **Response `200`**: `{ "user": { "email": "glory@example.com", "role": "admin" } }`, with `Cache-Control: no-store`. **Errors:** `401 UNAUTHENTICATED` when signed out.
 
 ---
 
