@@ -327,7 +327,7 @@ The schema is built by migrations in `src/database/migrations/`, run with [kysel
 | Command | What it does |
 | --- | --- |
 | `npm run db:migrate` | Applies new migrations to the development database |
-| `npm run db:migrate:test` | The same for the test database (also runs automatically before `npm run test:e2e`) |
+| `npm run db:migrate:test` | The same for the test database (also runs automatically before `npm run test:integration`) |
 | `npm run db:migrate:make -- <name>` | Creates a new, empty migration file |
 | `npm run db:migrate:down` | Undoes the most recent migration |
 | `npm run db:migrate:list` | Shows which migrations have run |
@@ -353,7 +353,17 @@ The frontend will use standard HTML, CSS, Bootstrap, and vanilla JavaScript to k
 - GitHub Actions
 - npm
 - REST APIs
-- Automated testing
+- Automated testing with [Vitest](https://vitest.dev)
+
+| Command | Runs | Where the tests live |
+| --- | --- | --- |
+| `npm test` | **Unit** tests: one piece of logic at a time, with no database or `.env`. They take milliseconds. | Next to the code: `src/**/*.spec.ts` |
+| `npm run test:integration` | **Integration**, **API** and **concurrency** tests against the test database and the whole app. Needs Docker running (`npm run db:up`); migrates the test database first. | `tests/integration/`, `tests/api/` |
+| `npm run test:all` | Both of the above | |
+| `npm run test:watch` | Unit tests again on every save | |
+| `npm run test:cov` | Unit tests with a coverage report in `coverage/` | |
+
+Integration tests use the helpers in `tests/helpers/`: `createTestDatabase()` connects to `TEST_DATABASE_URL`, and `inRolledBackTransaction()` undoes everything a test inserted.
 
 ## Hosting
 
@@ -662,6 +672,10 @@ Service-Booking-Marketplace/
 ├── public/
 │
 ├── tests/
+│   ├── integration/  (real test database)
+│   ├── api/          (HTTP requests to the whole app)
+│   ├── helpers/
+│   └── setup/
 │
 ├── docs/
 │

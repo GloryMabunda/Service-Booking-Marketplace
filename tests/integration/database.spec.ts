@@ -1,39 +1,22 @@
-import { Kysely, PostgresDialect, sql } from 'kysely';
-import pg from 'pg';
-import type { DB } from '../src/database/database.types.js';
+import { type Kysely, sql } from 'kysely';
+import type { DB } from '../../src/database/database.types.js';
+import {
+  createTestDatabase,
+  inRolledBackTransaction,
+} from '../helpers/database.js';
 
-// Checks the migrated test database (#19). Each test runs inside a
-// transaction that is rolled back, so nothing is left behind.
-describe('Database schema (e2e)', () => {
+// Example integration test (#21): checks the migrated test database (#19).
+// Each test runs inside a transaction that is rolled back.
+describe('Database schema', () => {
   let db: Kysely<DB>;
 
   beforeAll(() => {
-    // From .env (vitest.config.e2e.ts) or the real environment (#20).
-    const connectionString = process.env.TEST_DATABASE_URL;
-    if (!connectionString) throw new Error('TEST_DATABASE_URL is not set');
-    db = new Kysely<DB>({
-      dialect: new PostgresDialect({
-        pool: new pg.Pool({ connectionString }),
-      }),
-    });
+    db = createTestDatabase();
   });
 
   afterAll(async () => {
     await db.destroy();
   });
-
-  async function inRolledBackTransaction(
-    work: (trx: Kysely<DB>) => Promise<void>,
-  ): Promise<void> {
-    await db.connection().execute(async (conn) => {
-      await sql`BEGIN`.execute(conn);
-      try {
-        await work(conn);
-      } finally {
-        await sql`ROLLBACK`.execute(conn);
-      }
-    });
-  }
 
   it('has the btree_gist extension', async () => {
     const { rows } = await sql<{
@@ -45,7 +28,7 @@ describe('Database schema (e2e)', () => {
   });
 
   it('rejects overlapping active bookings and allows back-to-back ones (BR-2)', async () => {
-    await inRolledBackTransaction(async (trx) => {
+    await inRolledBackTransaction(db, async (trx) => {
       const service = await trx
         .insertInto('services')
         .values({ name: 'Soft Glam', price: '650.00', duration_minutes: 90 })
