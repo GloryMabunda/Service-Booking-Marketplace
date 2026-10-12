@@ -1,5 +1,7 @@
 # Service Booking System 💄
 
+[![CI](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml)
+
 > **An appointment booking and management system designed for service-based businesses, allowing clients to discover services, view availability, book appointments online and secure them with a deposit.**
 
 The Service Booking System is a full-stack application designed to help appointment-based businesses manage their services, availability, bookings, deposits and clients from a central platform.
@@ -362,6 +364,8 @@ The frontend will use standard HTML, CSS, Bootstrap, and vanilla JavaScript to k
 | `npm run test:all` | Both of the above | |
 | `npm run test:watch` | Unit tests again on every save | |
 | `npm run test:cov` | Unit tests with a coverage report in `coverage/` | |
+
+**Continuous integration.** On every pull request into `main` and every push to `main`, [GitHub Actions](.github/workflows/ci.yml) starts its own PostgreSQL 17, then runs lint, the formatting check, the build, both test commands, and a check that `src/database/database.types.ts` matches the migrations. "Lint, build and test" is a required check, so a pull request can't be merged until it passes.
 
 Integration tests use the helpers in `tests/helpers/`: `createTestDatabase()` connects to `TEST_DATABASE_URL`, and `inRolledBackTransaction()` undoes everything a test inserted.
 
