@@ -32,6 +32,126 @@ The goal is to build a practical booking system that can be adapted to different
 
 ---
 
+# 💻 Getting Started
+
+How to run the project on your own computer. These steps were tested on a fresh clone with no `.env`, no installed packages and an empty database.
+
+## Prerequisites
+
+| Tool | Version | Notes |
+| --- | --- | --- |
+| [Git](https://git-scm.com/downloads) | Any recent version | To clone the repository |
+| [Node.js](https://nodejs.org) | **24 LTS** (see [`.nvmrc`](.nvmrc)) | Includes npm 11. Node 23 and npm 10 fail to install or run this project |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Any recent version, with Docker Compose v2 | Runs PostgreSQL 17 locally; nothing else needs installing |
+| An editor | [VS Code](https://code.visualstudio.com) or [Visual Studio 2022](https://visualstudio.microsoft.com) | Both are set up to run the app with **F5** |
+
+**On Windows**, Docker Desktop needs WSL 2 and the **Virtual Machine Platform** Windows feature, with virtualization turned on in the computer's firmware. If Docker Desktop says "Virtual Machine Platform not enabled", run this in PowerShell **as administrator**, then **restart Windows**:
+
+```powershell
+Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All
+```
+
+Check the versions:
+
+```bash
+node -v      # v24.x
+npm -v       # 11.x
+docker -v
+git --version
+```
+
+> **PowerShell tip:** if `npm` fails with "npm.ps1 cannot be loaded" or "is not digitally signed", type `npm.cmd` instead of `npm` in every command below.
+
+## Set up and run
+
+1. **Clone the repository and open the folder:**
+
+   ```bash
+   git clone https://github.com/GloryMabunda/Service-Booking-Marketplace.git
+   cd Service-Booking-Marketplace
+   ```
+
+2. **Install the packages** (the exact versions in `package-lock.json`):
+
+   ```bash
+   npm ci
+   ```
+
+3. **Create your settings file** by copying the example. It already points at the local Docker database, so you don't need to change anything:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   In PowerShell: `Copy-Item .env.example .env`. `.env` is git-ignored; never commit it.
+
+4. **Start Docker Desktop**, wait until it says "Engine running", then **start the database**. The first time downloads PostgreSQL (about 100 MB):
+
+   ```bash
+   npm run db:up
+   ```
+
+5. **Create the tables:**
+
+   ```bash
+   npm run db:migrate
+   ```
+
+6. **Start the app.** It restarts by itself when you save a file in `src/`:
+
+   ```bash
+   npm run start:dev
+   ```
+
+   Wait for **"Nest application successfully started"**, then open **<http://localhost:3000>**. The API lives under <http://localhost:3000/api>.
+
+   Or press **F5**: in VS Code (**Run the app**), or in Visual Studio after opening `ServiceBookingMarketplace.sln`.
+
+7. **Run the tests:**
+
+   ```bash
+   npm test                    # unit tests, no database needed
+   npm run test:integration    # database and API tests; Docker must be running
+   ```
+
+When you're finished, stop the app with **Ctrl+C** (or **Shift+F5** in the editor) and the database with `npm run db:down`. Your data is kept for next time.
+
+## Everyday commands
+
+| Command | What it does |
+| --- | --- |
+| `npm run start:dev` | Run the app, restarting on every save |
+| `npm run db:up` / `npm run db:down` | Start / stop the database (data is kept) |
+| `npm run db:reset` | Delete all local data and start the database again; then run `npm run db:migrate` |
+| `npm run db:migrate` | Apply new migrations (after pulling changes that include one) |
+| `npm run db:psql` | Open a SQL prompt on the development database |
+| `npm test` / `npm run test:integration` / `npm run test:all` | Unit tests / database and API tests / both |
+| `npm run lint` / `npm run format` | Check the code / format it |
+| `npm run build` | Compile to `dist/` (production: `npm run start:prod`) |
+
+More detail on the database, test and CI commands is in the **Technology Stack** section below; the workflow for making changes is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Troubleshooting
+
+| You see | Cause | Fix |
+| --- | --- | --- |
+| `Invalid environment configuration: DATABASE_URL: is required but not set` | No `.env` file | Step 3: copy `.env.example` to `.env` |
+| `connect ECONNREFUSED 127.0.0.1:5432` | The database isn't running | Start Docker Desktop, then `npm run db:up` |
+| `Bind for 0.0.0.0:5432 failed: port is already allocated` | Another PostgreSQL uses port 5432 | Stop it, or set `DB_PORT=5433` in `.env` and change `5432` to `5433` in both URLs there |
+| `EADDRINUSE: address already in use :::3000` | The app is already running somewhere | Stop the other copy, or set `PORT=3001` in `.env` |
+| `relation "services" does not exist` | The tables haven't been created | `npm run db:migrate` |
+| "This site can't be reached" on localhost:3000 | The app isn't running or is still starting | Wait for "successfully started" in the terminal |
+| `npm ci` fails with `Cannot read properties of null (reading 'edgesOut')` | npm 10 (Node 23) | Install Node 24 LTS |
+
+## Documentation
+
+- 📄 [Specification](docs/specification.md): the requirements; where anything differs, the specification wins
+- 🗄️ [Database design](docs/database.md), 🔌 [API](docs/api.md), 🖼️ [Wireframes](docs/wireframes/README.md), 🎨 [Style guide](docs/style-guide.md), ✉️ [Email content](docs/emails.md)
+- Everything in [`docs/`](docs/) is listed in the **Documentation** section below
+- 🤝 [Contributing](CONTRIBUTING.md): branches, pull requests and the checks
+
+---
+
 # 🚀 Project Overview
 
 The system provides two main experiences:
@@ -703,7 +823,7 @@ Service-Booking-Marketplace/
 
 # 🚧 Project Status
 
-**Currently in development.** Requirements and design (M0) are complete; the foundation (M1) is in progress.
+**Currently in development.** Requirements and design (M0) and the foundation (M1) are complete: the app runs locally with its database, tests and CI. Services (M2) are next.
 
 The project is being developed incrementally, with the architecture, database design, implementation, testing, and deployment documented throughout the development process.
 
