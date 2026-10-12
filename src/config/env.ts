@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 // Every environment variable the app reads, with its rules (#20). Add new ones
 // here and to .env.example in the same change.
+// ADMIN_EMAIL and ADMIN_PASSWORD are read only by npm run seed:admin; their
+// rules are in src/auth/seed-admin.ts (#26).
 const postgresUrl = z
   .string()
   .regex(/^postgres(ql)?:\/\/.+/, 'must be a postgres:// connection string');

@@ -221,13 +221,13 @@ Unless stated otherwise, every column is `NOT NULL`.
 
 ### 3.1 `users`
 
-The administrator account, created by the seed script (#26). There is no sign-up.
+The administrator account, created by the seed script (#26): `npm run seed:admin` reads `ADMIN_EMAIL` and `ADMIN_PASSWORD` and creates the admin, or resets the password if it already exists. If `ADMIN_EMAIL` changes, the same row moves to the new email, so there is only ever one admin. There is no sign-up.
 
 | Column | Type | Notes |
 | --- | --- | --- |
 | `id` | `uuid` | Primary key |
 | `email` | `text` | Unique, case-insensitive (unique index on `lower(email)`) |
-| `password_hash` | `text` | bcrypt or argon2 hash (#27). The password itself is never stored |
+| `password_hash` | `text` | Argon2id hash (#26), which records its own salt and cost settings. The password itself is never stored |
 | `role` | `user_role` | Enum: `admin`. More roles can be added later |
 | `created_at` | `timestamptz` | |
 

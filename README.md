@@ -97,7 +97,15 @@ git --version
    npm run db:migrate
    ```
 
-6. **Start the app.** It restarts by itself when you save a file in `src/`:
+6. **Create your administrator account.** In `.env`, set `ADMIN_EMAIL` to your email and `ADMIN_PASSWORD` to a password of at least 12 characters, then run:
+
+   ```bash
+   npm run seed:admin
+   ```
+
+   It prints "Created the administrator account". Forgot the password? Change `ADMIN_PASSWORD` and run it again: there is no password-reset screen. The password is stored only as an Argon2id hash.
+
+7. **Start the app.** It restarts by itself when you save a file in `src/`:
 
    ```bash
    npm run start:dev
@@ -107,7 +115,7 @@ git --version
 
    Or press **F5**: in VS Code (**Run the app**), or in Visual Studio after opening `ServiceBookingMarketplace.sln`.
 
-7. **Run the tests:**
+8. **Run the tests:**
 
    ```bash
    npm test                    # unit tests, no database needed
@@ -125,6 +133,7 @@ When you're finished, stop the app with **Ctrl+C** (or **Shift+F5** in the edito
 | `npm run db:reset` | Delete all local data and start the database again; then run `npm run db:migrate` |
 | `npm run db:migrate` | Apply new migrations (after pulling changes that include one) |
 | `npm run db:psql` | Open a SQL prompt on the development database |
+| `npm run seed:admin` | Create the administrator from `ADMIN_EMAIL` / `ADMIN_PASSWORD`, or reset the password |
 | `npm test` / `npm run test:integration` / `npm run test:all` | Unit tests / database and API tests / both |
 | `npm run lint` / `npm run format` | Check the code / format it |
 | `npm run build` | Compile to `dist/` (production: `npm run start:prod`) |
@@ -140,6 +149,7 @@ More detail on the database, test and CI commands is in the **Technology Stack**
 | `Bind for 0.0.0.0:5432 failed: port is already allocated` | Another PostgreSQL uses port 5432 | Stop it, or set `DB_PORT=5433` in `.env` and change `5432` to `5433` in both URLs there |
 | `EADDRINUSE: address already in use :::3000` | The app is already running somewhere | Stop the other copy, or set `PORT=3001` in `.env` |
 | `relation "services" does not exist` | The tables haven't been created | `npm run db:migrate` |
+| `Cannot seed the administrator: ADMIN_EMAIL: is required` | The admin settings aren't in `.env` | Add `ADMIN_EMAIL` and `ADMIN_PASSWORD` (step 6) |
 | "This site can't be reached" on localhost:3000 | The app isn't running or is still starting | Wait for "successfully started" in the terminal |
 | `npm ci` fails with `Cannot read properties of null (reading 'edgesOut')` | npm 10 (Node 23) | Install Node 24 LTS |
 

@@ -1,5 +1,5 @@
-import { Kysely, PostgresDialect, sql } from 'kysely';
-import pg from 'pg';
+import { type Kysely, sql } from 'kysely';
+import { createDatabase } from '../../src/database/database.js';
 import type { DB } from '../../src/database/database.types.js';
 
 // Opens the test database from TEST_DATABASE_URL (.env, or the real
@@ -11,9 +11,7 @@ export function createTestDatabase(): Kysely<DB> {
       'TEST_DATABASE_URL is not set. Add it to .env (see .env.example).',
     );
   }
-  return new Kysely<DB>({
-    dialect: new PostgresDialect({ pool: new pg.Pool({ connectionString }) }),
-  });
+  return createDatabase(connectionString);
 }
 
 // Runs work inside a transaction that is always rolled back, so a test can
