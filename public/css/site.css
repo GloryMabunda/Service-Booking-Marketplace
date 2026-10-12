@@ -1,0 +1,116 @@
+/*
+ * Site layout: the shared header, footer and page frame (#23).
+ * Colours, fonts and components come from tokens.css; use its --mbg-*
+ * variables here, never raw hex codes (docs/style-guide.md section 9).
+ */
+
+/* The footer stays at the bottom on short pages */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main {
+  flex: 1 0 auto;
+}
+
+/* Custom elements render as blocks */
+site-header,
+site-footer {
+  display: block;
+}
+
+/* Skip link: hidden until focused with the keyboard */
+.mbg-skip-link {
+  position: absolute;
+  top: var(--mbg-space-2);
+  left: var(--mbg-space-2);
+  z-index: 1100;
+  padding: var(--mbg-space-2) var(--mbg-space-3);
+  background: var(--mbg-white);
+  color: var(--mbg-magenta);
+  border-radius: var(--mbg-radius-input);
+  box-shadow: var(--mbg-shadow);
+}
+
+/* Header: white, sticky, with the soft shadow (style guide section 4) */
+.mbg-site-header {
+  background: var(--mbg-white);
+  border-bottom: 1px solid var(--mbg-line);
+  box-shadow: var(--mbg-shadow);
+}
+.mbg-site-header .navbar {
+  padding-block: var(--mbg-space-2);
+}
+.mbg-header-logo {
+  height: 40px; /* phones */
+  width: auto;
+}
+@media (min-width: 992px) {
+  .mbg-header-logo {
+    height: 48px; /* desktop */
+  }
+}
+.mbg-site-header .nav-link {
+  color: var(--mbg-ink);
+  font-weight: 600;
+}
+.mbg-site-header .nav-link:hover,
+.mbg-site-header .nav-link:focus-visible {
+  color: var(--mbg-magenta);
+}
+.mbg-site-header .nav-link.active {
+  color: var(--mbg-magenta);
+  text-decoration: underline;
+  text-underline-offset: 0.4em;
+  text-decoration-thickness: 2px;
+}
+.mbg-site-header .navbar-toggler {
+  border-color: var(--mbg-line);
+  min-height: 44px;
+  min-width: 44px;
+}
+.mbg-site-header .navbar-toggler:focus {
+  box-shadow: var(--mbg-focus);
+}
+
+/* Phones: menu links get comfortable touch targets */
+@media (max-width: 991.98px) {
+  .mbg-site-header .nav-link {
+    padding-block: 0.75rem;
+  }
+}
+
+/* Footer: plum, the logo's ink colour */
+.mbg-site-footer {
+  background: var(--mbg-plum);
+  color: var(--mbg-tint-blush);
+  padding-block: var(--mbg-space-5);
+  margin-top: auto;
+}
+.mbg-site-footer a {
+  color: var(--mbg-white);
+}
+.mbg-site-footer a:hover {
+  color: var(--mbg-tint-pink);
+}
+.mbg-footer-name {
+  font-family: var(--mbg-font-heading);
+  font-weight: 600;
+  font-size: var(--mbg-size-h3);
+  color: var(--mbg-white);
+}
+.mbg-footer-legal {
+  opacity: 0.85;
+}
+
+/* Home page hero: the full logo, large (style guide section 6) */
+.mbg-hero-logo {
+  width: min(320px, 70vw);
+  height: auto;
+}
+
+/* Reserve the header height so the page does not jump while it renders */
+site-header {
+  min-height: 65px;
+}
