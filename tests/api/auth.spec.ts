@@ -15,6 +15,7 @@ import { seedAdmin } from '../../src/auth/seed-admin.js';
 import type { SessionUser } from '../../src/auth/sessions.js';
 import type { DB, UserRole } from '../../src/database/database.types.js';
 import { createTestDatabase } from '../helpers/database.js';
+import { errorBody } from '../helpers/http.js';
 
 // Admin login, sessions and the guard on /api/admin (#27, docs/api.md
 // section 6). Test-only admin routes check that the guard covers any route
@@ -47,15 +48,6 @@ class TestOtherRoleController {
   controllers: [TestAdminController, TestOtherRoleController],
 })
 class TestRootModule {}
-
-// The error shape from docs/api.md section 2.
-interface ErrorBody {
-  statusCode: number;
-  code: string;
-  message: string;
-  details: { field: string; message: string }[] | null;
-}
-const errorBody = (res: request.Response) => res.body as ErrorBody;
 
 const ADMIN = {
   email: 'auth-test@example.com',
