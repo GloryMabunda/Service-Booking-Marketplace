@@ -376,7 +376,7 @@ The confirmation page shows this with the message that the booking is confirmed 
 
 **The booking link (BR-15).** A random 32-byte token is made for each booking and only its SHA-256 hash is saved. The token goes to the email sender and is never in a response or a log.
 
-The emails are sent after the booking is saved. If sending fails, the booking still succeeds (spec section 7), and `emailSentTo` is `null` so the page can say so. Until the email provider is added in M5, no email is sent and `emailSentTo` is always `null`.
+The emails are sent after the booking is saved. If sending fails, the booking still succeeds (spec section 7), and `emailSentTo` is `null` so the page can say so. Every attempt is recorded in the `notifications` table as sent or failed, with the provider's error. With `SMTP_HOST` empty no email is sent and `emailSentTo` is `null`. Bookings that need no deposit get their confirmation email in #57; until then `emailSentTo` is `null` for them too.
 
 The endpoint is limited to **10 requests per hour per IP address** (section 3), and every response carries the `RateLimit-*` headers.
 

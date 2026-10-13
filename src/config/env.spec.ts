@@ -10,6 +10,7 @@ describe('validateEnv', () => {
       NODE_ENV: 'development',
       PORT: 3000,
       DATABASE_URL: valid.DATABASE_URL,
+      SMTP_PORT: 587,
     });
   });
 
@@ -48,5 +49,40 @@ describe('validateEnv', () => {
     expect(() => validateEnv({ ...valid, NODE_ENV: 'staging' })).toThrow(
       /NODE_ENV/,
     );
+  });
+});
+
+describe('email settings', () => {
+  const base = {
+    DATABASE_URL: 'postgres://booking:booking@localhost:5432/booking',
+  };
+
+  it('are all optional, and blank values count as not set', () => {
+    const env = validateEnv({ ...base, SMTP_HOST: '', MAIL_FROM: '  ' });
+    expect(env.SMTP_HOST).toBeUndefined();
+    expect(env.MAIL_FROM).toBeUndefined();
+    expect(env.SMTP_PORT).toBe(587);
+  });
+
+  it('need MAIL_FROM once SMTP_HOST is set', () => {
+    expect(() =>
+      validateEnv({ ...base, SMTP_HOST: 'smtp.example.com' }),
+    ).toThrow(/MAIL_FROM: is required when SMTP_HOST is set/);
+    expect(
+      validateEnv({
+        ...base,
+        SMTP_HOST: 'smtp.example.com',
+        MAIL_FROM: 'bookings@example.com',
+      }).SMTP_HOST,
+    ).toBe('smtp.example.com');
+  });
+
+  it('check PUBLIC_URL is a web address', () => {
+    expect(() => validateEnv({ ...base, PUBLIC_URL: 'not a url' })).toThrow(
+      /PUBLIC_URL/,
+    );
+    expect(
+      validateEnv({ ...base, PUBLIC_URL: 'https://example.com' }).PUBLIC_URL,
+    ).toBe('https://example.com');
   });
 });
