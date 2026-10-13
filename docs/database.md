@@ -236,8 +236,8 @@ The administrator account, created by the seed script (#26): `npm run seed:admin
 | Column | Type | Notes |
 | --- | --- | --- |
 | `id` | `uuid` | Primary key |
-| `name` | `text` | 1 to 100 characters |
-| `description` | `text` | Can be empty |
+| `name` | `text` | 1 to 100 characters. Unique ignoring capitals (unique index `services_name_key` on `lower(name)`, #29) |
+| `description` | `text` | Can be empty. At most 2,000 characters (`services_description_length`, #29) |
 | `price` | `numeric(10,2)` | `>= 0` |
 | `duration_minutes` | `integer` | `> 0` and at most 720 (12 hours) |
 | `is_active` | `boolean` | Default `true`. Inactive services are hidden from clients and can't be newly booked (BR-5) |
