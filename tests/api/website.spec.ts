@@ -75,6 +75,10 @@ describe('Public website', () => {
     ['/js/time-zone.js', /javascript/],
     ['/js/book-page.js', /javascript/],
     ['/js/admin-availability.js', /javascript/],
+    ['/js/phone.js', /javascript/],
+    ['/js/book-details-page.js', /javascript/],
+    ['/js/booking-confirmation-page.js', /javascript/],
+    ['/js/lookup-page.js', /javascript/],
   ])('serves %s', async (path, type) => {
     await request(app.getHttpServer())
       .get(path)
@@ -89,6 +93,27 @@ describe('Public website', () => {
       .expect('Content-Type', /html/);
     expect(res.text).toContain('/js/book-page.js');
     expect(res.text).toContain('Choose a date and time');
+  });
+
+  it.each([
+    ['/book-details.html', 'Your details'],
+    ['/booking-confirmation.html', 'What happens next'],
+    ['/lookup.html', 'Find my booking'],
+  ])('serves the booking page %s (#51, #52)', async (path, heading) => {
+    const res = await request(app.getHttpServer())
+      .get(path)
+      .expect(200)
+      .expect('Content-Type', /html/);
+    expect(res.text).toContain(heading);
+    // Pages with a booking in them are kept out of search engines
+    expect(res.text).toContain('<meta name="robots" content="noindex"');
+  });
+
+  it('keeps the reference and the email out of what these pages send to other sites', async () => {
+    for (const path of ['/booking-confirmation.html', '/lookup.html']) {
+      const res = await request(app.getHttpServer()).get(path).expect(200);
+      expect(res.text).toContain('<meta name="referrer" content="no-referrer"');
+    }
   });
 
   it('does not show the home page for an unknown address', async () => {

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Your details · Make Up by Glory</title>
+    <link rel="icon" type="image/png" href="/images/logo/favicon-64.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <script src="/js/layout.js" defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="/js/book-details-page.js" type="module"></script>
+  </head>
+  <body>
+    <site-header current="services"></site-header>
+
+    <!-- Step 2 of booking (C-3, C-4, #51): the client's details. Sends
+         POST /api/bookings; the server checks everything again. -->
+    <main id="main" class="mbg-section">
+      <div class="mbg-container mbg-narrow">
+        <nav class="small mb-3" aria-label="Back">
+          <a id="back-link" href="/services.html"
+            ><i class="bi bi-arrow-left" aria-hidden="true"></i> Change date or
+            time</a
+          >
+        </nav>
+
+        <ol class="mbg-steps list-inline small mb-3" aria-label="Booking steps">
+          <li class="list-inline-item text-secondary">1 Date and time</li>
+          <li class="list-inline-item">
+            ›
+            <strong aria-current="step">2 Your details</strong>
+          </li>
+          <li class="list-inline-item text-secondary">› 3 Done</li>
+        </ol>
+
+        <div id="page-loading" class="text-secondary" role="status">
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            aria-hidden="true"
+          ></span
+          >Loading…
+        </div>
+
+        <div
+          id="page-error"
+          class="alert alert-danger d-none gap-2"
+          role="alert"
+        >
+          <i class="bi bi-x-circle" aria-hidden="true"></i>
+          <span>
+            <span id="page-error-text"></span>
+            <a href="/services.html">Choose a service</a>
+          </span>
+        </div>
+
+        <div class="row g-4" id="content" hidden>
+          <div class="col-md-5 order-md-2">
+            <div class="card mbg-card-raised">
+              <div class="card-body">
+                <h2 class="h4 text-body">Your booking</h2>
+                <dl class="row mb-0" id="summary"></dl>
+                <p class="small text-secondary mt-3 mb-0" id="summary-note"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-7 order-md-1">
+            <h1 class="h2">Your details</h1>
+
+            <!-- Messages from the server -->
+            <div
+              id="form-alert"
+              class="alert d-none gap-2"
+              role="alert"
+              aria-live="assertive"
+            >
+              <i id="form-alert-icon" class="bi" aria-hidden="true"></i>
+              <div>
+                <strong id="form-alert-title"></strong>
+                <div id="form-alert-text"></div>
+                <div id="form-alert-actions" class="mt-2"></div>
+              </div>
+            </div>
+
+            <form id="booking-form" novalidate>
+              <div class="mb-3">
+                <label class="form-label" for="clientName">Full name</label>
+                <input
+                  class="form-control"
+                  id="clientName"
+                  autocomplete="name"
+                  maxlength="100"
+                  required
+                />
+                <div class="invalid-feedback" id="clientName-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="clientEmail">Email</label>
+                <input
+                  class="form-control"
+                  id="clientEmail"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="254"
+                  required
+                />
+                <div class="form-text">
+                  Your payment instructions and booking link are sent here.
+                </div>
+                <div class="invalid-feedback" id="clientEmail-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="clientPhone">Phone</label>
+                <input
+                  class="form-control"
+                  id="clientPhone"
+                  type="tel"
+                  autocomplete="tel"
+                  required
+                />
+                <div class="form-text">A South African number.</div>
+                <div class="invalid-feedback" id="clientPhone-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="notes"
+                  >Notes <span class="text-secondary">(optional)</span></label
+                >
+                <textarea
+                  class="form-control"
+                  id="notes"
+                  rows="3"
+                  maxlength="1000"
+                ></textarea>
+                <div class="form-text">
+                  Anything we should know.
+                  <span id="notes-count" aria-live="off">0 / 1,000</span>
+                </div>
+                <div class="invalid-feedback" id="notes-error"></div>
+              </div>
+              <p class="small text-secondary">
+                We use your details only to manage this booking.
+              </p>
+              <button
+                class="btn btn-book btn-lg w-100"
+                type="submit"
+                id="submit-button"
+              >
+                Book and get payment instructions
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <site-footer></site-footer>
+  </body>
+</html>

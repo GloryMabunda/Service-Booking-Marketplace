@@ -9,9 +9,8 @@
 import { el, formatDuration, formatRand } from '/js/format.js';
 import { formatDay, isoDayOfWeek, zoneShortName } from '/js/time-zone.js';
 
-// The next step (entering your details, #51) is built in M4. Until then the
-// Continue button stays off and says so.
-const NEXT_STEP_READY = false;
+// The next step is the details page (#51).
+const NEXT_STEP_READY = true;
 
 const $ = (selector) => document.querySelector(selector);
 const pageLoading = $('#page-loading');
