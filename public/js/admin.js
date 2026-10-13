@@ -27,8 +27,19 @@ async function signOut() {
   location.assign('/admin/login.html');
 }
 
+// The portal menu. <admin-header current="services"> marks that page.
+const ADMIN_LINKS = [
+  { id: 'dashboard', label: 'Home', href: '/admin/' },
+  { id: 'services', label: 'Services', href: '/admin/services.html' },
+];
+
 class AdminHeader extends HTMLElement {
   connectedCallback() {
+    const current = this.getAttribute('current') ?? 'dashboard';
+    const links = ADMIN_LINKS.map((link) => {
+      const active = link.id === current;
+      return `<li class="nav-item"><a class="nav-link${active ? ' active' : ''}" href="${link.href}"${active ? ' aria-current="page"' : ''}>${link.label}</a></li>`;
+    }).join('');
     this.innerHTML = `
       <header class="mbg-site-header">
         <div class="mbg-container d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
@@ -36,8 +47,11 @@ class AdminHeader extends HTMLElement {
             <img class="mbg-header-logo" src="/images/logo/logo-horizontal.png" alt="Make Up by Glory" width="138" height="48">
             <span class="mbg-label d-none d-sm-inline">Admin portal</span>
           </a>
+          <nav aria-label="Admin portal">
+            <ul class="navbar-nav flex-row gap-3">${links}</ul>
+          </nav>
           <div class="d-flex align-items-center gap-3">
-            <span class="small text-secondary d-none d-md-inline" data-user-email></span>
+            <span class="small text-secondary d-none d-lg-inline" data-user-email></span>
             <button class="btn btn-outline-primary btn-sm" type="button" data-sign-out>
               <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>Sign out
             </button>

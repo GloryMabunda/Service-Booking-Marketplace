@@ -1,15 +1,36 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { type Kysely, sql } from 'kysely';
 import { ApiException } from '../common/api-error.js';
+import { percentOf } from '../common/money.js';
 import { DATABASE } from '../database/database.module.js';
 import type { DB } from '../database/database.types.js';
 import { isPgError, isRestrictViolation } from '../database/pg-errors.js';
+import {
+  type BookingWindow,
+  bookingWindow,
+} from '../settings/booking-window.js';
+import { SettingsService } from '../settings/settings.service.js';
 import {
   type CreateServiceInput,
   type Service,
   toService,
   type UpdateServiceInput,
 } from './service.schema.js';
+
+// GET /api/services (docs/api.md 4.1).
+export interface PublicServices {
+  services: {
+    id: string;
+    name: string;
+    description: string;
+    price: string;
+    durationMinutes: number;
+    depositAmount: string;
+  }[];
+  depositPercent: string;
+  business: { name: string; email: string; phone: string | null };
+  bookingWindow: BookingWindow;
+}
 
 const NOT_FOUND = () =>
   new ApiException(404, 'NOT_FOUND', "That service doesn't exist.");
@@ -19,7 +40,10 @@ const NOT_FOUND = () =>
 // (BR-4).
 @Injectable()
 export class ServicesService {
-  constructor(@Inject(DATABASE) private readonly db: Kysely<DB>) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: Kysely<DB>,
+    private readonly settings: SettingsService,
+  ) {}
 
   // Services with how many bookings each has, sorted by name ignoring capitals.
   async list(includeInactive: boolean): Promise<Service[]> {
@@ -30,6 +54,40 @@ export class ServicesService {
       .orderBy('services.id')
       .execute();
     return rows.map((row) => toService(row, Number(row.booking_count)));
+  }
+
+  // What clients see (C-1, #32): active services only (BR-5), each with its
+  // deposit (BR-7), plus the business details and the range of dates that can
+  // be booked. An inactive service never appears; its existing bookings are
+  // untouched (#33).
+  async listPublic(now = new Date()): Promise<PublicServices> {
+    const [rows, settings] = await Promise.all([
+      this.db
+        .selectFrom('services')
+        .selectAll()
+        .where('is_active', '=', true)
+        .orderBy(sql`lower(name)`)
+        .orderBy('id')
+        .execute(),
+      this.settings.get(),
+    ]);
+    return {
+      services: rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        price: row.price,
+        durationMinutes: row.duration_minutes,
+        depositAmount: percentOf(settings.depositPercent, row.price),
+      })),
+      depositPercent: settings.depositPercent,
+      business: {
+        name: settings.businessName,
+        email: settings.businessEmail,
+        phone: settings.businessPhone,
+      },
+      bookingWindow: bookingWindow(now, settings),
+    };
   }
 
   async create(input: CreateServiceInput): Promise<Service> {

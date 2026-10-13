@@ -41,6 +41,39 @@ describe('Public website', () => {
       .expect('Content-Type', type);
   });
 
+  it('serves the public services page, loading its data from the API (#32)', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/services.html')
+      .expect(200)
+      .expect('Content-Type', /html/);
+    expect(res.text).toContain('<site-header current="services">');
+    expect(res.text).toContain('/js/services-page.js');
+    // The page holds no service data itself.
+    expect(res.text).not.toContain('Soft Glam');
+  });
+
+  it.each(['/admin/login.html', '/admin/', '/admin/services.html'])(
+    'serves the portal page %s, which is kept out of search engines',
+    async (path) => {
+      const res = await request(app.getHttpServer())
+        .get(path)
+        .expect(200)
+        .expect('Content-Type', /html/);
+      expect(res.text).toContain('<meta name="robots" content="noindex"');
+    },
+  );
+
+  it.each([
+    ['/js/format.js', /javascript/],
+    ['/js/services-page.js', /javascript/],
+    ['/js/admin-services.js', /javascript/],
+  ])('serves %s', async (path, type) => {
+    await request(app.getHttpServer())
+      .get(path)
+      .expect(200)
+      .expect('Content-Type', type);
+  });
+
   it('does not show the home page for an unknown address', async () => {
     await request(app.getHttpServer()).get('/no-such-page.html').expect(404);
   });
