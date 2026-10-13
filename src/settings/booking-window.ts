@@ -1,3 +1,4 @@
+import { isoUtc, localDate } from '../availability/time-zone.js';
 import type { Settings } from './settings.schema.js';
 
 // The range of start times a client can book (C-2, BR-9, BR-10), returned
@@ -24,41 +25,32 @@ type WindowSettings = Pick<
 // Earliest start: now plus the minimum notice (BR-10), plus the minimum
 // payment window when a deposit applies, so the client always has time to pay
 // before the appointment (BR-9). Latest start: now plus the advance window.
+export function bookingWindowBounds(
+  now: Date,
+  settings: WindowSettings,
+): { earliest: Date; latest: Date } {
+  const depositApplies = Number(settings.depositPercent) > 0;
+  return {
+    earliest: new Date(
+      now.getTime() +
+        (settings.minNoticeHours +
+          (depositApplies ? settings.minPaymentWindowHours : 0)) *
+          HOUR_MS,
+    ),
+    latest: new Date(now.getTime() + settings.maxAdvanceDays * 24 * HOUR_MS),
+  };
+}
+
 export function bookingWindow(
   now: Date,
   settings: WindowSettings,
 ): BookingWindow {
-  const depositApplies = Number(settings.depositPercent) > 0;
-  const earliest = new Date(
-    now.getTime() +
-      (settings.minNoticeHours +
-        (depositApplies ? settings.minPaymentWindowHours : 0)) *
-        HOUR_MS,
-  );
-  const latest = new Date(
-    now.getTime() + settings.maxAdvanceDays * 24 * HOUR_MS,
-  );
+  const { earliest, latest } = bookingWindowBounds(now, settings);
   return {
     timeZone: settings.timeZone,
-    earliestStartAt: toIsoSeconds(earliest),
-    latestStartAt: toIsoSeconds(latest),
-    firstDate: calendarDay(earliest, settings.timeZone),
-    lastDate: calendarDay(latest, settings.timeZone),
+    earliestStartAt: isoUtc(earliest),
+    latestStartAt: isoUtc(latest),
+    firstDate: localDate(earliest, settings.timeZone),
+    lastDate: localDate(latest, settings.timeZone),
   };
-}
-
-// "2026-10-11T12:00:00Z", without milliseconds (docs/api.md section 1).
-function toIsoSeconds(date: Date): string {
-  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
-}
-
-// The calendar day of an instant in a time zone. The "en-CA" locale writes
-// dates as YYYY-MM-DD.
-function calendarDay(date: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date);
 }

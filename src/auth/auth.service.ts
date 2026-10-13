@@ -2,32 +2,12 @@ import { randomBytes } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Kysely } from 'kysely';
 import { ApiException } from '../common/api-error.js';
+import { RateLimitedException } from '../common/rate-limit.js';
 import { DATABASE } from '../database/database.module.js';
 import type { DB } from '../database/database.types.js';
 import { LoginRateLimiter } from './login-rate-limiter.js';
 import { hashPassword, verifyPassword } from './password.js';
 import { createSession, type SessionUser } from './sessions.js';
-
-export class RateLimitedException extends ApiException {
-  constructor(
-    readonly retryAfterSeconds: number,
-    readonly limit: number,
-  ) {
-    // Headers from docs/api.md section 3.
-    super(
-      429,
-      'RATE_LIMITED',
-      'Too many sign-in attempts. Please wait and try again.',
-      null,
-      {
-        'Retry-After': String(retryAfterSeconds),
-        'RateLimit-Limit': String(limit),
-        'RateLimit-Remaining': '0',
-        'RateLimit-Reset': String(retryAfterSeconds),
-      },
-    );
-  }
-}
 
 @Injectable()
 export class AuthService {
@@ -48,7 +28,12 @@ export class AuthService {
     ip: string,
   ): Promise<{ token: string; user: SessionUser }> {
     const hit = this.limiter.check(ip, email);
-    if (hit) throw new RateLimitedException(hit.retryAfterSeconds, hit.limit);
+    if (hit)
+      throw new RateLimitedException(
+        hit.retryAfterSeconds,
+        hit.limit,
+        'Too many sign-in attempts. Please wait and try again.',
+      );
     this.limiter.recordAttempt(ip);
 
     const user = await this.db

@@ -157,6 +157,22 @@ export class ServicesService {
     return { deleted: false, service: await this.get(id) };
   }
 
+  // An active service (BR-5), or null if it doesn't exist or is inactive.
+  // `id` must be a valid UUID; callers check that first.
+  async findActive(
+    id: string,
+  ): Promise<{ id: string; name: string; durationMinutes: number } | null> {
+    const row = await this.db
+      .selectFrom('services')
+      .select(['id', 'name', 'duration_minutes'])
+      .where('id', '=', id)
+      .where('is_active', '=', true)
+      .executeTakeFirst();
+    return row
+      ? { id: row.id, name: row.name, durationMinutes: row.duration_minutes }
+      : null;
+  }
+
   async get(id: string): Promise<Service> {
     const row = await this.withBookingCount()
       .where('services.id', '=', id)
