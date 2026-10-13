@@ -310,9 +310,15 @@ The start times a client can book for a service on a date (C-2, BR-1, BR-6, BR-1
 }
 ```
 
+**How slots are worked out** (`src/availability/slots.ts`): start times begin at the day's opening time and repeat every `slotIntervalMinutes`; the appointment (the service's duration) must end by closing time, but its buffer may run past closing (BR-13); the whole span from start to the end of the buffer must not overlap a Pending or Confirmed booking (each from its start to its `occupied_until`) or a blocked time, so one ending exactly when the next starts is fine; and the start must be inside the booking window below. Cancelled and Expired bookings don't count. The time zone is the business's (`settings.timeZone`): working hours are local times, converted to UTC, including on days when clocks change (BR-6).
+
 `slots` is empty when the day is not a working day, is fully booked or blocked, or falls outside the booking window. A start time is only offered if it is at least `earliestStartAt` and at most `latestStartAt` (see [4.1](#41-get-apiservices)), so a client always has at least the minimum payment window to pay the deposit (BR-9). `endAt` is the appointment end, without the buffer.
 
-**Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE`, `429`.
+The response is sent with `Cache-Control: no-store`, because slots change as bookings are made. The endpoint is limited to **60 requests per minute per IP address** (section 3); every response carries `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset`.
+
+**Re-checking at booking time.** `POST /api/bookings` (#45) re-checks the chosen start time with the same code (`AvailabilityService.isSlotOpen`), so a slot that was offered a minute ago but has since been booked, blocked or become too soon is refused.
+
+**Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE` (unknown or inactive service), `429`.
 
 ### 4.3 `POST /api/bookings`
 
@@ -970,7 +976,7 @@ Working hours (A-6), one entry per day of the week (1 = Monday … 7 = Sunday).
 
 **`PUT /api/admin/availability`** replaces the whole week. The request is `{ "days": [...] }` with exactly seven entries, one per day. Working days need `startTime` before `endTime` (`HH:mm`); non-working days have both `null`. Response `200` with the saved week.
 
-Changes apply to the slots offered from then on. Existing bookings are not affected.
+Changes apply to the slots offered from then on. Existing bookings are not affected. The database starts with sample hours (Monday to Friday 09:00 to 17:00, Saturday 08:00 to 14:00, Sunday closed); set your own here.
 
 **Errors:** only the common admin errors (`400 VALIDATION_FAILED` for a week that isn't exactly seven valid days).
 
@@ -988,7 +994,9 @@ Block whole dates or time ranges (A-6).
 
 Blocking time that overlaps existing Pending or Confirmed bookings is allowed; those bookings are not cancelled, and `overlappingBookings` lists them so the owner can decide what to do.
 
-**Errors:** `404 NOT_FOUND` (delete).
+Query: `from` and `to` are calendar days in the business time zone; `from` defaults to today, and a blocked time is listed if it ends after the start of `from` and (when `to` is given) starts before the end of `to`. `reason` is optional, at most 500 characters. `startAt` and `endAt` are UTC instants such as `2026-11-05T22:00:00Z`. A blocked time can be deleted at any moment, and the slots return at once.
+
+**Errors:** `400 VALIDATION_FAILED` (including an end that isn't after the start), `404 NOT_FOUND` (delete: unknown id, or one that isn't a UUID).
 
 ### 7.15 Settings
 

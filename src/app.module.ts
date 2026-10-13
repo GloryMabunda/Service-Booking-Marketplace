@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ApiExceptionFilter } from './common/api-error.js';
+import { RateLimitModule } from './common/rate-limit.module.js';
 import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './database/database.module.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -35,6 +36,7 @@ import { AdminModule } from './admin/admin.module.js';
       exclude: ['/api/{*path}'],
     }),
     DatabaseModule,
+    RateLimitModule,
     AuthModule,
     ServicesModule,
     AvailabilityModule,

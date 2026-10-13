@@ -258,6 +258,8 @@ Working hours: one row per day of the week, so exactly seven rows.
 | `is_working_day` | `boolean` | When `true`, both times are required; when `false`, both are null |
 | `updated_at` | `timestamptz` | |
 
+The `seed_availability` migration (#34) fills the seven rows with the wireframes' sample hours: Monday to Friday 09:00 to 17:00, Saturday 08:00 to 14:00, Sunday closed. The owner replaces them with `PUT /api/admin/availability`.
+
 One working window per day matches section 6. A lunch break can be added as a recurring blocked time later, or by allowing several rows per day.
 
 ### 3.4 `blocked_times`
