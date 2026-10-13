@@ -8,7 +8,6 @@ import type { WorkingDay } from '../../src/availability/availability.schema.js';
 import {
   addDays,
   isoDayOfWeek,
-  localDate,
   zonedTimeToUtc,
 } from '../../src/availability/time-zone.js';
 import type { DB } from '../../src/database/database.types.js';
@@ -18,10 +17,10 @@ import {
   type TestAdmin,
 } from '../helpers/admin.js';
 import { createTestDatabase } from '../helpers/database.js';
+import { SA, upcoming } from '../helpers/dates.js';
 import { bodyOf, errorBody } from '../helpers/http.js';
 
 // Working hours, blocked times and slots (#34-#39, docs/api.md 4.2, 7.13, 7.14).
-const SA = 'Africa/Johannesburg';
 const PREFIX = 'Availability test ';
 
 interface SlotsBody {
@@ -29,13 +28,6 @@ interface SlotsBody {
   date: string;
   timeZone: string;
   slots: { startAt: string; endAt: string; localTime: string }[];
-}
-
-// The next date, a week or more from today, that falls on this ISO weekday
-function upcoming(isoDay: number): string {
-  let date = addDays(localDate(new Date(), SA), 7);
-  while (isoDayOfWeek(date) !== isoDay) date = addDays(date, 1);
-  return date;
 }
 
 describe('Availability API', () => {

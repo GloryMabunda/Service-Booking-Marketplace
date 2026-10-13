@@ -30,6 +30,25 @@ export interface Settings {
   updatedAt: string; // ISO 8601 in UTC
 }
 
+// The seed_settings migration (#28) fills the banking details with this text
+// so real details are never committed to Git. The owner replaces them in the
+// portal; a booking that needs a deposit is refused until she has (#45).
+export const BANKING_PLACEHOLDER = 'Not set yet';
+
+export function bankingDetailsAreSet(details: BankingDetails): boolean {
+  const fields = [
+    details.accountName,
+    details.bank,
+    details.accountNumber,
+    details.branchCode,
+    details.accountType,
+  ];
+  return fields.every((value) => {
+    const text = value.trim().toLowerCase();
+    return text !== '' && text !== BANKING_PLACEHOLDER.toLowerCase();
+  });
+}
+
 const wholeNumber = (min: number, max: number) =>
   z
     .number({ error: 'Enter a whole number.' })
