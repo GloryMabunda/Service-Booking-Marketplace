@@ -69,6 +69,12 @@ export class SlidingWindowLimiter {
     };
   }
 
+  // Forgets every count (for tests, so one test's requests don't count
+  // against the next)
+  reset(): void {
+    this.entries.clear();
+  }
+
   // Number of keys being tracked (for tests)
   size(): number {
     return this.entries.size;

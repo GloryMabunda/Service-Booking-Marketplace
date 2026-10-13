@@ -184,6 +184,7 @@ Every error has the same shape:
 | 413 | `FILE_TOO_LARGE` | The file is over the limit: 5 MB for proofs, 15 MB for photos. The upload is stopped as soon as the limit is passed | Proof upload, photo uploads |
 | 415 | `UNSUPPORTED_FILE_TYPE` | The file's content isn't an accepted type, whatever its name says: PDF, JPEG or PNG for proofs; JPEG, PNG or WebP for photos | Proof upload, photo uploads |
 | 429 | `RATE_LIMITED` | Too many requests; see `Retry-After` | Rate-limited endpoints |
+| 503 | `BOOKING_NOT_READY` | The owner hasn't entered her banking details yet (they are still the "Not set yet" placeholders), so a booking that needs a deposit can't give the client anywhere to pay. Bookings with no deposit still work | Create booking |
 | 500 | `INTERNAL_ERROR` | Unexpected failure. Logged with a request ID; the message is generic | Any |
 
 ### Upload errors (BR-14)
@@ -369,9 +370,17 @@ Create a booking (C-3, C-4, C-5). The server re-checks everything at submission:
 
 The confirmation page shows this with the message that the booking is confirmed only once the deposit is paid, and the fallback of sending proof by email (C-5). `depositDueAt` is the earlier of the hold duration after booking and the minimum-notice cutoff (BR-9); it is `null` when the booking is `confirmed`.
 
-The emails are sent after the booking is saved. If sending fails, the booking still succeeds (spec section 7).
+**What the server checks, in this order:** the request's fields, an active service (`400 SERVICE_UNAVAILABLE`), that payment details exist when a deposit is due (`503 BOOKING_NOT_READY`), that the start time is still offered, using the same code as `GET /api/availability` (`409 SLOT_UNAVAILABLE`: working hours, interval, bookings, blocked time, minimum notice, advance window and payment window), and the limit of 2 Pending bookings per email address or phone number (`409 PENDING_LIMIT_REACHED`). The email is lower-cased and the phone written the one way, so neither can be written differently to get round the limit.
 
-**Errors:** `400 VALIDATION_FAILED`, `400 SERVICE_UNAVAILABLE`, `409 SLOT_UNAVAILABLE`, `409 PENDING_LIMIT_REACHED`, `429`.
+**Requests at the same moment (BR-2).** Availability is checked first, but the database has the last word: two requests for the same or overlapping time, buffer included, give exactly one `201`, and every other gets `409 SLOT_UNAVAILABLE`. The Pending limit is counted under a lock on the email and on the phone, so several requests from one person arriving together can't all get past it.
+
+**The booking link (BR-15).** A random 32-byte token is made for each booking and only its SHA-256 hash is saved. The token goes to the email sender and is never in a response or a log.
+
+The emails are sent after the booking is saved. If sending fails, the booking still succeeds (spec section 7), and `emailSentTo` is `null` so the page can say so. Until the email provider is added in M5, no email is sent and `emailSentTo` is always `null`.
+
+The endpoint is limited to **10 requests per hour per IP address** (section 3), and every response carries the `RateLimit-*` headers.
+
+**Errors:** `400 VALIDATION_FAILED`, `400 SERVICE_UNAVAILABLE`, `409 SLOT_UNAVAILABLE`, `409 PENDING_LIMIT_REACHED`, `429`, `503 BOOKING_NOT_READY`.
 
 ### 4.4 `POST /api/bookings/:reference/lookup`
 
