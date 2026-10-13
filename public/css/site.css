@@ -209,3 +209,71 @@ admin-header .nav-link.active {
   --bs-btn-disabled-border-color: #cdb8c6;
   --bs-btn-disabled-bg: transparent;
 }
+
+/* The date and time picker (#40) */
+.mbg-narrow {
+  max-width: 52rem;
+}
+.mbg-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+.mbg-dow {
+  text-align: center;
+  font-family: var(--mbg-font-heading);
+  font-size: var(--mbg-size-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mbg-muted);
+  padding-block: 0.25rem;
+}
+.mbg-day {
+  aspect-ratio: 1;
+  min-height: 44px;
+  border: 1px solid var(--mbg-line);
+  border-radius: var(--mbg-radius-input);
+  background: var(--mbg-white);
+  color: var(--mbg-ink);
+  font-weight: 700;
+}
+.mbg-day:hover:not(:disabled) {
+  border-color: var(--mbg-magenta);
+  color: var(--mbg-magenta);
+}
+.mbg-day.is-selected {
+  background: var(--mbg-magenta);
+  border-color: var(--mbg-magenta);
+  color: var(--mbg-white);
+}
+.mbg-day:disabled {
+  background: transparent;
+  border-color: transparent;
+  color: var(--mbg-muted);
+  opacity: 0.45;
+  font-weight: 400;
+  cursor: not-allowed;
+}
+.mbg-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.mbg-slot.active {
+  background: var(--mbg-magenta);
+  border-color: var(--mbg-magenta);
+  color: var(--mbg-white);
+}
+
+/* Admin working hours table (#41) */
+.mbg-hours-table input[type='time'] {
+  min-width: 7rem;
+}
+.mbg-hours-table .invalid-feedback {
+  margin-top: 0.25rem;
+}
+.mbg-hours-table {
+  max-width: 36rem;
+}

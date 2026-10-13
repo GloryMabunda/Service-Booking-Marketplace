@@ -314,6 +314,8 @@ The start times a client can book for a service on a date (C-2, BR-1, BR-6, BR-1
 
 `slots` is empty when the day is not a working day, is fully booked or blocked, or falls outside the booking window. A start time is only offered if it is at least `earliestStartAt` and at most `latestStartAt` (see [4.1](#41-get-apiservices)), so a client always has at least the minimum payment window to pay the deposit (BR-9). `endAt` is the appointment end, without the buffer.
 
+The client page for this is [`/book.html?service=<id>`](../public/book.html) (#40): a calendar whose dates outside `bookingWindow` (from `GET /api/services`) are disabled, and the open times for the chosen day with a clear message when there are none. Its Continue button stays off until the details step exists (#51).
+
 The response is sent with `Cache-Control: no-store`, because slots change as bookings are made. The endpoint is limited to **60 requests per minute per IP address** (section 3); every response carries `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset`.
 
 **Re-checking at booking time.** `POST /api/bookings` (#45) re-checks the chosen start time with the same code (`AvailabilityService.isSlotOpen`), so a slot that was offered a minute ago but has since been booked, blocked or become too soon is refused.
@@ -993,6 +995,8 @@ Block whole dates or time ranges (A-6).
 **`BlockedTime`**: `{ "id", "startAt", "endAt", "reason", "createdAt" }`. `endAt` must be after `startAt`. To block a whole day, the portal sends midnight to midnight in the business time zone, converted to UTC.
 
 Blocking time that overlaps existing Pending or Confirmed bookings is allowed; those bookings are not cancelled, and `overlappingBookings` lists them so the owner can decide what to do.
+
+The portal page for working hours and blocked times is `/admin/availability.html` (#41). It turns a whole day into UTC instants with the business time zone in the browser (`public/js/time-zone.js`, checked against the server's version by a test); a change shows in the client's time list at once, because the client page asks this API every time.
 
 Query: `from` and `to` are calendar days in the business time zone; `from` defaults to today, and a blocked time is listed if it ends after the start of `from` and (when `to` is given) starts before the end of `to`. `reason` is optional, at most 500 characters. `startAt` and `endAt` are UTC instants such as `2026-11-05T22:00:00Z`. A blocked time can be deleted at any moment, and the slots return at once.
 

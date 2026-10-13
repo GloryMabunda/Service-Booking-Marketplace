@@ -139,6 +139,10 @@ Every status has a word, an icon and a distinct shape, so they're distinguishabl
 | Cancelled | Plain, **struck through** | `bi-x` |
 | Expired | Plain, **struck through** | `bi-hourglass-bottom` |
 
+### Date and time picker
+
+The client booking page uses a Monday-first month calendar (`.mbg-calendar`) of square day buttons (`.mbg-day`, at least 44 px): white with a pale line, magenta when selected (`.is-selected`, with `aria-pressed`), and faded and not clickable when the date is outside the booking window. Open times are pill-outline buttons (`.mbg-slot`) that fill magenta when chosen (`.active`). The Continue button is the orange booking button (`.btn-book`). A day with no times shows the info alert "No times are available on this day. Please choose another date."
+
 ### Service status
 
 In the admin Services table, **Active** is a solid green badge with a check icon (`.mbg-badge-active`), and **Inactive** is a dashed grey outline with a crossed-eye icon (`.mbg-badge-inactive`), and its whole row is greyed (`.mbg-row-inactive`). Word, icon and outline all differ, so it never relies on colour.

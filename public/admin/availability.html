@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Availability · Make Up by Glory admin</title>
+    <link rel="icon" type="image/png" href="/images/logo/favicon-64.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="/js/admin.js" type="module"></script>
+    <script src="/js/admin-availability.js" type="module"></script>
+  </head>
+  <body>
+    <admin-header current="availability"></admin-header>
+
+    <!-- Working hours and blocked times (A-6, #41), using the availability
+         API (#34, #35). Changes show in the client's time list at once. -->
+    <main id="main" class="mbg-section mbg-admin-main">
+      <div class="mbg-container">
+        <p class="mbg-label mb-2">Admin portal</p>
+        <h1>Availability</h1>
+
+        <div id="page-message" role="status" aria-live="polite"></div>
+
+        <div id="page-loading" class="text-secondary" role="status">
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            aria-hidden="true"
+          ></span
+          >Loading…
+        </div>
+
+        <div class="row g-5 mt-0" id="content" hidden>
+          <!-- Working hours -->
+          <section class="col-xl-6" aria-labelledby="hours-heading">
+            <h2 class="h3" id="hours-heading">Working hours</h2>
+            <p class="text-secondary small" id="hours-zone"></p>
+            <form id="hours-form" novalidate>
+              <table class="table align-middle mbg-hours-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Day</th>
+                    <th scope="col">Working</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                  </tr>
+                </thead>
+                <tbody id="hours-body"></tbody>
+              </table>
+              <button class="btn btn-primary" type="submit" id="hours-save">
+                Save working hours
+              </button>
+              <p class="small text-secondary mt-3 mb-0">
+                Saves all seven days at once. Changes apply to the times clients
+                see from now on; bookings that already exist aren't touched. A
+                service has to <strong>finish</strong> by closing time, but the
+                break after the last client may run past it.
+              </p>
+            </form>
+          </section>
+
+          <!-- Blocked times -->
+          <section class="col-xl-6" aria-labelledby="blocked-heading">
+            <h2 class="h3" id="blocked-heading">Blocked times</h2>
+            <form class="card mb-4" id="block-form" novalidate>
+              <div class="card-body">
+                <fieldset class="mb-3">
+                  <legend class="form-label fs-6">What to block</legend>
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="What to block"
+                  >
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="block-type"
+                      id="type-days"
+                      value="days"
+                      checked
+                    />
+                    <label class="btn btn-outline-primary" for="type-days"
+                      >Whole day(s)</label
+                    >
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="block-type"
+                      id="type-range"
+                      value="range"
+                    />
+                    <label class="btn btn-outline-primary" for="type-range"
+                      >Time range</label
+                    >
+                  </div>
+                </fieldset>
+
+                <div class="row g-3 mb-3" id="days-fields">
+                  <div class="col-6">
+                    <label class="form-label" for="from-date">From</label>
+                    <input class="form-control" id="from-date" type="date" />
+                    <div class="invalid-feedback" id="from-date-error"></div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label" for="to-date"
+                      >To (inclusive)</label
+                    >
+                    <input class="form-control" id="to-date" type="date" />
+                    <div class="invalid-feedback" id="to-date-error"></div>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-3" id="range-fields" hidden>
+                  <div class="col-12">
+                    <label class="form-label" for="range-date">Date</label>
+                    <input class="form-control" id="range-date" type="date" />
+                    <div class="invalid-feedback" id="range-date-error"></div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label" for="range-from">From</label>
+                    <input class="form-control" id="range-from" type="time" />
+                    <div class="invalid-feedback" id="range-from-error"></div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label" for="range-to">To</label>
+                    <input class="form-control" id="range-to" type="time" />
+                    <div class="invalid-feedback" id="range-to-error"></div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label" for="reason"
+                    >Reason
+                    <span class="text-secondary"
+                      >(only you see this)</span
+                    ></label
+                  >
+                  <input
+                    class="form-control"
+                    id="reason"
+                    maxlength="500"
+                    autocomplete="off"
+                  />
+                </div>
+                <button class="btn btn-primary" type="submit" id="block-button">
+                  Block
+                </button>
+              </div>
+            </form>
+
+            <h3 class="h4">Upcoming blocks</h3>
+            <p id="no-blocks" class="text-secondary" hidden>
+              Nothing is blocked. Clients can book any time you're working.
+            </p>
+            <ul class="list-group" id="blocks"></ul>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Confirm removing a block -->
+    <div
+      class="modal fade"
+      id="remove-modal"
+      tabindex="-1"
+      aria-labelledby="remove-modal-title"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h4" id="remove-modal-title">
+              Remove this block?
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-1"><strong id="remove-what"></strong></p>
+            <p class="mb-0">The time becomes bookable again.</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              data-bs-dismiss="modal"
+            >
+              Keep it
+            </button>
+            <button type="button" class="btn btn-primary" id="confirm-remove">
+              Remove block
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
