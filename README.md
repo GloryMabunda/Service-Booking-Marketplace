@@ -107,6 +107,8 @@ git --version
 
    It prints "Created the administrator account". Forgot the password? Change `ADMIN_PASSWORD` and run it again: there is no password-reset screen. The password is stored only as an Argon2id hash.
 
+
+   **Email (optional while you build).** Clients get their payment instructions by email. In `.env`, fill in `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` (for example `Make Up by Glory <bookings@your-domain.com>`) and `PUBLIC_URL` (the web address of your site) with the details from your email provider. Leave `SMTP_HOST` empty to send no email: bookings still work and the confirmation page says the email couldn't be sent. Never commit these values; `.env` is git-ignored.
 7. **Start the app.** It restarts by itself when you save a file in `src/`:
 
    ```bash
