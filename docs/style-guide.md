@@ -139,6 +139,10 @@ Every status has a word, an icon and a distinct shape, so they're distinguishabl
 | Cancelled | Plain, **struck through** | `bi-x` |
 | Expired | Plain, **struck through** | `bi-hourglass-bottom` |
 
+### Service status
+
+In the admin Services table, **Active** is a solid green badge with a check icon (`.mbg-badge-active`), and **Inactive** is a dashed grey outline with a crossed-eye icon (`.mbg-badge-inactive`), and its whole row is greyed (`.mbg-row-inactive`). Word, icon and outline all differ, so it never relies on colour.
+
 ## 6. Logo
 
 The master logo is the white-background version supplied by the owner. The versions below were made from it with transparent backgrounds.

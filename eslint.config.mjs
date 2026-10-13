@@ -41,7 +41,8 @@ export default tseslint.config(
     languageOptions: {
       ...tseslint.configs.disableTypeChecked.languageOptions,
       sourceType: 'module',
-      globals: { ...globals.browser },
+      // bootstrap is the global from the Bootstrap script the pages load.
+      globals: { ...globals.browser, bootstrap: 'readonly' },
     },
   },
   // Turns off formatting rules that would fight with Prettier; keep this last.

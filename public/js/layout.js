@@ -11,7 +11,7 @@
 
 const NAV_LINKS = [
   { id: 'about', label: 'About', href: '/#about' },
-  { id: 'services', label: 'Services', href: '/#services' },
+  { id: 'services', label: 'Services', href: '/services.html' },
   { id: 'gallery', label: 'Gallery', href: '/#gallery' },
   { id: 'policies', label: 'Booking info', href: '/#policies' },
   { id: 'contact', label: 'Contact', href: '/#contact' },

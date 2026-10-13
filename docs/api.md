@@ -277,7 +277,11 @@ Business details, active services with their deposit amounts, and the bookable d
 | `bookingWindow.latestStartAt` | Now plus `maxAdvanceDays` (BR-10) |
 | `bookingWindow.firstDate`, `lastDate` | The calendar days of those two instants in the business time zone. The date picker disables every other date (#40). A date inside the range can still have no slots |
 
-The response may be cached for 60 seconds, so the window can be up to a minute old; `POST /api/bookings` re-checks it.
+The response is sent with `Cache-Control: public, max-age=60`, so the window can be up to a minute old; `POST /api/bookings` re-checks it. The deposit and the window are worked out in whole cents, never with floating-point numbers.
+
+**Inactive services (BR-5, #33).** A service the owner has deactivated is missing from this list at once, and comes back when she reactivates it. Its existing bookings are untouched: they keep their service, price and duration. Booking an inactive service is refused by `POST /api/bookings` (#45).
+
+The public page [`/services.html`](../public/services.html) shows this list; until online booking opens (#51) its Book button reads "Booking opens soon".
 
 **Errors:** `429`.
 
@@ -939,6 +943,8 @@ Manage services (A-5).
 | `isActive` | Optional. Default `true` |
 
 Editing a service never changes existing bookings, which keep their own price and duration (BR-4). `PATCH` with an empty body changes nothing and returns the service. `bookingCount` counts every booking of the service, whatever its status.
+
+The portal page for this section is `/admin/services.html`: a table (name, duration, price, bookings, status), an Add and Edit form with the same rules checked in the browser, Activate or Deactivate, and Delete (only offered for a service with no bookings).
 
 **Delete.** A service that nobody has booked is deleted (`204`, no body). If it has bookings, deleting it would orphan them (the database refuses: `ON DELETE RESTRICT`), so it is **deactivated** instead and the response says so: `200 { "service": {…, "isActive": false}, "deactivated": true }`. This also holds if a client books it in the same moment as the delete.
 

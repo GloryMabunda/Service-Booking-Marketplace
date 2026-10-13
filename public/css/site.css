@@ -144,3 +144,68 @@ admin-header {
   height: 60px;
   width: auto;
 }
+
+/* Service status badges (#31): a word, an icon and a different outline, so
+   Active and Inactive are never told apart by colour alone. */
+.mbg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--mbg-radius-input);
+  font-size: var(--mbg-size-small);
+  font-weight: 700;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+.mbg-badge-active {
+  background: var(--mbg-green);
+  color: var(--mbg-white);
+}
+.mbg-badge-inactive {
+  background: transparent;
+  color: var(--mbg-muted);
+  border: 1px dashed var(--mbg-muted);
+}
+.mbg-row-inactive th,
+.mbg-row-inactive td:not(:last-child) {
+  color: var(--mbg-muted);
+}
+
+/* Admin tables: comfortable rows, header in the label style */
+.mbg-services-table > :not(caption) > * > * {
+  padding-block: 0.85rem;
+}
+.mbg-services-table thead th {
+  font-family: var(--mbg-font-heading);
+  font-size: var(--mbg-size-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mbg-pink-text);
+}
+
+/* The admin menu links, matching the public header */
+admin-header .nav-link {
+  color: var(--mbg-ink);
+  font-weight: 600;
+  padding-inline: 0;
+}
+admin-header .nav-link:hover,
+admin-header .nav-link:focus-visible,
+admin-header .nav-link.active {
+  color: var(--mbg-magenta);
+}
+admin-header .nav-link.active {
+  text-decoration: underline;
+  text-underline-offset: 0.4em;
+  text-decoration-thickness: 2px;
+}
+
+/* A disabled outline button stays in the brand colours (Bootstrap's default
+   is blue), e.g. "Booking opens soon". */
+.btn-outline-primary:disabled,
+.btn-outline-primary.disabled {
+  --bs-btn-disabled-color: var(--mbg-muted);
+  --bs-btn-disabled-border-color: #cdb8c6;
+  --bs-btn-disabled-bg: transparent;
+}
