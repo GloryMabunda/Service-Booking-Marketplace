@@ -938,7 +938,11 @@ Manage services (A-5).
 | `durationMinutes` | Required on create. 1 to 720 |
 | `isActive` | Optional. Default `true` |
 
-Editing a service never changes existing bookings, which keep their own price and duration (BR-4).
+Editing a service never changes existing bookings, which keep their own price and duration (BR-4). `PATCH` with an empty body changes nothing and returns the service. `bookingCount` counts every booking of the service, whatever its status.
+
+**Delete.** A service that nobody has booked is deleted (`204`, no body). If it has bookings, deleting it would orphan them (the database refuses: `ON DELETE RESTRICT`), so it is **deactivated** instead and the response says so: `200 { "service": {…, "isActive": false}, "deactivated": true }`. This also holds if a client books it in the same moment as the delete.
+
+An id that isn't a UUID is treated like an unknown id: `404 NOT_FOUND`. A bad `includeInactive` (not `true` or `false`) is `400 VALIDATION_FAILED`.
 
 **Errors:** `404 NOT_FOUND`, `409 SERVICE_NAME_TAKEN`.
 
