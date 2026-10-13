@@ -320,6 +320,14 @@ Dates or time ranges the owner has blocked (A-6). A whole day is stored as midni
 
 Which status changes are allowed (BR-3) is enforced in the application's single transition function (#49), not in the database, because the rules depend on who is acting.
 
+**How the booking rules are enforced** (M4):
+
+- **Snapshot (BR-4).** `price_at_booking`, `deposit_amount`, `end_at` and `occupied_until` are worked out once, when the booking is made, by `planBooking` (`src/bookings/booking-plan.ts`) and never recalculated, so editing the service or the settings later changes nothing that already exists.
+- **Deposit and deadline (BR-3, BR-7, BR-9).** The deposit is the deposit percentage of the price, rounded half-up to the cent. A booking is **Pending** with a deadline when the deposit comes to more than R0.00, and **Confirmed** with no deadline otherwise (a 0% deposit, a free service, or a percentage that rounds to nothing). The deadline is the earlier of the hold duration after booking and the minimum-notice cutoff before the appointment.
+- **Status changes (BR-3).** Only Pending → Confirmed, Cancelled or Expired, and Confirmed → Completed, No-show or Cancelled are allowed; Completed, No-show, Cancelled and Expired are final. Every status change goes through `assertTransition` (`src/bookings/booking-status.ts`), which answers `409 INVALID_STATUS_TRANSITION`.
+- **No double-booking (BR-2).** `bookings_no_overlap` rejects a booking whose time, from `start_at` to `occupied_until` (the buffer included), overlaps a Pending or Confirmed one, even for two requests in the same instant. `BookingsRepository` turns that error into `409 SLOT_UNAVAILABLE`.
+- **References.** `reference` comes from a sequence, so it is readable (`BK-000123`), unique and increasing, and a number is never reused, even after a booking is deleted.
+
 ### 3.6 `payment_proofs`
 
 | Column | Type | Notes |
