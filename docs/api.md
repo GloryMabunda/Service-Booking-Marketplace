@@ -1014,7 +1014,7 @@ All settings in A-8.
 }
 ```
 
-**`PATCH /api/admin/settings`** accepts any subset of the fields and returns the full settings.
+**`PATCH /api/admin/settings`** accepts any subset of the fields and returns the full settings. Both responses send `Cache-Control: no-store` (they contain banking details), and the change is recorded with `updatedAt` and the admin who made it.
 
 | Field | Rule |
 | --- | --- |
@@ -1030,8 +1030,8 @@ All settings in A-8.
 | `timeZone` | A valid IANA time zone name |
 | `bankingDetails` | All five fields required, each 1 to 100 characters |
 | `businessName` | 1 to 100 characters |
-| `businessEmail` | A valid email address |
-| `businessPhone` | A phone number, or `null` |
+| `businessEmail` | A valid email address, stored in lower case |
+| `businessPhone` | A South African phone number in any common format, stored in E.164 (`+27821234567`); or `null` to remove it |
 
 New settings apply to new bookings and future slot calculations only. Existing bookings keep their price, deposit, deadline and occupied time.
 

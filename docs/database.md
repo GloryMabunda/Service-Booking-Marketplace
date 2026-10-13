@@ -396,6 +396,8 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 
 Changing a setting affects new bookings only: each booking already stores its own price, deposit, deadline and occupied time.
 
+The row is created by the `seed_settings` migration (#28) with the defaults above, `business_name` "Make Up by Glory", and **placeholders** for the banking details ("Not set yet") and `business_email` (`bookings@example.com`): real banking and contact details are never committed to Git. The owner sets them with `PATCH /api/admin/settings`, and creating a booking that needs a deposit is refused while the banking details are still placeholders (#45).
+
 ### 3.9 `site_content`
 
 The home page's text and links (C-9, A-10). A single row (`id = 1`), like `settings`. Business name, email and phone stay in `settings`; working hours come from `availability`; the booking policies text is generated from `settings` and never stored, so it can't drift from the real rules.
