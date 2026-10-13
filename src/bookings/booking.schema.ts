@@ -44,3 +44,14 @@ export const createBookingSchema = z.strictObject({
 });
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
+
+// POST /api/bookings/:reference/lookup (docs/api.md 4.4, C-6): the email travels
+// in the body, never in the URL.
+export const lookupBookingSchema = z.strictObject({
+  email: z
+    .string({ error: 'Enter the email you used to book.' })
+    .trim()
+    .max(254, 'Enter a valid email address.')
+    .toLowerCase()
+    .pipe(z.email('Enter a valid email address.')),
+});

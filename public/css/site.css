@@ -277,3 +277,18 @@ admin-header .nav-link.active {
 .mbg-hours-table {
   max-width: 36rem;
 }
+
+/* Booking reference and confirmation (#51, #52) */
+.mbg-reference {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--mbg-ink);
+}
+.mbg-reference-small {
+  font-size: 1.25rem;
+}
+.mbg-done-icon {
+  color: var(--mbg-magenta);
+}

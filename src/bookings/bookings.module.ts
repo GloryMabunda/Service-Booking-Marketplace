@@ -3,6 +3,8 @@ import { AvailabilityModule } from '../availability/availability.module.js';
 import { ServicesModule } from '../services/services.module.js';
 import { SettingsModule } from '../settings/settings.module.js';
 import { BOOKING_NOTIFIER, NoEmailNotifier } from './booking-notifier.js';
+import { BookingExpiryService } from './booking-expiry.service.js';
+import { BookingLookupService } from './booking-lookup.service.js';
 import { BookingsController } from './bookings.controller.js';
 import { BookingsRepository } from './bookings.repository.js';
 import { BookingsService } from './bookings.service.js';
@@ -16,8 +18,10 @@ import { BookingsService } from './bookings.service.js';
   providers: [
     BookingsRepository,
     BookingsService,
+    BookingLookupService,
+    BookingExpiryService,
     { provide: BOOKING_NOTIFIER, useClass: NoEmailNotifier },
   ],
-  exports: [BookingsRepository, BookingsService],
+  exports: [BookingsRepository, BookingsService, BookingExpiryService],
 })
 export class BookingsModule {}

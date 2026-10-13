@@ -405,6 +405,10 @@ The email is compared case-insensitively.
 
 `booking` is a [`BookingSummary`](#shared-shapes). `canResendBookingLink` is `true` while the booking is Pending or Confirmed and the appointment hasn't started. The booking link itself is never returned.
 
+The reference is accepted in any letter case. The email is compared in constant time, and the proofs are always read, so a wrong reference and a wrong email take the same time and give the same `404` message. The endpoint is limited to 10 requests per 15 minutes per IP address.
+
+`booking.paymentStatus` is derived, not stored: `not_required`, `confirmed`, `expired`, `cancelled`, `proof_received`, `proof_rejected` or `awaiting_payment` (in that order of precedence). Pending bookings whose deadline passed are set to Expired by a job that runs every 5 minutes, so a booking can show Pending for a few minutes after its deadline.
+
 **Errors:** `400 VALIDATION_FAILED`, `404 BOOKING_NOT_FOUND` (wrong reference or wrong email, identical response), `429`.
 
 ### 4.5 `POST /api/bookings/:reference/resend-booking-link`
