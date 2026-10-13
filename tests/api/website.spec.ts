@@ -52,7 +52,12 @@ describe('Public website', () => {
     expect(res.text).not.toContain('Soft Glam');
   });
 
-  it.each(['/admin/login.html', '/admin/', '/admin/services.html'])(
+  it.each([
+    '/admin/login.html',
+    '/admin/',
+    '/admin/services.html',
+    '/admin/availability.html',
+  ])(
     'serves the portal page %s, which is kept out of search engines',
     async (path) => {
       const res = await request(app.getHttpServer())
@@ -67,11 +72,23 @@ describe('Public website', () => {
     ['/js/format.js', /javascript/],
     ['/js/services-page.js', /javascript/],
     ['/js/admin-services.js', /javascript/],
+    ['/js/time-zone.js', /javascript/],
+    ['/js/book-page.js', /javascript/],
+    ['/js/admin-availability.js', /javascript/],
   ])('serves %s', async (path, type) => {
     await request(app.getHttpServer())
       .get(path)
       .expect(200)
       .expect('Content-Type', type);
+  });
+
+  it('serves the date and time picker, which loads its data from the API (#40)', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/book.html')
+      .expect(200)
+      .expect('Content-Type', /html/);
+    expect(res.text).toContain('/js/book-page.js');
+    expect(res.text).toContain('Choose a date and time');
   });
 
   it('does not show the home page for an unknown address', async () => {

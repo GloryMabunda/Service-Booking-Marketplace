@@ -22,6 +22,25 @@ export const currentUser = fetch('/api/auth/me').then(async (res) => {
   return body.user;
 });
 
+// Calls an API path as the signed-in admin and returns { ok, status, data }
+// (data is the parsed JSON, or null for a 204). If the session has ended it
+// sends the owner to the login page and comes back here afterwards.
+export async function adminApi(method, path, payload) {
+  const res = await fetch(path, {
+    method,
+    headers: payload ? { 'Content-Type': 'application/json' } : undefined,
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+  if (res.status === 401) {
+    location.assign(
+      `/admin/login.html?next=${encodeURIComponent(location.pathname)}`,
+    );
+    return new Promise(() => {});
+  }
+  const data = res.status === 204 ? null : await res.json().catch(() => null);
+  return { ok: res.ok, status: res.status, data };
+}
+
 async function signOut() {
   await fetch('/api/auth/logout', { method: 'POST' });
   location.assign('/admin/login.html');
@@ -31,6 +50,11 @@ async function signOut() {
 const ADMIN_LINKS = [
   { id: 'dashboard', label: 'Home', href: '/admin/' },
   { id: 'services', label: 'Services', href: '/admin/services.html' },
+  {
+    id: 'availability',
+    label: 'Availability',
+    href: '/admin/availability.html',
+  },
 ];
 
 class AdminHeader extends HTMLElement {

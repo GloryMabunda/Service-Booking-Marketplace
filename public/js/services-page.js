@@ -2,9 +2,9 @@
 // active service with its duration, price and deposit.
 import { el, formatDuration, formatRand } from '/js/format.js';
 
-// Online booking opens in M4 (#51). Until then the Book button is a disabled
-// "coming soon" button instead of a link to a page that doesn't exist.
-const BOOKING_OPEN = false;
+// The Book button opens the date and time picker (#40). The step after it,
+// entering your details, arrives in M4 (#51).
+const BOOKING_OPEN = true;
 
 const loading = document.querySelector('#services-loading');
 const errorBox = document.querySelector('#services-error');

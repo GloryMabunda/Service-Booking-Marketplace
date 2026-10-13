@@ -1,6 +1,6 @@
 // The admin services page (A-5, #31): list, add, edit, activate or deactivate,
 // and delete services through /api/admin/services (#30).
-import { currentUser } from '/js/admin.js';
+import { adminApi, currentUser } from '/js/admin.js';
 import { el, formatDuration, formatRand } from '/js/format.js';
 
 const body = document.querySelector('#services-body');
@@ -28,22 +28,8 @@ let deletingId = null;
 
 // --- Talking to the API ---------------------------------------------------
 
-async function api(method, path, payload) {
-  const res = await fetch(`/api/admin/services${path}`, {
-    method,
-    headers: payload ? { 'Content-Type': 'application/json' } : undefined,
-    body: payload ? JSON.stringify(payload) : undefined,
-  });
-  if (res.status === 401) {
-    // The session ended while the page was open.
-    location.assign(
-      `/admin/login.html?next=${encodeURIComponent(location.pathname)}`,
-    );
-    return new Promise(() => {});
-  }
-  const data = res.status === 204 ? null : await res.json().catch(() => null);
-  return { ok: res.ok, status: res.status, data };
-}
+const api = (method, path, payload) =>
+  adminApi(method, `/api/admin/services${path}`, payload);
 
 // --- The table ------------------------------------------------------------
 
