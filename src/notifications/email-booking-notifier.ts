@@ -4,6 +4,7 @@ import type { Kysely } from 'kysely';
 import type { BookingNotifier } from '../bookings/booking-notifier.js';
 import { bookingLink } from '../bookings/booking-token.js';
 import type { BookingRecord } from '../bookings/bookings.repository.js';
+import { isRefundable, refundDeadline } from '../bookings/refund-rule.js';
 import { formatCents, toCents } from '../common/money.js';
 import type { Env } from '../config/env.js';
 import { DATABASE } from '../database/database.module.js';
@@ -15,6 +16,12 @@ import {
   renderBookingExpired,
   renderConfirmedNoDeposit,
 } from './booking-emails.js';
+import {
+  type CancelledRefund,
+  type ConfirmedRefund,
+  renderBookingCancelled,
+  renderPaymentConfirmed,
+} from './booking-status-emails.js';
 import { formatRand, formatTime, formatWhen } from './email-format.js';
 import { NotificationsService } from './notifications.service.js';
 import {
@@ -65,6 +72,95 @@ export class EmailBookingNotifier implements BookingNotifier {
         service,
         when: formatWhen(booking.startAt, timeZone),
         deadline: formatWhen(booking.depositDueAt ?? booking.startAt, timeZone),
+        bookUrl: `${this.siteUrl()}/services.html`,
+      }),
+    });
+  }
+
+  // 4.2a: the owner confirmed the deposit. The new booking link goes in this
+  // email, with the deadline for a refund (BR-12, BR-15).
+  async bookingConfirmed(
+    booking: BookingRecord,
+    token: string,
+  ): Promise<boolean> {
+    const { settings, service } = await this.context(booking);
+    const { timeZone } = settings;
+    const received = booking.amountReceived ?? booking.depositAmount;
+    let refund: ConfirmedRefund;
+    if (!settings.depositRefundable) {
+      refund = { kind: 'never' };
+    } else if (isRefundable(settings, booking.startAt, new Date())) {
+      refund = {
+        kind: 'until',
+        cutoff: formatWhen(
+          refundDeadline(booking.startAt, settings.refundCutoffHours),
+          timeZone,
+        ),
+        cutoffHours: settings.refundCutoffHours,
+      };
+    } else {
+      refund = { kind: 'passed' };
+    }
+    return this.notifications.sendEmail({
+      bookingId: booking.id,
+      type: 'booking_confirmed',
+      to: booking.clientEmail,
+      replyTo: settings.businessEmail,
+      email: renderPaymentConfirmed({
+        clientFirstName: firstName(booking),
+        business: business(settings),
+        reference: booking.reference,
+        service,
+        when: formatWhen(booking.startAt, timeZone),
+        endTime: formatTime(booking.endAt, timeZone),
+        price: formatRand(booking.priceAtBooking),
+        amountReceived: formatRand(received),
+        balance: formatRand(
+          formatCents(toCents(booking.priceAtBooking) - toCents(received)),
+        ),
+        refund,
+        link: bookingLink(this.siteUrl(), token),
+      }),
+    });
+  }
+
+  // 4.4: the booking was cancelled. What the client is told about the deposit
+  // follows what was recorded when it was cancelled (BR-12).
+  async bookingCancelled(booking: BookingRecord): Promise<boolean> {
+    const { settings, service } = await this.context(booking);
+    const { timeZone } = settings;
+    const cancelledBy = booking.cancelledBy ?? 'admin';
+    let refund: CancelledRefund = { kind: 'none' };
+    if (toCents(booking.depositAmount) === 0) {
+      refund = { kind: 'none' };
+    } else if (booking.refundDue) {
+      refund = {
+        kind: 'due',
+        amount: formatRand(booking.amountReceived ?? booking.depositAmount),
+      };
+    } else if (booking.amountReceived === null) {
+      refund = { kind: 'pending' };
+    } else if (cancelledBy === 'client') {
+      refund = {
+        kind: 'not_refundable',
+        cutoffHours: settings.refundCutoffHours,
+      };
+    }
+    return this.notifications.sendEmail({
+      bookingId: booking.id,
+      type: 'booking_cancelled',
+      to: booking.clientEmail,
+      replyTo: settings.businessEmail,
+      email: renderBookingCancelled({
+        clientFirstName: firstName(booking),
+        business: business(settings),
+        reference: booking.reference,
+        service,
+        when: formatWhen(booking.startAt, timeZone),
+        endTime: formatTime(booking.endAt, timeZone),
+        price: formatRand(booking.priceAtBooking),
+        cancelledBy,
+        refund,
         bookUrl: `${this.siteUrl()}/services.html`,
       }),
     });
@@ -152,7 +248,7 @@ export class EmailBookingNotifier implements BookingNotifier {
             }
           : null,
         notes: booking.notes,
-        portalUrl: `${this.siteUrl()}/admin/bookings/${booking.id}`,
+        portalUrl: `${this.siteUrl()}/admin/booking.html?id=${booking.id}`,
       }),
     });
   }

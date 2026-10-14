@@ -41,6 +41,12 @@ class RecordingNotifier implements BookingNotifier {
   bookingExpired(): Promise<void> {
     return Promise.resolve();
   }
+  bookingConfirmed(): Promise<boolean> {
+    return Promise.resolve(this.result);
+  }
+  bookingCancelled(): Promise<boolean> {
+    return Promise.resolve(this.result);
+  }
 }
 
 const PREFIX = 'Booking test ';

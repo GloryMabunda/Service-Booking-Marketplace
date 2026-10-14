@@ -48,7 +48,8 @@ async function signOut() {
 
 // The portal menu. <admin-header current="services"> marks that page.
 const ADMIN_LINKS = [
-  { id: 'dashboard', label: 'Home', href: '/admin/' },
+  { id: 'dashboard', label: 'Dashboard', href: '/admin/' },
+  { id: 'bookings', label: 'Bookings', href: '/admin/bookings.html' },
   { id: 'services', label: 'Services', href: '/admin/services.html' },
   {
     id: 'availability',

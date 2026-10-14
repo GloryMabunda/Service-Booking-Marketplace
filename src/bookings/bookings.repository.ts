@@ -24,6 +24,9 @@ export interface BookingRecord {
   depositDueAt: Date | null;
   status: BookingStatus;
   notes: string | null;
+  amountReceived: string | null;
+  refundDue: boolean;
+  cancelledBy: 'admin' | 'client' | null;
   createdAt: Date;
 }
 
@@ -53,6 +56,9 @@ function toRecord(row: Selectable<DB['bookings']>): BookingRecord {
     depositDueAt: row.deposit_due_at ? new Date(row.deposit_due_at) : null,
     status: row.status,
     notes: row.notes,
+    amountReceived: row.amount_received,
+    refundDue: row.refund_due,
+    cancelledBy: row.cancelled_by,
     createdAt: new Date(row.created_at),
   };
 }
