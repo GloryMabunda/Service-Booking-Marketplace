@@ -40,10 +40,15 @@ export async function removeTestAdmin(
   db: Kysely<DB>,
   admin: TestAdmin,
 ): Promise<void> {
-  // Changing a setting records who did it; forget that before deleting the
-  // admin, or the foreign key refuses the delete.
+  // Changing a setting or the home page records who did it; forget that
+  // before deleting the admin, or the foreign key refuses the delete.
   await db
     .updateTable('settings')
+    .set({ updated_by: null })
+    .where('updated_by', '=', admin.id)
+    .execute();
+  await db
+    .updateTable('site_content')
     .set({ updated_by: null })
     .where('updated_by', '=', admin.id)
     .execute();

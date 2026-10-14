@@ -517,7 +517,7 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
 
 ### 4.7 `GET /media/:key`
 
-A website photo (BR-16). Not under `/api`, because it returns a file. `:key` is a large or thumbnail key from `GET /api/site`.
+A website photo (BR-16). Not under `/api`, because it returns a file. `:key` is the file name from the `url` of a large or thumbnail in `GET /api/site`: 64 lower-case hex characters and `.webp`. Rate limit: 600 per minute per IP.
 
 **Response `200`**: the WebP image, with:
 
