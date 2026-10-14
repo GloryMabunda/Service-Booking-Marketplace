@@ -1,4 +1,8 @@
-import type { INestApplication, NestApplicationOptions } from '@nestjs/common';
+import {
+  type INestApplication,
+  type NestApplicationOptions,
+  RequestMethod,
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
@@ -13,7 +17,11 @@ import { AppModule } from './app.module.js';
 export function configureApp(app: INestApplication): void {
   // Every endpoint lives under /api (docs/api.md); the rest of the URL space
   // is the public website in public/.
-  app.setGlobalPrefix('api');
+  // The photos at /media/<key> are files, not API answers, so they are served
+  // from the site root (docs/api.md 4.7).
+  app.setGlobalPrefix('api', {
+    exclude: [{ path: 'media/:file', method: RequestMethod.GET }],
+  });
   // JSON request bodies are limited to 16 KB (docs/api.md section 1).
   (app as unknown as NestExpressApplication).useBodyParser('json', {
     limit: '16kb',

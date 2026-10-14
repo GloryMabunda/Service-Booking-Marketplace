@@ -15,6 +15,7 @@ import { PaymentsModule } from './payments/payments.module.js';
 import { StorageModule } from './storage/storage.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { SettingsModule } from './settings/settings.module.js';
+import { SiteModule } from './site/site.module.js';
 import { AdminModule } from './admin/admin.module.js';
 
 @Module({
@@ -45,6 +46,7 @@ import { AdminModule } from './admin/admin.module.js';
     StorageModule,
     NotificationsModule,
     SettingsModule,
+    SiteModule,
     AdminModule,
   ],
   // Every error leaves the API in the shape from docs/api.md section 2.
