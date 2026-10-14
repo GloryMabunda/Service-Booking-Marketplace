@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, Param, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { parseBody } from '../common/api-error.js';
 import { RateLimit } from '../common/rate-limit.js';
+import { BookingLinkService } from './booking-link.service.js';
 import { BookingLookupService } from './booking-lookup.service.js';
 import { createBookingSchema, lookupBookingSchema } from './booking.schema.js';
 import { BookingsService } from './bookings.service.js';
@@ -14,6 +15,7 @@ export class BookingsController {
   constructor(
     private readonly bookings: BookingsService,
     private readonly lookups: BookingLookupService,
+    private readonly links: BookingLinkService,
   ) {}
 
   @Post()
@@ -42,5 +44,26 @@ export class BookingsController {
     const { email } = parseBody(lookupBookingSchema, body);
     res.setHeader('Cache-Control', 'no-store');
     return this.lookups.lookup(reference, email);
+  }
+
+  // POST /api/bookings/:reference/resend-booking-link (C-6, BR-15, docs/api.md
+  // 4.5): emails a new private link to the booking's own address. The answer
+  // is the same whether or not the details matched, so it can't be used to
+  // find out which bookings exist. 10 an hour per IP, 3 an hour per booking.
+  @Post(':reference/resend-booking-link')
+  @HttpCode(202)
+  @RateLimit({ limit: 10, windowSeconds: 3600 })
+  async resend(
+    @Param('reference') reference: string,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { email } = parseBody(lookupBookingSchema, body);
+    res.setHeader('Cache-Control', 'no-store');
+    await this.links.resend(reference, email);
+    return {
+      message:
+        'If the details match an active booking, a new booking link has been sent to its email address.',
+    };
   }
 }

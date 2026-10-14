@@ -2,7 +2,9 @@ import type { ConfigService } from '@nestjs/config';
 import type { Kysely } from 'kysely';
 import type { Env } from '../config/env.js';
 import type { DB } from '../database/database.types.js';
+import type { BookingNotifier } from './booking-notifier.js';
 import { BookingExpiryService } from './booking-expiry.service.js';
+import type { BookingsRepository } from './bookings.repository.js';
 
 // The schedule of the expiry job (#50): shortly after start, then every 5
 // minutes, never in tests, and stopped on shutdown. What one run does to the
@@ -11,6 +13,15 @@ describe('BookingExpiryService schedule', () => {
   const config = (nodeEnv: string) =>
     ({ get: () => nodeEnv }) as unknown as ConfigService<Env, true>;
   const noDatabase = null as unknown as Kysely<DB>;
+  const noRepository = null as unknown as BookingsRepository;
+  const noNotifier = null as unknown as BookingNotifier;
+  const make = (nodeEnv: string) =>
+    new BookingExpiryService(
+      noDatabase,
+      config(nodeEnv),
+      noRepository,
+      noNotifier,
+    );
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -20,7 +31,7 @@ describe('BookingExpiryService schedule', () => {
   });
 
   function start(nodeEnv: string) {
-    const service = new BookingExpiryService(noDatabase, config(nodeEnv));
+    const service = make(nodeEnv);
     const run = vi.spyOn(service, 'run').mockResolvedValue([]);
     service.onApplicationBootstrap();
     return { service, run };
@@ -57,7 +68,7 @@ describe('BookingExpiryService schedule', () => {
   });
 
   it('keeps going after a run fails: the next one is tried in 5 minutes', async () => {
-    const service = new BookingExpiryService(noDatabase, config('production'));
+    const service = make('production');
     const run = vi
       .spyOn(service, 'run')
       .mockRejectedValueOnce(new Error('the database is restarting'))

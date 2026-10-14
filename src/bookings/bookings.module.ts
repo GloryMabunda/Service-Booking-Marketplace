@@ -4,6 +4,7 @@ import { NotificationsModule } from '../notifications/notifications.module.js';
 import { ServicesModule } from '../services/services.module.js';
 import { SettingsModule } from '../settings/settings.module.js';
 import { BookingExpiryService } from './booking-expiry.service.js';
+import { BookingLinkService } from './booking-link.service.js';
 import { BookingLookupService } from './booking-lookup.service.js';
 import { BookingsController } from './bookings.controller.js';
 import { BookingsRepository } from './bookings.repository.js';
@@ -24,6 +25,7 @@ import { BookingsService } from './bookings.service.js';
     BookingsRepository,
     BookingsService,
     BookingLookupService,
+    BookingLinkService,
     BookingExpiryService,
   ],
   exports: [BookingsRepository, BookingsService, BookingExpiryService],

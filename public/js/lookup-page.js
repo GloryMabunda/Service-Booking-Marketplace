@@ -65,7 +65,10 @@ const when = (iso, timeZone) => {
   };
 };
 
-function render({ booking }) {
+// What was asked for, kept so a new link can be requested without retyping
+let current = null;
+
+function render({ booking, canResendBookingLink }) {
   const { timeZone } = booking;
   const start = when(booking.startAt, timeZone);
   const end = when(booking.endAt, timeZone);
@@ -128,8 +131,39 @@ function render({ booking }) {
       return li;
     }),
   );
+  $('#resend-section').hidden = !canResendBookingLink;
+  $('#resend-message').textContent = '';
   $('#result').hidden = false;
 }
+
+$('#resend-button').addEventListener('click', async (event) => {
+  if (!current) return;
+  const button = event.currentTarget;
+  const message = $('#resend-message');
+  button.disabled = true;
+  message.textContent = '';
+  try {
+    const res = await fetch(
+      `/api/bookings/${encodeURIComponent(current.reference)}/resend-booking-link`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: current.email }),
+      },
+    );
+    message.textContent =
+      res.status === 202
+        ? 'If that booking is still active, a new link is on its way to your email.'
+        : res.status === 429
+          ? 'Too many requests. Please try again in a little while.'
+          : 'Something went wrong. Please try again.';
+  } catch {
+    message.textContent =
+      "Can't reach the server. Check your connection and try again.";
+  } finally {
+    button.disabled = false;
+  }
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -162,6 +196,7 @@ form.addEventListener('submit', async (event) => {
       },
     );
     if (res.ok) {
+      current = { reference, email };
       render(await res.json());
     } else if (res.status === 404) {
       // One message for a wrong reference or a wrong email, so this page

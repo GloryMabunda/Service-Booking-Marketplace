@@ -139,7 +139,7 @@ export class BookingLookupService {
 
 // Compares two emails ignoring capitals, in constant time (hashing first
 // makes both the same length)
-function sameEmail(given: string, stored: string): boolean {
+export function sameEmail(given: string, stored: string): boolean {
   const digest = (s: string) =>
     createHash('sha256').update(s.trim().toLowerCase()).digest();
   const a = digest(given);

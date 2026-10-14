@@ -120,6 +120,25 @@
                 <span id="result-status"></span>
               </div>
               <dl class="row mb-0" id="result-details"></dl>
+              <div id="resend-section" class="mt-3 pt-3 border-top" hidden>
+                <p class="mb-2">
+                  Lost your private booking link? We'll email a new one to the
+                  address you booked with. The old link stops working.
+                </p>
+                <button
+                  class="btn btn-outline-primary"
+                  type="button"
+                  id="resend-button"
+                >
+                  Email me a new booking link
+                </button>
+                <div
+                  class="mt-2"
+                  id="resend-message"
+                  role="status"
+                  aria-live="polite"
+                ></div>
+              </div>
               <div id="proofs-section" hidden>
                 <h2 class="h5 mt-3 mb-2">Proofs of payment</h2>
                 <ul class="list-unstyled mb-0" id="proofs"></ul>

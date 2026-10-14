@@ -10,6 +10,8 @@ import type { Kysely } from 'kysely';
 import type { Env } from '../config/env.js';
 import { DATABASE } from '../database/database.module.js';
 import type { DB } from '../database/database.types.js';
+import { BOOKING_NOTIFIER, type BookingNotifier } from './booking-notifier.js';
+import { BookingsRepository } from './bookings.repository.js';
 
 // Expires unpaid bookings (BR-9, #50): a Pending booking holds its slot until
 // its deposit deadline, then becomes Expired and the slot reopens.
@@ -33,6 +35,8 @@ export class BookingExpiryService
   constructor(
     @Inject(DATABASE) private readonly db: Kysely<DB>,
     private readonly config: ConfigService<Env, true>,
+    private readonly bookings: BookingsRepository,
+    @Inject(BOOKING_NOTIFIER) private readonly notifier: BookingNotifier,
   ) {}
 
   // Starts the schedule. Tests (NODE_ENV=test) call run() themselves instead of
@@ -77,9 +81,26 @@ export class BookingExpiryService
     }));
   }
 
+  // Expires the unpaid bookings, then tells each client by email (4.5). A
+  // failed email is logged and never undoes the expiry.
+  async expireAndNotify(now = new Date()): Promise<ExpiredBooking[]> {
+    const expired = await this.run(now);
+    for (const { id, reference } of expired) {
+      try {
+        const booking = await this.bookings.findById(id);
+        if (booking) await this.notifier.bookingExpired(booking);
+      } catch (error) {
+        this.logger.error(
+          `The expiry email for ${reference} could not be sent: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
+    return expired;
+  }
+
   private async runSafely(): Promise<void> {
     try {
-      const expired = await this.run();
+      const expired = await this.expireAndNotify();
       if (expired.length > 0) {
         this.logger.log(
           `Expired ${expired.length} unpaid booking(s): ${expired.map((b) => b.reference).join(', ')}`,

@@ -114,6 +114,29 @@ export class BookingsRepository {
     }
   }
 
+  // Replaces the booking link (BR-15): the old link stops working at once.
+  // Only a Pending or Confirmed booking whose appointment hasn't started gets
+  // a new one; for any other booking this returns null and changes nothing.
+  async reissueLink(
+    id: string,
+    tokenHash: Buffer,
+    now = new Date(),
+  ): Promise<BookingRecord | null> {
+    const row = await this.db
+      .updateTable('bookings')
+      .set({
+        booking_token_hash: tokenHash,
+        booking_token_created_at: now,
+        updated_at: now,
+      })
+      .where('id', '=', id)
+      .where('status', 'in', ['pending', 'confirmed'])
+      .where('start_at', '>', now)
+      .returningAll()
+      .executeTakeFirst();
+    return row ? toRecord(row) : null;
+  }
+
   async findById(id: string): Promise<BookingRecord | null> {
     const row = await this.db
       .selectFrom('bookings')
