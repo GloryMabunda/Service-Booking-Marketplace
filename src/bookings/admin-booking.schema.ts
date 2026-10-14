@@ -44,6 +44,7 @@ export const listBookingsQuerySchema = z.strictObject({
   from: calendarDay.optional(),
   to: calendarDay.optional(),
   proof: z.literal('received', { error: 'Use proof=received.' }).optional(),
+  refund: z.literal('due', { error: 'Use refund=due.' }).optional(),
   q: z
     .string()
     .trim()
@@ -78,6 +79,9 @@ export const confirmPaymentSchema = z.strictObject({
 export const extendDeadlineSchema = z.strictObject({
   depositDueAt: utcInstant,
 });
+
+// POST /api/admin/bookings/:id/refund takes no fields
+export const recordRefundSchema = z.strictObject({});
 
 // PATCH /api/admin/bookings/:id/status
 export const changeStatusSchema = z.strictObject({

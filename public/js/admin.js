@@ -56,6 +56,7 @@ const ADMIN_LINKS = [
     label: 'Availability',
     href: '/admin/availability.html',
   },
+  { id: 'settings', label: 'Settings', href: '/admin/settings.html' },
 ];
 
 class AdminHeader extends HTMLElement {

@@ -48,7 +48,7 @@ const FIGURES = (today) => [
     'refundsDue',
     'Refunds due',
     'bi-arrow-return-left',
-    '/admin/bookings.html?status=cancelled',
+    '/admin/bookings.html?refund=due',
   ],
 ];
 

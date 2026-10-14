@@ -97,7 +97,7 @@ git --version
    npm run db:migrate
    ```
 
-   The business settings start with the Make Up by Glory rules (24 hours notice, 50% deposit, hourly slots and so on) and **placeholder banking details**. Once you can sign in, set your real banking and contact details (`PATCH /api/admin/settings`, and the settings page in M6); they live only in the database, never in Git.
+   The business settings start with the Make Up by Glory rules (24 hours notice, 50% deposit, hourly slots and so on) and **placeholder banking details**. Once you can sign in, set your real banking and contact details on the **Settings** page in the admin portal (<http://localhost:3000/admin/settings.html>); they live only in the database, never in Git. Until they are set, clients can't book a service that needs a deposit.
 
 6. **Create your administrator account.** In `.env`, set `ADMIN_EMAIL` to your email and `ADMIN_PASSWORD` to a password of at least 12 characters, then run:
 

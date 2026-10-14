@@ -751,6 +751,7 @@ List and filter bookings (A-3).
 | `status` | Optional. One or more statuses, comma-separated: `pending,confirmed` |
 | `from`, `to` | Optional. `YYYY-MM-DD`; bookings starting on or after `from` and on or before `to` |
 | `proof` | Optional. `received` returns only bookings with a proof awaiting review |
+| `refund` | Optional. `due` returns only bookings with a refund due that the owner hasn't yet recorded as paid |
 | `q` | Optional. Matches the reference, or part of the client's name, email or phone |
 | `sort` | Optional. `startAt` (default) or `-startAt` for newest first, or `createdAt` / `-createdAt` |
 | `page`, `pageSize` | Optional. Defaults 1 and 25; `pageSize` at most 100 |
@@ -856,7 +857,7 @@ Cancel, complete or mark a no-show (A-4, BR-3).
 
 ### 7.7 `POST /api/admin/bookings/:id/refund`
 
-Record that a refund due has been paid (BR-12). Sets `refundedAt`.
+Record that a refund due has been paid (BR-12). Sets `refundedAt`. The system holds no client bank details (decided in #116): the owner asks the client where to send the refund, pays it by EFT, then records it here.
 
 **Request:** empty body or `{}`. **Response `200`**: `{ "booking": AdminBooking }`.
 

@@ -18,6 +18,7 @@ import {
   confirmPaymentSchema,
   extendDeadlineSchema,
   listBookingsQuerySchema,
+  recordRefundSchema,
 } from './admin-booking.schema.js';
 import { AdminBookingsService } from './admin-bookings.service.js';
 
@@ -85,6 +86,18 @@ export class AdminBookingsController {
     const change = parseBody(changeStatusSchema, body);
     res.setHeader('Cache-Control', 'no-store');
     return this.bookings.changeStatus(id, change);
+  }
+
+  @Post(':id/refund')
+  @HttpCode(200)
+  recordRefund(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    parseBody(recordRefundSchema, body ?? {});
+    res.setHeader('Cache-Control', 'no-store');
+    return this.bookings.recordRefund(id);
   }
 
   @Post(':id/booking-link')

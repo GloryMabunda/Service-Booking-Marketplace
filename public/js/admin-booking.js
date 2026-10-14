@@ -193,7 +193,9 @@ function renderActions() {
   $('#status-actions').hidden = !(confirmed && started);
   $('#link-actions').hidden = !((pending || confirmed) && !started);
   $('#cancel-actions').hidden = !(pending || confirmed);
-  $('#no-actions').hidden = pending || confirmed;
+  const refundOpen = booking.refundDue && !booking.refundedAt;
+  $('#refund-actions').hidden = !refundOpen;
+  $('#no-actions').hidden = pending || confirmed || refundOpen;
 
   if (pending) {
     $('#amount').value = booking.depositAmount;
@@ -356,6 +358,20 @@ $('#cancel-button').addEventListener('click', () => {
         emailNote(data, 'The booking was cancelled'),
       );
     },
+  });
+});
+
+// Record a refund that was paid (#74)
+$('#refund-button').addEventListener('click', () => {
+  ask({
+    title: 'Record the refund',
+    text: `Confirm that you have paid ${booking.client.name} the refund of the deposit (${formatRand(booking.amountReceived ?? booking.depositAmount)})? This can't be undone.`,
+    yes: "Yes, I've paid it",
+    run: () =>
+      act('POST', '/refund', undefined, () => ({
+        kind: 'success',
+        text: 'The refund was recorded.',
+      })),
   });
 });
 
