@@ -32,45 +32,208 @@
       crossorigin="anonymous"
       defer
     ></script>
+    <script src="/js/home-page.js" type="module"></script>
   </head>
   <body>
     <site-header></site-header>
 
     <main id="main">
-      <!-- Placeholder home page. The real content (About, services, gallery,
-           testimonials, booking info, contact) comes from /api/site in M2. -->
-      <section class="mbg-hero mbg-section">
-        <div class="mbg-container text-center">
+      <!-- The home page (C-1, C-9, #105). Everything comes from GET /api/site
+           and GET /api/services, which the owner manages in the portal. A
+           section with nothing in it stays hidden. The text shown here before
+           the data arrives is only a fallback. -->
+      <header class="mbg-hero" id="hero">
+        <div class="mbg-hero-photo-wrap" id="hero-photo" hidden></div>
+        <div class="mbg-container text-center mbg-section" id="hero-text">
           <img
             class="mbg-hero-logo mb-4"
+            id="hero-logo"
             src="/images/logo/logo-600.png"
             alt="Make Up by Glory"
             width="320"
             height="320"
           />
-          <h1 class="mbg-hero-title">Makeup for every occasion</h1>
-          <p class="mbg-readable mx-auto mb-4">
-            Soft glam, bridal and special-event makeup. Choose a service, pick a
-            time that suits you and secure it with a deposit.
+          <h1 class="mbg-hero-title" id="hero-title">Make Up by Glory</h1>
+          <p class="mbg-readable mx-auto mb-4" id="hero-tagline">
+            Choose a service, pick a time that suits you and secure it with a
+            deposit.
           </p>
           <a class="btn btn-book btn-lg" href="/services.html">
             <i class="bi bi-calendar-heart me-2" aria-hidden="true"></i>Book now
           </a>
         </div>
+      </header>
+
+      <section id="about" class="mbg-section" hidden aria-labelledby="h-about">
+        <div class="mbg-container">
+          <div class="row g-4 align-items-center">
+            <div class="col-md-5" id="about-photo" hidden></div>
+            <div class="col" id="about-text">
+              <p class="mbg-label mb-2">About</p>
+              <h2 id="h-about" class="mb-3">About</h2>
+              <div id="about-paragraphs" class="mbg-readable"></div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section class="mbg-section">
+      <section
+        id="services"
+        class="mbg-section mbg-section-blush"
+        hidden
+        aria-labelledby="h-services"
+      >
         <div class="mbg-container">
-          <div class="alert alert-info d-flex gap-2 mb-0" role="status">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-            <span>
-              Online booking is coming soon. In the meantime, please get in
-              touch to book your appointment.
-            </span>
+          <div
+            class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4"
+          >
+            <div>
+              <p class="mbg-label mb-2">What I offer</p>
+              <h2 id="h-services" class="mb-0">Services</h2>
+            </div>
+            <a href="/services.html">All services and booking</a>
+          </div>
+          <div class="row g-4" id="services-list"></div>
+        </div>
+      </section>
+
+      <section
+        id="gallery"
+        class="mbg-section"
+        hidden
+        aria-labelledby="h-gallery"
+      >
+        <div class="mbg-container">
+          <p class="mbg-label mb-2">My work</p>
+          <h2 id="h-gallery" class="mb-3">Gallery</h2>
+          <div
+            class="d-flex flex-wrap gap-2 mb-4"
+            id="gallery-filters"
+            role="group"
+            aria-label="Filter by service"
+          ></div>
+          <div class="row g-2" id="gallery-grid"></div>
+          <div class="text-center mt-4">
+            <button
+              class="btn btn-outline-primary"
+              type="button"
+              id="gallery-more"
+              hidden
+            >
+              Show more
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="testimonials"
+        class="mbg-section mbg-section-lilac"
+        hidden
+        aria-labelledby="h-testimonials"
+      >
+        <div class="mbg-container">
+          <p class="mbg-label mb-2">Testimonials</p>
+          <h2 id="h-testimonials" class="mb-4">Kind words</h2>
+          <div class="row g-3" id="testimonials-list"></div>
+        </div>
+      </section>
+
+      <section
+        id="policies"
+        class="mbg-section"
+        hidden
+        aria-labelledby="h-policies"
+      >
+        <div class="mbg-container">
+          <p class="mbg-label mb-2">Before you book</p>
+          <h2 id="h-policies" class="mb-3">Booking information</h2>
+          <ul class="mbg-readable" id="policies-list"></ul>
+          <div id="faq-block" hidden>
+            <h3 class="h4 mt-4 mb-3">Questions</h3>
+            <div class="accordion mbg-readable" id="faq"></div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="contact"
+        class="mbg-section mbg-section-blush"
+        aria-labelledby="h-contact"
+      >
+        <div class="mbg-container">
+          <p class="mbg-label mb-2">Get in touch</p>
+          <h2 id="h-contact" class="mb-4">Hours, area and contact</h2>
+          <div class="row g-4">
+            <div class="col-md-4" id="hours-block" hidden>
+              <h3 class="h5">Hours</h3>
+              <table class="table table-sm mb-0">
+                <tbody id="hours-rows"></tbody>
+              </table>
+            </div>
+            <div class="col-md-4" id="where-block" hidden>
+              <h3 class="h5">Where</h3>
+              <p class="mb-0" id="where-text"></p>
+            </div>
+            <div class="col-md-4" id="contact-block">
+              <h3 class="h5">Contact</h3>
+              <ul class="list-unstyled" id="contact-links"></ul>
+              <a class="btn btn-book" href="/services.html">Book now</a>
+            </div>
           </div>
         </div>
       </section>
     </main>
+
+    <!-- The large version of a gallery photo, with its caption -->
+    <div
+      class="modal fade"
+      id="lightbox"
+      tabindex="-1"
+      aria-labelledby="lightbox-title"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h6" id="lightbox-title">Photo</h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body text-center p-2">
+            <img
+              id="lightbox-image"
+              class="mbg-lightbox-image"
+              alt=""
+              width="1200"
+              height="800"
+            />
+            <p class="mt-2 mb-0" id="lightbox-caption"></p>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              id="lightbox-prev"
+            >
+              <i class="bi bi-chevron-left" aria-hidden="true"></i> Previous
+            </button>
+            <span class="small text-secondary" id="lightbox-count"></span>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              id="lightbox-next"
+            >
+              Next <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <site-footer></site-footer>
   </body>
