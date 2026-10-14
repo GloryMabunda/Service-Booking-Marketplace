@@ -4,7 +4,7 @@ import type request from 'supertest';
 import { addDays } from '../../src/availability/time-zone.js';
 import { startHarness, type Harness } from '../helpers/harness.js';
 import { upcoming } from '../helpers/dates.js';
-import { listRoutes, shape } from '../helpers/routes.js';
+import { concretePath, listRoutes, shape } from '../helpers/routes.js';
 
 // The API behaves as docs/api.md says (#82). Instead of repeating the document
 // in code, the tests read it: the endpoint index must match the routes the app
@@ -420,6 +420,51 @@ describe('API contract (docs/api.md)', () => {
   });
 
   // --- What an endpoint returns has the documented fields ----------------------------
+
+  describe('every endpoint', () => {
+    // Each documented endpoint is really called, with a signed-in admin where it
+    // needs one and with nothing useful to work on. It must answer (never fall
+    // over with a 500), and every refusal must have the documented error shape.
+    it('answers, and refuses in the documented way', async () => {
+      const routes = listRoutes(h.app);
+      expect(routes.length).toBeGreaterThan(50);
+      const cookie = (
+        await h
+          .http()
+          .post('/api/auth/login')
+          .send({ email: h.admin.email, password: 'test-admin-password' })
+      ).headers['set-cookie'] as unknown as string[];
+      const session =
+        cookie.find((c) => c.startsWith('mbg_session='))?.split(';')[0] ?? '';
+
+      const failures: string[] = [];
+      for (const route of routes) {
+        // The sign-out route would end the session the rest of the loop uses
+        if (route.method === 'POST' && route.path === '/api/auth/logout')
+          continue;
+        const path = concretePath(route.path);
+        let call = h
+          .http()
+          [route.method.toLowerCase() as 'get'](path)
+          .set('Cookie', session);
+        if (route.method !== 'GET') call = call.send({});
+        const res = await call;
+        const where = `${route.method} ${route.path}`;
+        if (res.status >= 500) failures.push(`${where} answered ${res.status}`);
+        if (
+          res.status >= 400 &&
+          res.headers['content-type']?.includes('json')
+        ) {
+          const keys = Object.keys(res.body as object)
+            .sort()
+            .join();
+          if (keys !== 'code,details,message,statusCode')
+            failures.push(`${where}: error keys ${keys}`);
+        }
+      }
+      expect(failures).toEqual([]);
+    });
+  });
 
   describe('responses', () => {
     interface Case {
