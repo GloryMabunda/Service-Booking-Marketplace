@@ -47,6 +47,9 @@ class RecordingNotifier implements BookingNotifier {
   bookingCancelled(): Promise<boolean> {
     return Promise.resolve(this.result);
   }
+  proofRejected(): Promise<boolean> {
+    return Promise.resolve(this.result);
+  }
   proofUploaded(): Promise<void> {
     return Promise.resolve();
   }

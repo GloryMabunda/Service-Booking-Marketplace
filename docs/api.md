@@ -892,7 +892,9 @@ Stream a proof file (A-9).
 - `X-Content-Type-Options: nosniff`
 - `Cache-Control: no-store`
 
-**Errors:** `404 NOT_FOUND`, `410 FILE_DELETED` (removed by the 90-day retention rule).
+The file is read from the private storage area and sent only to a signed-in administrator. `Cross-Origin-Resource-Policy: same-origin` is also sent. The filename in the header is built from the booking reference and the proof's place among its booking's proofs (oldest is 1), so it can't carry anything the client typed.
+
+**Errors:** `404 NOT_FOUND`, `410 FILE_DELETED` (removed by the 90-day retention rule, or missing from storage).
 
 ### 7.10 `PATCH /api/admin/payment-proofs/:id`
 
@@ -909,7 +911,7 @@ Accept or reject a proof (A-9). Records who reviewed it and when. Accepting does
 | `status` | `accepted` or `rejected` |
 | `rejectionReason` | Required when rejecting, 1 to 500 characters, shown to the client. Not allowed when accepting |
 
-**Response `200`**: the proof, in the shape used by [7.3](#73-get-apiadminbookingsid).
+**Response `200`**: `{ "proof": ... }` with the proof in the shape used by [7.3](#73-get-apiadminbookingsid). Rejecting a proof of a booking that is still Pending also returns `emailSentTo` (the client's address, or `null` if the email couldn't be sent); for a booking that is no longer Pending no email is sent and `emailSentTo` is `null`. Two reviews at once can't both win: the second gets `PROOF_ALREADY_REVIEWED`.
 
 **Errors:** `404 NOT_FOUND`, `409 PROOF_ALREADY_REVIEWED`.
 
@@ -945,7 +947,7 @@ Appointments for the FullCalendar view (A-7).
 }
 ```
 
-By default, events are Pending, Confirmed, Completed and No-show bookings. The portal colours them by `status`.
+By default, events are Pending, Confirmed, Completed and No-show bookings. The portal colours them by `status`, and also gives each status its own mark and border so colour is never the only difference. `from` and `to` are business-zone days and both are included; an appointment that overlaps the range at all is returned. The calendar page gives FullCalendar the business wall-clock time of each event, so it shows the business's own times whatever the computer's time zone.
 
 ### 7.12 Services
 

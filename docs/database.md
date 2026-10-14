@@ -351,6 +351,8 @@ Which status changes are allowed (BR-3) is enforced in the application's single 
 
 **Check constraints:** rejected proofs have a reason; `reviewed_at` and `reviewed_by` are set together, and only once the status is no longer `received`.
 
+**Retention (#77).** A daily job (`ProofRetentionService`, a minute after the app starts and then every 24 hours; not under `NODE_ENV=test`) deletes each proof file 90 days after its booking reached a final status, then sets `file_deleted_at`; the row, its SHA-256, status and times are kept. A cancelled booking counts from `cancelled_at`; the others from `updated_at`, the time of the status change. The same job removes files in the private area that have no proof row and are over an hour old (an upload that stopped half way); a younger file is left alone because it may still be being recorded. If a file can't be deleted its row is left unchanged and tried again the next day.
+
 Proof files are kept by the `FileStorage` provider (#67): with the local disk provider at `<UPLOAD_DIR>/private/<storage_key>` (default `uploads/`, git-ignored and outside `public/`). Keys are 64 random hex characters; nothing derived from the uploaded filename is ever a path. If recording a proof fails, its file is deleted again.
 
 The limit of 3 proofs per booking is enforced in the application under a row lock (see [section 6](#6-concurrency-and-jobs)), because a check constraint can't count rows.

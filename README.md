@@ -110,7 +110,7 @@ git --version
 
    **Email (optional while you build).** Clients get their payment instructions by email. In `.env`, fill in `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` (for example `Make Up by Glory <bookings@your-domain.com>`) and `PUBLIC_URL` (the web address of your site) with the details from your email provider. Leave `SMTP_HOST` empty to send no email: bookings still work and the confirmation page says the email couldn't be sent. Never commit these values; `.env` is git-ignored.
 
-   **Booking links and uploads.** The email's private link opens `/booking/<link>`, where the client can see their booking, upload a proof of payment and cancel. Uploaded proofs are kept in the `uploads/` folder (change it with `UPLOAD_DIR` in `.env`), which is git-ignored and never served directly: only you can open a proof, from the admin portal. `PUBLIC_URL` must be your site's real address for the links in emails to work.
+   **Booking links and uploads.** The email's private link opens `/booking/<link>`, where the client can see their booking, upload a proof of payment and cancel. Uploaded proofs are kept in the `uploads/` folder (change it with `UPLOAD_DIR` in `.env`), which is git-ignored and never served directly: only you can open a proof, from the admin portal. Open a booking in the portal to view, accept or reject its proofs; a rejection emails the client your reason. Proof files are deleted automatically 90 days after a booking is finished, keeping only the record. The **Calendar** shows all appointments by month, week or list. `PUBLIC_URL` must be your site's real address for the links in emails to work.
 7. **Start the app.** It restarts by itself when you save a file in `src/`:
 
    ```bash

@@ -28,6 +28,10 @@ export interface BookingNotifier {
   // to their deposit. Returns whether the email was sent.
   bookingCancelled(booking: BookingRecord): Promise<boolean>;
 
+  // The owner rejected a proof of payment: the client is told why, without a
+  // booking link (BR-14). Returns whether the email was sent.
+  proofRejected(booking: BookingRecord, reason: string): Promise<boolean>;
+
   // A client uploaded a proof of payment: the owner is told (BR-14).
   proofUploaded(
     booking: BookingRecord,

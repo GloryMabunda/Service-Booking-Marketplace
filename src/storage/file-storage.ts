@@ -18,6 +18,9 @@ export interface FileStorage {
   delete(area: StorageArea, key: string): Promise<void>;
   // Every key in an area, for the clean-up of orphaned files.
   list(area: StorageArea): Promise<string[]>;
+  // When the file was last written, or null if there is no such file. Lets a
+  // clean-up leave alone a file that is still being recorded.
+  modifiedAt(area: StorageArea, key: string): Promise<Date | null>;
 }
 
 export const FILE_STORAGE = Symbol('FILE_STORAGE');
