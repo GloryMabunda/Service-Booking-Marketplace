@@ -39,7 +39,11 @@ const TEXT = new Set([
   '',
 ]);
 const textFiles = (tracked ?? []).filter(
-  (f) => TEXT.has(extname(f)) && !f.endsWith('package-lock.json'),
+  (f) =>
+    TEXT.has(extname(f)) &&
+    !f.endsWith('package-lock.json') &&
+    // This file holds sample secrets on purpose, to prove the scanner works
+    f !== 'src/common/repository-secrets.spec.ts',
 );
 
 // Each pattern is the shape of a real credential, so a hit is worth a look
