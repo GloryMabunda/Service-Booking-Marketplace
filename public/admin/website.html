@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Website · Make Up by Glory admin</title>
+    <link rel="icon" type="image/png" href="/images/logo/favicon-64.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="/js/admin.js" type="module"></script>
+    <script src="/js/admin-website.js" type="module"></script>
+  </head>
+  <body>
+    <admin-header current="website"></admin-header>
+
+    <!-- The home page content (A-10, #108) with /api/admin/site-content,
+         /gallery, /testimonials and /faqs -->
+    <main id="main" class="mbg-section mbg-admin-main">
+      <div class="mbg-container">
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"
+        >
+          <div>
+            <p class="mbg-label mb-2">Admin portal</p>
+            <h1 class="mb-0">Website</h1>
+          </div>
+          <a
+            class="btn btn-outline-primary"
+            href="/"
+            target="_blank"
+            rel="noopener"
+          >
+            <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>View
+            site
+          </a>
+        </div>
+
+        <div id="page-message" role="status" aria-live="polite"></div>
+
+        <ul class="nav nav-tabs mb-3" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              data-bs-toggle="tab"
+              data-bs-target="#t-about"
+              type="button"
+              role="tab"
+            >
+              About
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#t-contact"
+              type="button"
+              role="tab"
+            >
+              Contact and area
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#t-gallery"
+              type="button"
+              role="tab"
+            >
+              Gallery
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#t-testimonials"
+              type="button"
+              role="tab"
+            >
+              Testimonials
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#t-faq"
+              type="button"
+              role="tab"
+            >
+              FAQ
+            </button>
+          </li>
+        </ul>
+
+        <div id="loading" class="text-secondary" role="status">
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            aria-hidden="true"
+          ></span
+          >Loading…
+        </div>
+
+        <div class="tab-content" id="tabs" hidden>
+          <!-- About: hero photo, tagline, About text and the About photo -->
+          <section
+            class="tab-pane fade show active"
+            id="t-about"
+            role="tabpanel"
+          >
+            <form id="about-form" class="row g-4" novalidate>
+              <div class="col-lg-5">
+                <div id="slot-hero"></div>
+                <div id="slot-about" class="mt-4"></div>
+              </div>
+              <div class="col-lg-7">
+                <label class="form-label" for="about-tagline">Tagline</label>
+                <input
+                  class="form-control mb-1"
+                  id="about-tagline"
+                  maxlength="120"
+                />
+                <div class="invalid-feedback" id="about-tagline-error"></div>
+                <div class="form-text mb-3">
+                  Shown under the business name at the top of the home page.
+                </div>
+                <label class="form-label" for="about-text">About text</label>
+                <textarea
+                  class="form-control mb-1"
+                  id="about-text"
+                  rows="9"
+                  maxlength="5000"
+                ></textarea>
+                <div class="invalid-feedback" id="about-text-error"></div>
+                <div class="form-text mb-3">
+                  Plain text. Leave a blank line between paragraphs.
+                </div>
+                <button class="btn btn-primary" type="submit" id="about-save">
+                  Save
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Contact and area -->
+          <section class="tab-pane fade" id="t-contact" role="tabpanel">
+            <form id="contact-form" class="mbg-narrow" novalidate>
+              <fieldset class="mb-3">
+                <legend class="form-label fs-6">Where you work</legend>
+                <div class="d-flex flex-wrap gap-3 mb-2">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="location-type"
+                      id="loc-travel"
+                      value="travel"
+                    />
+                    <label class="form-check-label" for="loc-travel"
+                      >I travel to clients</label
+                    >
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="location-type"
+                      id="loc-studio"
+                      value="studio"
+                    />
+                    <label class="form-check-label" for="loc-studio"
+                      >Clients come to my studio</label
+                    >
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="location-type"
+                      id="loc-none"
+                      value=""
+                    />
+                    <label class="form-check-label" for="loc-none"
+                      >Don't show this</label
+                    >
+                  </div>
+                </div>
+                <input
+                  class="form-control"
+                  id="c-locationText"
+                  maxlength="200"
+                  aria-label="The area you travel to, or your studio address"
+                  placeholder="For example: Pretoria East and Centurion"
+                />
+                <div class="invalid-feedback" id="c-locationText-error"></div>
+              </fieldset>
+              <div class="mb-3">
+                <label class="form-label" for="c-whatsappNumber"
+                  >WhatsApp number (optional)</label
+                >
+                <input
+                  class="form-control"
+                  id="c-whatsappNumber"
+                  type="tel"
+                  autocomplete="off"
+                />
+                <div class="invalid-feedback" id="c-whatsappNumber-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="c-instagramUrl"
+                  >Instagram link (optional)</label
+                >
+                <input class="form-control" id="c-instagramUrl" type="url" />
+                <div class="invalid-feedback" id="c-instagramUrl-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="c-facebookUrl"
+                  >Facebook link (optional)</label
+                >
+                <input class="form-control" id="c-facebookUrl" type="url" />
+                <div class="invalid-feedback" id="c-facebookUrl-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="c-tiktokUrl"
+                  >TikTok link (optional)</label
+                >
+                <input class="form-control" id="c-tiktokUrl" type="url" />
+                <div class="invalid-feedback" id="c-tiktokUrl-error"></div>
+              </div>
+              <p class="text-secondary">
+                Links must start with https:// and be on that network's own
+                website. Business name, email and phone are in
+                <a href="/admin/settings.html">Settings</a>. Opening hours come
+                from <a href="/admin/availability.html">Availability</a>.
+              </p>
+              <button class="btn btn-primary" type="submit" id="contact-save">
+                Save
+              </button>
+            </form>
+          </section>
+
+          <!-- Gallery -->
+          <section class="tab-pane fade" id="t-gallery" role="tabpanel">
+            <form
+              class="card card-body mb-4 mbg-narrow"
+              id="upload-form"
+              novalidate
+            >
+              <h2 class="h5">Add photos</h2>
+              <div
+                class="border rounded text-center p-3 mb-3"
+                id="drop-zone"
+                role="group"
+                aria-label="Drop photos here or choose them"
+              >
+                <i class="bi bi-images fs-3" aria-hidden="true"></i>
+                <div>Drag photos here, or</div>
+                <label
+                  class="btn btn-outline-primary btn-sm mt-1"
+                  for="gallery-files"
+                  >Choose photos</label
+                >
+                <input
+                  class="visually-hidden"
+                  type="file"
+                  id="gallery-files"
+                  accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                  multiple
+                />
+                <div class="small text-secondary mt-2" id="chosen-files">
+                  No photos chosen.
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="upload-service"
+                  >Service these photos show (optional)</label
+                >
+                <select class="form-select" id="upload-service"></select>
+              </div>
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="checkbox" id="consent" />
+                <label class="form-check-label" for="consent"
+                  >I have permission from the people in these photos to show
+                  them on my website.</label
+                >
+              </div>
+              <div class="form-text mb-3">
+                Up to 10 photos at a time; JPEG, PNG or WebP, up to 15 MB each.
+                Location and camera details are removed automatically. The
+                button stays off until the box is ticked.
+              </div>
+              <div
+                class="progress mb-2"
+                id="upload-progress"
+                role="progressbar"
+                aria-label="Upload progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                hidden
+              >
+                <div
+                  class="progress-bar"
+                  id="upload-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <ul class="list-unstyled small mb-2" id="upload-results"></ul>
+              <div>
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                  id="upload-button"
+                  disabled
+                >
+                  <i class="bi bi-upload me-1" aria-hidden="true"></i>Upload
+                </button>
+              </div>
+            </form>
+
+            <p class="text-secondary" id="gallery-empty" hidden>
+              No photos yet. Add some above and they appear on your home page.
+            </p>
+            <p class="small text-secondary" id="gallery-count"></p>
+            <div class="row g-3" id="gallery-items"></div>
+            <p class="small text-secondary mt-3">
+              Changes save as you make them. Drag a photo to reorder, or use the
+              arrow buttons.
+            </p>
+          </section>
+
+          <!-- Testimonials -->
+          <section class="tab-pane fade" id="t-testimonials" role="tabpanel">
+            <div class="mbg-narrow">
+              <p class="text-secondary">
+                Add quotes your clients agreed to share. Clients can't post
+                reviews themselves.
+              </p>
+              <form
+                class="card card-body mb-3"
+                id="testimonial-form"
+                novalidate
+              >
+                <h2 class="h5" id="testimonial-form-title">
+                  Add a testimonial
+                </h2>
+                <div class="mb-2">
+                  <label class="form-label" for="t-quote">Quote</label>
+                  <textarea
+                    class="form-control"
+                    id="t-quote"
+                    rows="3"
+                    maxlength="500"
+                  ></textarea>
+                  <div class="invalid-feedback" id="t-quote-error"></div>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <label class="form-label" for="t-clientName"
+                      >Client's name</label
+                    >
+                    <input
+                      class="form-control"
+                      id="t-clientName"
+                      maxlength="60"
+                    />
+                    <div class="form-text">
+                      A first name or initial is best.
+                    </div>
+                    <div class="invalid-feedback" id="t-clientName-error"></div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="t-serviceId"
+                      >Service (optional)</label
+                    >
+                    <select class="form-select" id="t-serviceId"></select>
+                    <div class="invalid-feedback" id="t-serviceId-error"></div>
+                  </div>
+                </div>
+                <div class="form-check mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="t-isVisible"
+                    checked
+                  />
+                  <label class="form-check-label" for="t-isVisible"
+                    >Show on the home page</label
+                  >
+                </div>
+                <div>
+                  <button class="btn btn-primary" type="submit" id="t-save">
+                    Add testimonial
+                  </button>
+                  <button
+                    class="btn btn-outline-primary ms-2"
+                    type="button"
+                    id="t-cancel"
+                    hidden
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+              <p class="text-secondary" id="t-empty" hidden>
+                No testimonials yet.
+              </p>
+              <ul class="list-group" id="t-list"></ul>
+            </div>
+          </section>
+
+          <!-- FAQ -->
+          <section class="tab-pane fade" id="t-faq" role="tabpanel">
+            <div class="mbg-narrow">
+              <form class="card card-body mb-3" id="faq-form" novalidate>
+                <h2 class="h5" id="faq-form-title">Add a question</h2>
+                <div class="mb-2">
+                  <label class="form-label" for="f-question">Question</label>
+                  <input class="form-control" id="f-question" maxlength="200" />
+                  <div class="invalid-feedback" id="f-question-error"></div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" for="f-answer">Answer</label>
+                  <textarea
+                    class="form-control"
+                    id="f-answer"
+                    rows="3"
+                    maxlength="2000"
+                  ></textarea>
+                  <div class="invalid-feedback" id="f-answer-error"></div>
+                </div>
+                <div class="form-check mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="f-isVisible"
+                    checked
+                  />
+                  <label class="form-check-label" for="f-isVisible"
+                    >Show on the home page</label
+                  >
+                </div>
+                <div>
+                  <button class="btn btn-primary" type="submit" id="f-save">
+                    Add question
+                  </button>
+                  <button
+                    class="btn btn-outline-primary ms-2"
+                    type="button"
+                    id="f-cancel"
+                    hidden
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+              <p class="text-secondary" id="f-empty" hidden>
+                No questions yet.
+              </p>
+              <ul class="list-group" id="f-list"></ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Asked before a photo or an item is deleted for good -->
+    <div
+      class="modal fade"
+      id="delete-modal"
+      tabindex="-1"
+      aria-labelledby="delete-title"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="delete-title">Delete this?</h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="delete-text"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              data-bs-dismiss="modal"
+            >
+              Keep it
+            </button>
+            <button type="button" class="btn btn-danger" id="delete-yes">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -57,6 +57,7 @@ const ADMIN_LINKS = [
     label: 'Availability',
     href: '/admin/availability.html',
   },
+  { id: 'website', label: 'Website', href: '/admin/website.html' },
   { id: 'settings', label: 'Settings', href: '/admin/settings.html' },
 ];
 
