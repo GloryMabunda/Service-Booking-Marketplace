@@ -1,5 +1,6 @@
 import type { Selectable } from 'kysely';
 import { z } from 'zod';
+import { isoUtc } from '../availability/time-zone.js';
 import type { DB } from '../database/database.types.js';
 
 // A bookable service (A-5, #29) as the admin API returns it
@@ -28,8 +29,8 @@ export function toService(
     durationMinutes: row.duration_minutes,
     isActive: row.is_active,
     bookingCount,
-    createdAt: new Date(row.created_at).toISOString(),
-    updatedAt: new Date(row.updated_at).toISOString(),
+    createdAt: isoUtc(new Date(row.created_at)),
+    updatedAt: isoUtc(new Date(row.updated_at)),
   };
 }
 

@@ -58,10 +58,11 @@ export function zonedTimeToUtc(
   return new Date(valid.length ? Math.min(...valid) : wallClockAsUtc - before);
 }
 
-// "2026-11-03T07:00:00Z": ISO 8601 in UTC, without ".000" milliseconds
-// (docs/api.md section 1).
+// "2026-11-03T07:00:00Z": ISO 8601 in UTC, to the second, without milliseconds
+// (docs/api.md section 1). A time with milliseconds (a database `now()`) is
+// cut down to the second, never rounded up.
 export function isoUtc(instant: Date): string {
-  return instant.toISOString().replace(/.000Z$/, 'Z');
+  return instant.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 // The calendar day as UTC instants: midnight to the next midnight in the zone

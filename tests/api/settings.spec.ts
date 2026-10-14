@@ -93,7 +93,8 @@ describe('Admin settings API', () => {
         businessEmail: 'bookings@example.com',
         businessPhone: null,
         updatedAt: expect.stringMatching(
-          /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/,
+          // To the second, as the API document says (section 1)
+          /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/,
         ) as string,
       },
     });

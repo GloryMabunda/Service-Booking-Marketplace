@@ -1,6 +1,7 @@
 import {
   addDays,
   isoDayOfWeek,
+  isoUtc,
   isValidDate,
   localDate,
   localDayRange,
@@ -136,5 +137,25 @@ describe('calendar helpers', () => {
     expect(isValidDate('2026-13-01')).toBe(false);
     expect(isValidDate('2026-1-1')).toBe(false);
     expect(isValidDate('tomorrow')).toBe(false);
+  });
+});
+
+describe('isoUtc', () => {
+  it('writes a time to the second, in UTC, as the API document says', () => {
+    expect(isoUtc(new Date('2026-11-03T07:00:00Z'))).toBe(
+      '2026-11-03T07:00:00Z',
+    );
+  });
+
+  it('drops milliseconds, whatever they are, and never rounds up', () => {
+    expect(isoUtc(new Date('2026-11-03T07:00:00.000Z'))).toBe(
+      '2026-11-03T07:00:00Z',
+    );
+    expect(isoUtc(new Date('2026-11-03T07:00:00.731Z'))).toBe(
+      '2026-11-03T07:00:00Z',
+    );
+    expect(isoUtc(new Date('2026-11-03T07:00:59.999Z'))).toBe(
+      '2026-11-03T07:00:59Z',
+    );
   });
 });

@@ -7,12 +7,22 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import type { Kysely } from 'kysely';
 import { ApiException } from '../common/api-error.js';
+import {
+  RATE_LIMITER,
+  RateLimitedException,
+  type SlidingWindowLimiter,
+} from '../common/rate-limit.js';
 import { DATABASE } from '../database/database.module.js';
 import type { DB, UserRole } from '../database/database.types.js';
-import { findSession, SESSION_COOKIE, type SessionUser } from './sessions.js';
+import {
+  findSession,
+  hashSessionToken,
+  SESSION_COOKIE,
+  type SessionUser,
+} from './sessions.js';
 
 // Authentication and authorization for the API (#27, docs/api.md section 6).
 //
@@ -44,12 +54,14 @@ export const CurrentUser = createParamDecorator(
 );
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const ADMIN_REQUESTS_PER_MINUTE = 300;
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     @Inject(DATABASE) private readonly db: Kysely<DB>,
+    @Inject(RATE_LIMITER) private readonly limiter: SlidingWindowLimiter,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -88,6 +100,22 @@ export class AuthGuard implements CanActivate {
         "You don't have permission to do that.",
       );
     }
+
+    // 300 requests a minute for one session (docs/api.md section 3): enough
+    // for a busy owner, too few for something that has stolen or scripted a
+    // session to read everything at once
+    const result = this.limiter.consume(
+      `admin|${hashSessionToken(token).toString('hex')}`,
+      ADMIN_REQUESTS_PER_MINUTE,
+      60_000,
+    );
+    const res = context.switchToHttp().getResponse<Response>();
+    if (!result.allowed) {
+      throw new RateLimitedException(result.resetSeconds, result.limit);
+    }
+    res.setHeader('RateLimit-Limit', String(result.limit));
+    res.setHeader('RateLimit-Remaining', String(result.remaining));
+    res.setHeader('RateLimit-Reset', String(result.resetSeconds));
 
     req.user = user;
     return true;

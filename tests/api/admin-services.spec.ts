@@ -195,7 +195,8 @@ describe('Admin services API', () => {
   describe('PATCH', () => {
     it('changes only the fields sent and updates updatedAt', async () => {
       const created = serviceOf(await create(valid('Editable')).expect(201));
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      // Times are given to the second, so the change must be a second later
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       const res = await http()
         .patch(`/api/admin/services/${created.id}`)

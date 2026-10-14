@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Kysely, Selectable } from 'kysely';
+import { isoUtc } from '../availability/time-zone.js';
 import { ApiException } from '../common/api-error.js';
 import { DATABASE } from '../database/database.module.js';
 import type { DB } from '../database/database.types.js';
@@ -110,6 +111,6 @@ function toSettings(row: Selectable<DB['settings']>): Settings {
     businessName: row.business_name,
     businessEmail: row.business_email,
     businessPhone: row.business_phone,
-    updatedAt: new Date(row.updated_at).toISOString(),
+    updatedAt: isoUtc(new Date(row.updated_at)),
   };
 }
