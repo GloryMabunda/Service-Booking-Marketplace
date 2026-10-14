@@ -86,3 +86,36 @@ describe('email settings', () => {
     ).toBe('https://example.com');
   });
 });
+
+describe('TRUST_PROXY', () => {
+  const base = {
+    DATABASE_URL: 'postgres://booking:booking@localhost:5432/booking',
+  };
+
+  it('is unset by default: no proxy is believed', () => {
+    expect(validateEnv(base).TRUST_PROXY).toBeUndefined();
+    expect(
+      validateEnv({ ...base, TRUST_PROXY: '' }).TRUST_PROXY,
+    ).toBeUndefined();
+  });
+
+  it.each([
+    ['0', 0],
+    ['1', 1],
+    ['2', 2],
+    ['10', 10],
+  ])('reads %s as a number of proxies', (text, expected) => {
+    expect(validateEnv({ ...base, TRUST_PROXY: text }).TRUST_PROXY).toBe(
+      expected,
+    );
+  });
+
+  it.each(['11', '-1', '1.5', 'true', 'yes', '1,2', '100', ' 1x'])(
+    'refuses %j, so the visitor address is never taken from the wrong place',
+    (text) => {
+      expect(() => validateEnv({ ...base, TRUST_PROXY: text })).toThrow(
+        /TRUST_PROXY: must be a whole number from 0 to 10/,
+      );
+    },
+  );
+});
