@@ -20,7 +20,7 @@ function toBlockedTime(row: Selectable<DB['blocked_times']>): BlockedTime {
     startAt: isoUtc(new Date(row.start_at)),
     endAt: isoUtc(new Date(row.end_at)),
     reason: row.reason,
-    createdAt: new Date(row.created_at).toISOString(),
+    createdAt: isoUtc(new Date(row.created_at)),
   };
 }
 

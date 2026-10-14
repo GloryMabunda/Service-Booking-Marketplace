@@ -154,8 +154,8 @@ describe('toService', () => {
       durationMinutes: 90,
       isActive: true,
       bookingCount: 3,
-      createdAt: '2026-10-13T08:00:00.000Z',
-      updatedAt: '2026-10-13T09:30:00.000Z',
+      createdAt: '2026-10-13T08:00:00Z',
+      updatedAt: '2026-10-13T09:30:00Z',
     });
   });
 });

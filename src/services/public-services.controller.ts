@@ -1,5 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { RateLimit } from '../common/rate-limit.js';
 import { ServicesService } from './services.service.js';
 
 // GET /api/services (C-1, docs/api.md 4.1): public, no sign-in. The pages that
@@ -8,7 +9,9 @@ import { ServicesService } from './services.service.js';
 export class PublicServicesController {
   constructor(private readonly services: ServicesService) {}
 
+  // 120 requests a minute per IP address (docs/api.md section 3)
   @Get()
+  @RateLimit({ limit: 120, windowSeconds: 60 })
   async list(@Res({ passthrough: true }) res: Response) {
     // May be cached for 60 seconds, so the booking window can be a minute old;
     // POST /api/bookings checks it again (#45).

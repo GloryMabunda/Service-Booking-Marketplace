@@ -498,12 +498,14 @@ The frontend will use standard HTML, CSS, Bootstrap, and vanilla JavaScript to k
 | Command | Runs | Where the tests live |
 | --- | --- | --- |
 | `npm test` | **Unit** tests: one piece of logic at a time, with no database or `.env`. They take milliseconds. | Next to the code: `src/**/*.spec.ts` |
-| `npm run test:integration` | **Integration**, **API** and **concurrency** tests against the test database and the whole app. Needs Docker running (`npm run db:up`); migrates the test database first. | `tests/integration/`, `tests/api/` |
+| `npm run test:integration` | **Integration**, **API** and **concurrency** tests against the test database and the whole app. Needs Docker running (`npm run db:up`); migrates the test database first. | `tests/integration/`, `tests/api/`, `tests/security/`, `tests/contract/`, `tests/e2e/` |
 | `npm run test:all` | Both of the above | |
 | `npm run test:watch` | Unit tests again on every save | |
 | `npm run test:cov` | Unit tests with a coverage report in `coverage/` | |
 
 **Continuous integration.** On every pull request into `main` and every push to `main`, [GitHub Actions](.github/workflows/ci.yml) starts its own PostgreSQL 17, then runs lint, the formatting check, the build, both test commands, and a check that `src/database/database.types.ts` matches the migrations. "Lint, build and test" is a required check, so a pull request can't be merged until it passes.
+
+The **security** suites (`tests/security/`) try to abuse the app: every admin route refuses a visitor, a forged, expired or signed-out session and a request from another website (the list of routes is read from the running app, so a new route is covered automatically); proof and photo uploads are fed fake files, oversized files and "pixel bombs"; booking links and the lookup give the same answer whatever is wrong. The **contract** suite (`tests/contract/`) reads `docs/api.md` and checks the code against it (every endpoint, every error code, the shape of every answer, money and time formats). The **end-to-end** suite (`tests/e2e/`) books, pays, uploads a proof, confirms and cancels, reading the emails as the people would.
 
 Integration tests use the helpers in `tests/helpers/`: `createTestDatabase()` connects to `TEST_DATABASE_URL`, and `inRolledBackTransaction()` undoes everything a test inserted.
 

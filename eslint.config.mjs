@@ -34,6 +34,23 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
   {
+    // The security, contract and end-to-end suites (M7) look inside response
+    // bodies of every shape: supertest gives those as `any` on purpose, so
+    // reading them is not an error here. Application code keeps the rules.
+    files: [
+      'tests/security/**/*.ts',
+      'tests/e2e/**/*.ts',
+      'tests/contract/**/*.ts',
+    ],
+    rules: {
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
+  {
     // The public website's plain browser JavaScript (#23): no TypeScript
     // project, browser globals instead of Node's.
     files: ['public/**/*.js'],
