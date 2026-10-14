@@ -87,6 +87,7 @@ describe('Public website', () => {
     ['/js/admin-bookings.js', /javascript/],
     ['/js/admin-booking.js', /javascript/],
     ['/js/admin-settings.js', /javascript/],
+    ['/js/booking-page.js', /javascript/],
   ])('serves %s', async (path, type) => {
     await request(app.getHttpServer())
       .get(path)

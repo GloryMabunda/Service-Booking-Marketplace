@@ -1,3 +1,4 @@
+import type { BookingStatus } from './booking-status.js';
 import type { BookingRecord } from './bookings.repository.js';
 
 // How people are told about a booking. The booking link token goes into the
@@ -26,6 +27,19 @@ export interface BookingNotifier {
   // The booking was cancelled (BR-12): the client is told, with what happens
   // to their deposit. Returns whether the email was sent.
   bookingCancelled(booking: BookingRecord): Promise<boolean>;
+
+  // A client uploaded a proof of payment: the owner is told (BR-14).
+  proofUploaded(
+    booking: BookingRecord,
+    proof: { uploadedAt: Date; count: number },
+  ): Promise<void>;
+
+  // A client cancelled through their booking link: the owner is told, with
+  // whether a refund is due (BR-12). `previousStatus` is what it was before.
+  clientCancelled(
+    booking: BookingRecord,
+    previousStatus: BookingStatus,
+  ): Promise<void>;
 }
 
 export const BOOKING_NOTIFIER = Symbol('BOOKING_NOTIFIER');
