@@ -539,6 +539,8 @@ A link is **active** while the booking is Pending or Confirmed and the appointme
 
 All responses send `Referrer-Policy: no-referrer` and `Cache-Control: no-store`, and request logs replace the token with `***` (spec section 9).
 
+**The page.** The link in the email is `/booking/<token>` (not under `/api`). It serves one static page, `booking.html`, for every token, with `Referrer-Policy: no-referrer`, `Cache-Control: no-store` and `X-Robots-Tag: noindex`. The page loads no third-party scripts and asks the API below about its link, so an unknown token and an unusable one look the same. Opening the page or the API link never changes the booking.
+
 ### 5.1 `GET /api/booking/:token`
 
 Data for the booking page (C-7). Opening it never changes the booking.
@@ -585,6 +587,8 @@ Data for the booking page (C-7). Opening it never changes the booking.
 Upload a proof of payment (C-7, BR-14). `multipart/form-data` with a single file in the field `file`.
 
 The server checks, in this order: rate limit, link, Pending status, proof count (under a row lock, so parallel uploads can't pass 3), then streams the file with a 5 MB cap, detects the type from its bytes, computes its SHA-256, saves it under a random key and records it. If saving the record fails, the stored file is deleted. Uploading never changes the booking's status or deadline (BR-3, BR-9). The owner is emailed about every upload.
+
+Files are checked from their first bytes (PDF `%PDF-`, JPEG, PNG), never from the name or the type the browser claims. The file is kept in memory while it streams in, refused as soon as it passes 5 MB, and saved under a random key in the private storage area. The upload form accepts exactly one file field and no other fields. Limits: 5 attempts an hour per booking and 10 an hour per IP address.
 
 **Response `201`**
 

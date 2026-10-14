@@ -98,43 +98,82 @@ export class BookingLookupService {
     if (!row || !matches) throw NOT_FOUND();
 
     const { timeZone } = await this.settings.get();
-    const startAt = new Date(row.start_at);
-    const endAt = new Date(row.end_at);
     return {
-      booking: {
-        reference: row.reference,
-        status: row.status,
-        paymentStatus: derivePaymentStatus({
-          status: row.status,
-          depositAmount: row.deposit_amount,
-          paymentVerifiedAt: row.payment_verified_at
-            ? new Date(row.payment_verified_at)
-            : null,
-          proofs: proofs.map((p) => ({ status: p.status })),
-        }),
-        service: {
-          name: row.service_name,
-          durationMinutes: (endAt.getTime() - startAt.getTime()) / 60_000,
-        },
-        startAt: isoUtc(startAt),
-        endAt: isoUtc(endAt),
-        timeZone,
-        price: row.price_at_booking,
-        depositAmount: row.deposit_amount,
-        depositDueAt: row.deposit_due_at
-          ? isoUtc(new Date(row.deposit_due_at))
-          : null,
-        proofs: proofs.map((p) => ({
-          uploadedAt: isoUtc(new Date(p.uploaded_at)),
-          status: p.status,
-          rejectionReason: p.rejection_reason,
-        })),
-      },
-      canResendBookingLink:
-        (row.status === 'pending' || row.status === 'confirmed') &&
-        now < startAt,
+      booking: toBookingSummary(row, proofs, timeZone),
+      canResendBookingLink: canResendLink(row.status, row.start_at, now),
     };
   }
+}
+
+// The row and proofs a BookingSummary is built from
+export interface SummaryRow {
+  reference: string;
+  status: BookingStatus;
+  start_at: Date;
+  end_at: Date;
+  price_at_booking: string;
+  deposit_amount: string;
+  deposit_due_at: Date | null;
+  payment_verified_at: Date | null;
+  service_name: string;
+}
+
+export interface SummaryProof {
+  uploaded_at: Date;
+  status: 'received' | 'accepted' | 'rejected';
+  rejection_reason: string | null;
+}
+
+// A new link can be asked for while the booking is Pending or Confirmed and
+// the appointment hasn't started
+export function canResendLink(
+  status: BookingStatus,
+  startAt: Date,
+  now: Date,
+): boolean {
+  return (
+    (status === 'pending' || status === 'confirmed') && now < new Date(startAt)
+  );
+}
+
+// The booking as a client sees it, used by the lookup and by the booking link
+// page. It never contains the booking link (BR-15).
+export function toBookingSummary(
+  row: SummaryRow,
+  proofs: SummaryProof[],
+  timeZone: string,
+): BookingSummary {
+  const startAt = new Date(row.start_at);
+  const endAt = new Date(row.end_at);
+  return {
+    reference: row.reference,
+    status: row.status,
+    paymentStatus: derivePaymentStatus({
+      status: row.status,
+      depositAmount: row.deposit_amount,
+      paymentVerifiedAt: row.payment_verified_at
+        ? new Date(row.payment_verified_at)
+        : null,
+      proofs: proofs.map((p) => ({ status: p.status })),
+    }),
+    service: {
+      name: row.service_name,
+      durationMinutes: (endAt.getTime() - startAt.getTime()) / 60_000,
+    },
+    startAt: isoUtc(startAt),
+    endAt: isoUtc(endAt),
+    timeZone,
+    price: row.price_at_booking,
+    depositAmount: row.deposit_amount,
+    depositDueAt: row.deposit_due_at
+      ? isoUtc(new Date(row.deposit_due_at))
+      : null,
+    proofs: proofs.map((p) => ({
+      uploadedAt: isoUtc(new Date(p.uploaded_at)),
+      status: p.status,
+      rejectionReason: p.rejection_reason,
+    })),
+  };
 }
 
 // Compares two emails ignoring capitals, in constant time (hashing first

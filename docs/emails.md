@@ -59,7 +59,7 @@ Placeholders use `{{double braces}}`; the templating library is chosen in #55.
 | `{{proof.uploadedAt}}` | Saturday 10 October 2026 at 15:40 | Upload time |
 | `{{proof.count}}` | 2 of 3 | Proofs uploaded so far |
 | `{{site.homeUrl}}`, `{{site.bookUrl}}`, `{{site.lookupUrl}}` | https://… | Home, services list, booking details page |
-| `{{portal.bookingUrl}}` | https://…/admin/bookings/… | Owner's portal page for the booking |
+| `{{portal.bookingUrl}}` | https://…/admin/booking.html?id=… | Owner's portal page for the booking |
 
 ## 3. Shared pieces
 

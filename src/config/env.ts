@@ -29,6 +29,8 @@ export const envSchema = z
     DATABASE_URL: postgresUrl,
     // Only the automated tests use this, so it is optional for the app itself.
     TEST_DATABASE_URL: postgresUrl.optional(),
+    // Where uploaded files are kept by the local disk provider (#67)
+    UPLOAD_DIR: optionalText,
     // Email (M5, #55). Without SMTP_HOST no email is sent: bookings still work
     // and say honestly that the email didn't go.
     SMTP_HOST: optionalText,

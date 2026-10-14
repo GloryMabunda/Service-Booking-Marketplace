@@ -351,6 +351,8 @@ Which status changes are allowed (BR-3) is enforced in the application's single 
 
 **Check constraints:** rejected proofs have a reason; `reviewed_at` and `reviewed_by` are set together, and only once the status is no longer `received`.
 
+Proof files are kept by the `FileStorage` provider (#67): with the local disk provider at `<UPLOAD_DIR>/private/<storage_key>` (default `uploads/`, git-ignored and outside `public/`). Keys are 64 random hex characters; nothing derived from the uploaded filename is ever a path. If recording a proof fails, its file is deleted again.
+
 The limit of 3 proofs per booking is enforced in the application under a row lock (see [section 6](#6-concurrency-and-jobs)), because a check constraint can't count rows.
 
 ### 3.7 `notifications`

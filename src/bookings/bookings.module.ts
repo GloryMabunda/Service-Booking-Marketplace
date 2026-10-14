@@ -10,8 +10,11 @@ import {
 } from './admin-bookings.controller.js';
 import { AdminBookingsService } from './admin-bookings.service.js';
 import { BookingExpiryService } from './booking-expiry.service.js';
+import { BookingLinkGuard } from './booking-link.guard.js';
 import { BookingLinkService } from './booking-link.service.js';
 import { BookingLookupService } from './booking-lookup.service.js';
+import { PublicBookingController } from './public-booking.controller.js';
+import { PublicBookingService } from './public-booking.service.js';
 import { BookingsController } from './bookings.controller.js';
 import { BookingsRepository } from './bookings.repository.js';
 import { BookingsService } from './bookings.service.js';
@@ -29,6 +32,7 @@ import { BookingsService } from './bookings.service.js';
   ],
   controllers: [
     BookingsController,
+    PublicBookingController,
     AdminDashboardController,
     AdminBookingsController,
   ],
@@ -38,6 +42,8 @@ import { BookingsService } from './bookings.service.js';
     BookingLookupService,
     BookingLinkService,
     AdminBookingsService,
+    BookingLinkGuard,
+    PublicBookingService,
     BookingExpiryService,
   ],
   exports: [BookingsRepository, BookingsService, BookingExpiryService],

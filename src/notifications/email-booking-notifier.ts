@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Kysely } from 'kysely';
 import type { BookingNotifier } from '../bookings/booking-notifier.js';
+import type { BookingStatus } from '../bookings/booking-status.js';
 import { bookingLink } from '../bookings/booking-token.js';
 import type { BookingRecord } from '../bookings/bookings.repository.js';
 import { isRefundable, refundDeadline } from '../bookings/refund-rule.js';
@@ -11,6 +12,11 @@ import { DATABASE } from '../database/database.module.js';
 import type { DB } from '../database/database.types.js';
 import type { Settings } from '../settings/settings.schema.js';
 import { SettingsService } from '../settings/settings.service.js';
+import {
+  type ClientCancelRefund,
+  renderAdminClientCancelled,
+  renderAdminProofUploaded,
+} from './admin-emails.js';
 import {
   renderAdminNewBooking,
   renderBookingExpired,
@@ -166,6 +172,76 @@ export class EmailBookingNotifier implements BookingNotifier {
     });
   }
 
+  // 5.2: a client uploaded a proof. The owner is told to check the bank before
+  // confirming; the email links to the booking in the portal.
+  async proofUploaded(
+    booking: BookingRecord,
+    proof: { uploadedAt: Date; count: number },
+  ): Promise<void> {
+    const { settings, service } = await this.context(booking);
+    const { timeZone } = settings;
+    await this.notifications.sendEmail({
+      bookingId: booking.id,
+      type: 'admin_proof_uploaded',
+      to: settings.businessEmail,
+      email: renderAdminProofUploaded({
+        clientName: booking.clientName,
+        reference: booking.reference,
+        service,
+        when: formatWhen(booking.startAt, timeZone),
+        deposit: formatRand(booking.depositAmount),
+        deadline: formatWhen(booking.depositDueAt ?? booking.startAt, timeZone),
+        uploadedAt: formatWhen(proof.uploadedAt, timeZone),
+        count: `${proof.count} of 3`,
+        portalUrl: this.portalUrl(booking),
+      }),
+    });
+  }
+
+  // 5.3: a client cancelled. The refund block follows what was recorded when
+  // they cancelled (BR-12).
+  async clientCancelled(
+    booking: BookingRecord,
+    previousStatus: BookingStatus,
+  ): Promise<void> {
+    const { settings, service } = await this.context(booking);
+    const { timeZone } = settings;
+    let refund: ClientCancelRefund = { kind: 'none' };
+    if (toCents(booking.depositAmount) > 0) {
+      if (booking.refundDue) {
+        refund = {
+          kind: 'due',
+          amount: formatRand(booking.amountReceived ?? booking.depositAmount),
+        };
+      } else {
+        refund =
+          previousStatus === 'pending'
+            ? { kind: 'pending' }
+            : { kind: 'outside_rule' };
+      }
+    }
+    await this.notifications.sendEmail({
+      bookingId: booking.id,
+      type: 'admin_client_cancelled',
+      to: settings.businessEmail,
+      email: renderAdminClientCancelled({
+        clientName: booking.clientName,
+        clientEmail: booking.clientEmail,
+        clientPhone: booking.clientPhone,
+        reference: booking.reference,
+        service,
+        when: formatWhen(booking.startAt, timeZone),
+        previousStatus: previousStatus === 'pending' ? 'Pending' : 'Confirmed',
+        refund,
+        portalUrl: this.portalUrl(booking),
+      }),
+    });
+  }
+
+  private portalUrl(booking: BookingRecord): string {
+    return `${this.siteUrl()}/admin/booking.html?id=${booking.id}`;
+  }
+
   // The email that carries the booking link: payment instructions while the
   // booking is Pending, the confirmation once no deposit is owed
   private async clientLinkEmail(
@@ -248,7 +324,7 @@ export class EmailBookingNotifier implements BookingNotifier {
             }
           : null,
         notes: booking.notes,
-        portalUrl: `${this.siteUrl()}/admin/booking.html?id=${booking.id}`,
+        portalUrl: this.portalUrl(booking),
       }),
     });
   }
