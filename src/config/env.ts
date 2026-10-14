@@ -29,6 +29,20 @@ export const envSchema = z
     DATABASE_URL: postgresUrl,
     // Only the automated tests use this, so it is optional for the app itself.
     TEST_DATABASE_URL: postgresUrl.optional(),
+    // How many proxies stand between the internet and the app (for example 1
+    // behind one load balancer), so the visitor's real address is used for rate
+    // limits and recorded with an upload. Leave empty when nothing is in front.
+    TRUST_PROXY: optionalText.transform((value, context) => {
+      if (value === undefined) return undefined;
+      if (!/^(?:\d|10)$/.test(value)) {
+        context.addIssue({
+          code: 'custom',
+          message: 'must be a whole number from 0 to 10',
+        });
+        return z.NEVER;
+      }
+      return Number(value);
+    }),
     // Where uploaded files are kept by the local disk provider (#67)
     UPLOAD_DIR: optionalText,
     // Email (M5, #55). Without SMTP_HOST no email is sent: bookings still work

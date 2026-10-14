@@ -38,7 +38,7 @@ Taken from the logo's ink and lip splash (Option C, the full splash palette).
 | Primary hover | Magenta dark | `#831A69` | Hover and pressed states | |
 | Action | Orange | `#FFA040` | **Book now** and the booking steps only | Text `#3A1A00` on it 7.8:1 |
 | Bright | Pink | `#E04060` | Large headings (24 px and up), the "by Glory" flourish, decoration, backgrounds | 4.1:1 on white: **never small text** |
-| Pink text | Pink text | `#C42B52` | Small pink text: prices, section labels, form errors | 5.5:1 on white |
+| Pink text | Pink text | `#C0284F` | Small pink text: prices, section labels, form errors | 5.7:1 on white, 4.7:1 on the lilac tint |
 | Highlight | Gold | `#FFC060` | Stars, highlights | Decoration only |
 | Success | Green | `#2E7D3E` | Confirmed status, "payment received" | White on it 5.1:1 |
 | Logo ink | Plum | `#673656` | The logo, footer background | 9.4:1 on white |
@@ -106,7 +106,7 @@ All components are Bootstrap 5.3, themed by `tokens.css`. See them rendered in t
 ### Forms
 
 - Labels above fields; optional fields say "(optional)".
-- Errors appear under the field in pink text (`#C42B52`) with an icon and a plain message ("Enter a valid email address."), and the field gets a pink border. Never rely on the red border alone.
+- Errors appear under the field in pink text (`#C0284F`) with an icon and a plain message ("Enter a valid email address."), and the field gets a pink border. Never rely on the red border alone.
 - Focus shows a magenta ring (`--mbg-focus`); keyboard focus is always visible.
 
 ### Cards and chips

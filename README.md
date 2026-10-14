@@ -718,7 +718,7 @@ Project documentation is maintained in the `docs/` directory.
 | [Wireframes](docs/wireframes/README.md) | ✅ Done |
 | [Style guide](docs/style-guide.md) | ✅ v1 (colours, fonts, components, logo) |
 | [Email content](docs/emails.md) | ✅ Done |
-| Security and POPIA (`docs/security.md`) | Planned (M7) |
+| Security and POPIA (`docs/security.md`) | Done (M7): what personal data is kept and for how long, what protects it, secrets, logs, and the decisions waiting for the owner |
 | Deployment (`docs/deployment.md`) | Planned (M8) |
 
 ---

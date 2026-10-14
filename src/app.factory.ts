@@ -5,10 +5,13 @@ import {
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import type { Request, Response } from 'express';
 import { join } from 'node:path';
 import { requestLogger } from './common/request-logger.js';
+import { securityHeaders } from './common/security-headers.js';
+import type { Env } from './config/env.js';
 import { AppModule } from './app.module.js';
 
 // The setup every running app has. createApp uses it, and so do tests that
@@ -26,6 +29,20 @@ export function configureApp(app: INestApplication): void {
   (app as unknown as NestExpressApplication).useBodyParser('json', {
     limit: '16kb',
   });
+  const config = app.get<ConfigService<Env, true>>(ConfigService);
+  const express = app as unknown as NestExpressApplication;
+  // Don't announce what the server is built with
+  express.disable('x-powered-by');
+  // Behind a hosting proxy the real visitor address is in X-Forwarded-For; it
+  // is only believed when the owner says how many proxies there are (#85)
+  const proxies = config.get('TRUST_PROXY', { infer: true });
+  if (proxies !== undefined) express.set('trust proxy', proxies);
+  // Browser safety headers on every response (#85)
+  app.use(
+    securityHeaders({
+      production: config.get('NODE_ENV', { infer: true }) === 'production',
+    }),
+  );
   // Reads the session cookie (#27).
   app.use(cookieParser());
   // Logs requests, with booking link tokens masked (#68).

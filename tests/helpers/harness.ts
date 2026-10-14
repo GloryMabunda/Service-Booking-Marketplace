@@ -117,7 +117,10 @@ export async function startHarness(prefix: string): Promise<Harness> {
     .returning('id')
     .executeTakeFirstOrThrow();
 
+  // Each suite books on days of its own, so two suites in one run (or one left
+  // half-cleaned) can never ask for the same time
   let counter = 0;
+  const dayOffset = 1 + (sha256(prefix).readUInt16BE(0) % 600);
   const getBooking = (id: string) =>
     db
       .selectFrom('bookings')
@@ -138,7 +141,10 @@ export async function startHarness(prefix: string): Promise<Harness> {
     getBooking,
     makeBooking: async (overrides = {}) => {
       counter += 1;
-      const start = localAt(addDays(upcoming(2), counter * 7), '09:00');
+      const start = localAt(
+        addDays(upcoming(2), dayOffset + counter * 7),
+        '09:00',
+      );
       const status = overrides.status ?? 'pending';
       const token = randomBytes(32).toString('base64url');
       const extra: Partial<Insertable<DB['bookings']>> = {};
