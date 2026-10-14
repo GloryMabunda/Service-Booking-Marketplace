@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
-    <title>Admin portal · Make Up by Glory</title>
+    <title>Dashboard · Make Up by Glory admin</title>
     <link rel="icon" type="image/png" href="/images/logo/favicon-64.png" />
     <link
       rel="stylesheet"
@@ -21,43 +21,65 @@
     <link rel="stylesheet" href="/css/tokens.css" />
     <link rel="stylesheet" href="/css/site.css" />
     <script src="/js/admin.js" type="module"></script>
-    <script type="module">
-      import { currentUser } from '/js/admin.js';
-      currentUser.then((user) => {
-        document.querySelector('#welcome-email').textContent = user.email;
-      });
-    </script>
+    <script src="/js/admin-dashboard.js" type="module"></script>
   </head>
   <body>
-    <admin-header></admin-header>
+    <admin-header current="dashboard"></admin-header>
 
-    <!-- Portal home (#27). The dashboard (A-2) replaces this in M6. -->
+    <!-- The dashboard (A-2, #62) with /api/admin/dashboard -->
     <main id="main" class="mbg-section mbg-admin-main">
       <div class="mbg-container">
         <p class="mbg-label mb-2">Admin portal</p>
-        <h1>Welcome back</h1>
-        <p class="mbg-readable">
-          You're signed in as <strong id="welcome-email">…</strong>. Your
-          session lasts 12 hours without activity, and 7 days at most.
-        </p>
+        <h1>Dashboard</h1>
 
-        <div class="mt-4">
-          <a class="btn btn-primary" href="/admin/services.html">
-            <i class="bi bi-scissors me-1" aria-hidden="true"></i>Manage
-            services
-          </a>
-          <a class="btn btn-primary ms-2" href="/admin/availability.html">
-            <i class="bi bi-calendar-week me-1" aria-hidden="true"></i>Working
-            hours
-          </a>
+        <div id="page-message" role="status" aria-live="polite"></div>
+
+        <div id="loading" class="text-secondary" role="status">
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            aria-hidden="true"
+          ></span
+          >Loading…
         </div>
 
-        <div class="alert alert-info d-flex gap-2 mt-4" role="status">
-          <i class="bi bi-info-circle" aria-hidden="true"></i>
-          <span>
-            The dashboard, bookings and settings will appear here as they're
-            built.
-          </span>
+        <div id="content" hidden>
+          <div class="row g-3 mb-4" id="figures"></div>
+
+          <h2 class="h4">Upcoming appointments</h2>
+          <div class="table-responsive" id="upcoming-wrap" hidden>
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">When</th>
+                  <th scope="col">Client</th>
+                  <th scope="col">Service</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Reference</th>
+                </tr>
+              </thead>
+              <tbody id="upcoming-body"></tbody>
+            </table>
+          </div>
+          <p id="no-upcoming" class="text-secondary" hidden>
+            No upcoming appointments yet. New bookings appear here.
+          </p>
+
+          <div class="mt-4">
+            <a class="btn btn-primary" href="/admin/bookings.html">
+              <i class="bi bi-journal-text me-1" aria-hidden="true"></i>All
+              bookings
+            </a>
+            <a class="btn btn-outline-primary ms-2" href="/admin/services.html">
+              <i class="bi bi-scissors me-1" aria-hidden="true"></i>Services
+            </a>
+            <a
+              class="btn btn-outline-primary ms-2"
+              href="/admin/availability.html"
+            >
+              <i class="bi bi-calendar-week me-1" aria-hidden="true"></i>Working
+              hours
+            </a>
+          </div>
         </div>
       </div>
     </main>

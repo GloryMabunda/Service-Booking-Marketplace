@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AvailabilityModule } from '../availability/availability.module.js';
+import { PaymentsModule } from '../payments/payments.module.js';
 import { NotificationsModule } from '../notifications/notifications.module.js';
 import { ServicesModule } from '../services/services.module.js';
 import { SettingsModule } from '../settings/settings.module.js';
+import {
+  AdminBookingsController,
+  AdminDashboardController,
+} from './admin-bookings.controller.js';
+import { AdminBookingsService } from './admin-bookings.service.js';
 import { BookingExpiryService } from './booking-expiry.service.js';
 import { BookingLinkService } from './booking-link.service.js';
 import { BookingLookupService } from './booking-lookup.service.js';
@@ -17,15 +23,21 @@ import { BookingsService } from './bookings.service.js';
   imports: [
     AvailabilityModule,
     NotificationsModule,
+    PaymentsModule,
     ServicesModule,
     SettingsModule,
   ],
-  controllers: [BookingsController],
+  controllers: [
+    BookingsController,
+    AdminDashboardController,
+    AdminBookingsController,
+  ],
   providers: [
     BookingsRepository,
     BookingsService,
     BookingLookupService,
     BookingLinkService,
+    AdminBookingsService,
     BookingExpiryService,
   ],
   exports: [BookingsRepository, BookingsService, BookingExpiryService],

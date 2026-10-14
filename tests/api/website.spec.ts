@@ -57,6 +57,8 @@ describe('Public website', () => {
     '/admin/',
     '/admin/services.html',
     '/admin/availability.html',
+    '/admin/bookings.html',
+    '/admin/booking.html',
   ])(
     'serves the portal page %s, which is kept out of search engines',
     async (path) => {
@@ -79,6 +81,10 @@ describe('Public website', () => {
     ['/js/book-details-page.js', /javascript/],
     ['/js/booking-confirmation-page.js', /javascript/],
     ['/js/lookup-page.js', /javascript/],
+    ['/js/admin-bookings-shared.js', /javascript/],
+    ['/js/admin-dashboard.js', /javascript/],
+    ['/js/admin-bookings.js', /javascript/],
+    ['/js/admin-booking.js', /javascript/],
   ])('serves %s', async (path, type) => {
     await request(app.getHttpServer())
       .get(path)

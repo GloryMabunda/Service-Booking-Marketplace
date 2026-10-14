@@ -814,7 +814,7 @@ Record the amount received and confirm the booking, after the owner has seen the
 
 `amountReceived` must be more than `"0.00"`. If it is less than the deposit, the portal warns before sending, but the owner decides.
 
-**Response `200`**: `{ "booking": AdminBooking }` with status `confirmed`.
+**Response `200`**: `{ "booking": AdminBooking, "emailSentTo": "sarah@example.com" }` with status `confirmed`. `emailSentTo` is `null` when the confirmation email couldn't be sent: the booking is confirmed anyway, and the owner can send a new booking link to try again.
 
 **Errors:** `404 NOT_FOUND`, `409 INVALID_STATUS_TRANSITION` (not Pending, for example it has just expired).
 
@@ -850,7 +850,7 @@ Cancel, complete or mark a no-show (A-4, BR-3).
 | `completed` | Confirmed, once the appointment has started | |
 | `no_show` | Confirmed, once the appointment has started | |
 
-**Response `200`**: `{ "booking": AdminBooking }`.
+**Response `200`**: `{ "booking": AdminBooking }`. A cancellation also returns `emailSentTo` (the client's address, or `null` if the cancellation email couldn't be sent). The cancelled booking records `cancelledBy: "admin"`.
 
 **Errors:** `404 NOT_FOUND`, `409 INVALID_STATUS_TRANSITION`.
 

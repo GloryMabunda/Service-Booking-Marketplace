@@ -115,7 +115,7 @@ git --version
    npm run start:dev
    ```
 
-   Wait for **"Nest application successfully started"**, then open **<http://localhost:3000>**. The admin portal is at **<http://localhost:3000/admin/>**: sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`, then open **Services** to add your services. Open **Availability** to set your working hours and block time off. Clients see the active services at <http://localhost:3000/services.html> and pick a date and time after pressing **Book**. The API lives under <http://localhost:3000/api>.
+   Wait for **"Nest application successfully started"**, then open **<http://localhost:3000>**. The admin portal is at **<http://localhost:3000/admin/>**: sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`, then open **Services** to add your services. Open **Availability** to set your working hours and block time off. The **Dashboard** shows today's bookings and what needs your attention, and **Bookings** lets you find a booking, confirm its payment once you've seen the money in your bank account, give a client more time to pay, send a new booking link, cancel, or mark it completed or a no-show. Clients see the active services at <http://localhost:3000/services.html> and pick a date and time after pressing **Book**. The API lives under <http://localhost:3000/api>.
 
    Or press **F5**: in VS Code (**Run the app**), or in Visual Studio after opening `ServiceBookingMarketplace.sln`.
 

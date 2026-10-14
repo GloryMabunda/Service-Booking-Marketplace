@@ -18,6 +18,14 @@ export interface BookingNotifier {
 
   // The deposit wasn't received in time: the client is told (BR-9).
   bookingExpired(booking: BookingRecord): Promise<void>;
+
+  // The owner confirmed the deposit: the client gets the confirmation with a
+  // fresh booking link (BR-8, BR-15). Returns whether the email was sent.
+  bookingConfirmed(booking: BookingRecord, token: string): Promise<boolean>;
+
+  // The booking was cancelled (BR-12): the client is told, with what happens
+  // to their deposit. Returns whether the email was sent.
+  bookingCancelled(booking: BookingRecord): Promise<boolean>;
 }
 
 export const BOOKING_NOTIFIER = Symbol('BOOKING_NOTIFIER');
