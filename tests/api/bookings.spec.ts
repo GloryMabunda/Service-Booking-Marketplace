@@ -35,6 +35,12 @@ class RecordingNotifier implements BookingNotifier {
     if (this.fail) return Promise.reject(new Error('the mail server is down'));
     return Promise.resolve(this.result);
   }
+  bookingLinkReissued(): Promise<boolean> {
+    return Promise.resolve(this.result);
+  }
+  bookingExpired(): Promise<void> {
+    return Promise.resolve();
+  }
 }
 
 const PREFIX = 'Booking test ';

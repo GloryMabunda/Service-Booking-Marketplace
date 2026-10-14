@@ -355,7 +355,7 @@ The limit of 3 proofs per booking is enforced in the application under a row loc
 
 ### 3.7 `notifications`
 
-One row per message sent or attempted (section 7 of the spec). A failed send is recorded here and never rolls back the booking. `NotificationsService` saves the row as `pending` before sending, then marks it `sent` (with `sent_at`) or `failed` (with the provider's error). The email's content and the booking link are never stored.
+One row per message sent or attempted (section 7 of the spec). A failed send is recorded here and never rolls back the booking. `NotificationsService` saves the row as `pending` before sending, then marks it `sent` (with `sent_at`) or `failed` (with the provider's error). The email's content and the booking link are never stored. Rows exist for the client's email (`payment_instructions`, `booking_confirmed`, `booking_expired`) and the owner's (`admin_new_booking`).
 
 | Column | Type | Notes |
 | --- | --- | --- |

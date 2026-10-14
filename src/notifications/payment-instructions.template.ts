@@ -17,6 +17,8 @@ export interface PaymentInstructionsData {
   bank: BankingDetails;
   // The private booking link. This email is the only place it appears (BR-15).
   link: string;
+  // A new link was asked for: the email says so and the old link is dead
+  newLink?: boolean;
 }
 
 export interface RenderedEmail {
@@ -49,10 +51,14 @@ export function renderPaymentInstructions(
     ['Reference', d.reference],
   ];
 
+  const intro = d.newLink
+    ? "As requested, here's a new private link for your booking. Your previous link no longer works."
+    : `Thank you for booking with ${d.business.name}! I've reserved this time for you:`;
+
   const text = [
     `Hi ${d.clientFirstName},`,
     '',
-    `Thank you for booking with ${d.business.name}! I've reserved this time for you:`,
+    intro,
     '',
     ...summary.map(([label, value]) => `${label}: ${value}`),
     '',
@@ -102,7 +108,7 @@ export function renderPaymentInstructions(
 <html lang="en"><body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#2A1A26;line-height:1.5">
 <div style="max-width:600px;margin:0 auto;padding:24px 16px">
 <p>Hi ${escapeHtml(d.clientFirstName)},</p>
-<p>Thank you for booking with ${escapeHtml(d.business.name)}! I've reserved this time for you:</p>
+<p>${escapeHtml(intro)}</p>
 <table role="presentation" style="border-collapse:collapse;margin:0 0 16px">${rows(summary)}</table>
 <p style="border-left:4px solid #A02080;padding:8px 12px;background:#faf2f8"><strong>${escapeHtml(NOT_CONFIRMED)}</strong></p>
 <h2 style="${heading}">1. Pay your deposit of ${escapeHtml(d.deposit)} by ${escapeHtml(d.deadline)}</h2>
@@ -122,7 +128,9 @@ export function renderPaymentInstructions(
 </div></body></html>`;
 
   return {
-    subject: `Your booking request ${d.reference}: please pay your deposit`,
+    subject: d.newLink
+      ? `Your new booking link for ${d.reference}`
+      : `Your booking request ${d.reference}: please pay your deposit`,
     text,
     html,
   };

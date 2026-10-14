@@ -376,7 +376,7 @@ The confirmation page shows this with the message that the booking is confirmed 
 
 **The booking link (BR-15).** A random 32-byte token is made for each booking and only its SHA-256 hash is saved. The token goes to the email sender and is never in a response or a log.
 
-The emails are sent after the booking is saved. If sending fails, the booking still succeeds (spec section 7), and `emailSentTo` is `null` so the page can say so. Every attempt is recorded in the `notifications` table as sent or failed, with the provider's error. With `SMTP_HOST` empty no email is sent and `emailSentTo` is `null`. Bookings that need no deposit get their confirmation email in #57; until then `emailSentTo` is `null` for them too.
+The emails are sent after the booking is saved. If sending fails, the booking still succeeds (spec section 7), and `emailSentTo` is `null` so the page can say so. Every attempt is recorded in the `notifications` table as sent or failed, with the provider's error. With `SMTP_HOST` empty no email is sent and `emailSentTo` is `null`. A booking that needs no deposit gets the confirmation email instead of the payment instructions. The owner is also emailed about every new booking; if that email fails, the client's is unaffected.
 
 The endpoint is limited to **10 requests per hour per IP address** (section 3), and every response carries the `RateLimit-*` headers.
 
@@ -427,7 +427,7 @@ Issue a new booking link and email it to the booking's email address (C-6, BR-15
 { "message": "If the details match an active booking, a new booking link has been sent to its email address." }
 ```
 
-A new link is issued and sent only when the reference and email match a Pending or Confirmed booking whose appointment hasn't started. The email is the payment instructions email while Pending, or the confirmation email once Confirmed.
+A new link is issued and sent only when the reference and email match a Pending or Confirmed booking whose appointment hasn't started. The email is the payment instructions email while Pending, or the confirmation email once Confirmed. It is sent in the background, so the answer (and how long it takes) is the same whether or not anything matched. The count of 3 an hour is kept per reference typed, whether or not that booking exists, so reaching it reveals nothing; the 10 an hour per IP applies on top.
 
 **Errors:** `400 VALIDATION_FAILED`, `429`.
 
