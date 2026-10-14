@@ -295,7 +295,7 @@ Dates or time ranges the owner has blocked (A-6). A whole day is stored as midni
 | `amount_received` | `numeric(10,2)` | Nullable. Recorded by the owner when confirming payment (BR-8) |
 | `payment_verified_at` | `timestamptz` | Nullable. When the owner confirmed payment |
 | `payment_verified_by` | `uuid` | Nullable. Foreign key to `users`: who confirmed payment |
-| `refund_due` | `boolean` | Default `false`. Set when a Confirmed booking is cancelled within the refund rule (BR-12). See [section 8](#8-additions-to-the-specification) |
+| `refund_due` | `boolean` | Default `false`. Set when a Confirmed booking is cancelled within the refund rule (BR-12). See [section 8](#8-additions-to-the-specification). No client bank details are stored anywhere: the owner asks the client for them when a refund is due (#116) |
 | `refunded_at` | `timestamptz` | Nullable. When the owner recorded the refund as paid (#74) |
 | `cancelled_at` | `timestamptz` | Nullable. Required when status is Cancelled |
 | `cancelled_by` | `cancelled_by` | Nullable enum: `client`, `admin`. Required when status is Cancelled |

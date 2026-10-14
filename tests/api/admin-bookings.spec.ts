@@ -465,6 +465,7 @@ describe('Admin bookings API', () => {
       ['status=nonsense'],
       ['from=2026-13-45'],
       ['proof=yes'],
+      ['refund=yes'],
       ['sort=price'],
       ['page=0'],
       ['pageSize=101'],
@@ -912,6 +913,70 @@ describe('Admin bookings API', () => {
         refundDue: true,
       });
       expect(res.status).toBe(400);
+    });
+  });
+
+  describe('refunds (#74)', () => {
+    const paid = () => ({
+      status: 'cancelled' as const,
+      refund_due: true,
+      amount_received: '325.00',
+      payment_verified_at: new Date(),
+      payment_verified_by: admin.id,
+    });
+
+    it('records a refund that was due, once', async () => {
+      const { row } = await insert(paid());
+      const before = bodyOf<{ refundsDue: number }>(await get('/dashboard'));
+      const res = await post(`/bookings/${row.id}/refund`);
+      expect(res.status).toBe(200);
+      expect(bookingOf(res)).toMatchObject({ refundDue: true });
+      expect(bookingOf(res).refundedAt).not.toBeNull();
+      expect((await statusOf(row.id)).refunded_at).not.toBeNull();
+
+      const after = bodyOf<{ refundsDue: number }>(await get('/dashboard'));
+      expect(after.refundsDue).toBe(before.refundsDue - 1);
+
+      const again = await post(`/bookings/${row.id}/refund`);
+      expect(again.status).toBe(409);
+      expect(errorBody(again).code).toBe('NO_REFUND_DUE');
+    });
+
+    it('refuses a booking with no refund due', async () => {
+      const { row } = await insert({ status: 'confirmed' });
+      const res = await post(`/bookings/${row.id}/refund`);
+      expect(res.status).toBe(409);
+      expect(errorBody(res).code).toBe('NO_REFUND_DUE');
+      expect((await statusOf(row.id)).refunded_at).toBeNull();
+    });
+
+    it('takes an empty body but no fields', async () => {
+      const { row } = await insert(paid());
+      const bad = await post(`/bookings/${row.id}/refund`, { amount: '1.00' });
+      expect(bad.status).toBe(400);
+      const none = await http()
+        .post(`/api/admin/bookings/${row.id}/refund`)
+        .set('Cookie', admin.cookie);
+      expect(none.status).toBe(200);
+    });
+
+    it('answers 404 for an unknown booking', async () => {
+      const res = await post(
+        '/bookings/00000000-0000-0000-0000-000000000000/refund',
+      );
+      expect(res.status).toBe(404);
+    });
+
+    it('lists only the refunds still to pay with ?refund=due', async () => {
+      const owed = await insert(paid());
+      const settled = await insert({ ...paid(), refunded_at: new Date() });
+      await insert({ status: 'confirmed' });
+      const res = await get('/bookings?refund=due&q=admin-test@example.com');
+      const refs = bodyOf<{ items: AdminBooking[] }>(res).items.map(
+        (b) => b.reference,
+      );
+      expect(refs).toEqual([owed.row.reference]);
+      expect(refs).not.toContain(settled.row.reference);
     });
   });
 

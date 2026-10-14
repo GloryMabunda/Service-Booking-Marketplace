@@ -210,6 +210,15 @@ export class AdminBookingsService {
           ),
         );
       }
+      if (query.refund) {
+        // A refund the owner still has to pay (BR-12)
+        conditions.push(
+          eb.and([
+            eb('bookings.refund_due', '=', true),
+            eb('bookings.refunded_at', 'is', null),
+          ]),
+        );
+      }
       if (query.q) {
         // Characters with a special meaning in LIKE are searched for literally
         const pattern = `%${query.q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
@@ -453,6 +462,28 @@ export class AdminBookingsService {
       booking: await this.one(id),
       ...(change.status === 'cancelled' ? { emailSentTo } : {}),
     };
+  }
+
+  // The owner has paid a refund that was due (BR-12). Only a booking with a
+  // refund due and not yet recorded can be marked, and only once.
+  async recordRefund(id: string, now = new Date()) {
+    await this.mustFind(id);
+    const row = await this.db
+      .updateTable('bookings')
+      .set({ refunded_at: now, updated_at: now })
+      .where('id', '=', id)
+      .where('refund_due', '=', true)
+      .where('refunded_at', 'is', null)
+      .returning('id')
+      .executeTakeFirst();
+    if (!row) {
+      throw new ApiException(
+        409,
+        'NO_REFUND_DUE',
+        'No refund is due for this booking, or it has already been recorded.',
+      );
+    }
+    return { booking: await this.one(id) };
   }
 
   // A new booking link, emailed to the client; the old one stops working

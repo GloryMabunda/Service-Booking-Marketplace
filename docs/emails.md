@@ -285,7 +285,7 @@ Glory
 
 | Situation | Refund line |
 | --- | --- |
-| Refund due (Confirmed, cancelled within the refund rule, or the owner marked a refund due) | "Your deposit of {{refund.amount}} will be refunded. I'll be in touch to arrange it." |
+| Refund due (Confirmed, cancelled within the refund rule, or the owner marked a refund due) | "Your deposit of {{refund.amount}} will be refunded. I'll be in touch to arrange it." The owner then asks for the client's bank details herself; the system never collects or stores them (#116). |
 | Confirmed, outside the refund rule | "As this was within {{refund.cutoffHours}} hours of your appointment, your deposit isn't refundable." |
 | Confirmed, owner cancelled with no refund due | Left out; the owner explains personally. |
 | Pending (no deposit confirmed) | "No deposit had been confirmed for this booking. If you've already paid, please reply to this email and I'll sort it out." |

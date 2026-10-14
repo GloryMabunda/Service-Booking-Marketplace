@@ -49,6 +49,7 @@ function readAddress() {
   $('#q').value = params.get('q') ?? '';
   $('#sort').value = params.get('sort') ?? 'startAt';
   $('#proof').checked = params.get('proof') === 'received';
+  $('#refund').checked = params.get('refund') === 'due';
   page = Number(params.get('page')) || 1;
 }
 
@@ -66,6 +67,7 @@ function currentParams() {
   if ($('#q').value.trim()) params.set('q', $('#q').value.trim());
   if ($('#sort').value !== 'startAt') params.set('sort', $('#sort').value);
   if ($('#proof').checked) params.set('proof', 'received');
+  if ($('#refund').checked) params.set('refund', 'due');
   if (page > 1) params.set('page', String(page));
   return params;
 }
