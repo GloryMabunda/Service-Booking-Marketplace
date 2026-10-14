@@ -50,6 +50,7 @@ async function signOut() {
 const ADMIN_LINKS = [
   { id: 'dashboard', label: 'Dashboard', href: '/admin/' },
   { id: 'bookings', label: 'Bookings', href: '/admin/bookings.html' },
+  { id: 'calendar', label: 'Calendar', href: '/admin/calendar.html' },
   { id: 'services', label: 'Services', href: '/admin/services.html' },
   {
     id: 'availability',

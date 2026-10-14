@@ -5,6 +5,13 @@ import { NotificationsModule } from '../notifications/notifications.module.js';
 import { ServicesModule } from '../services/services.module.js';
 import { SettingsModule } from '../settings/settings.module.js';
 import {
+  AdminCalendarController,
+  AdminProofsController,
+} from './admin-proofs.controller.js';
+import { AdminCalendarService } from './admin-calendar.service.js';
+import { AdminProofsService } from './admin-proofs.service.js';
+import { ProofRetentionService } from './proof-retention.service.js';
+import {
   AdminBookingsController,
   AdminDashboardController,
 } from './admin-bookings.controller.js';
@@ -35,6 +42,8 @@ import { BookingsService } from './bookings.service.js';
     PublicBookingController,
     AdminDashboardController,
     AdminBookingsController,
+    AdminProofsController,
+    AdminCalendarController,
   ],
   providers: [
     BookingsRepository,
@@ -42,10 +51,18 @@ import { BookingsService } from './bookings.service.js';
     BookingLookupService,
     BookingLinkService,
     AdminBookingsService,
+    AdminProofsService,
+    AdminCalendarService,
+    ProofRetentionService,
     BookingLinkGuard,
     PublicBookingService,
     BookingExpiryService,
   ],
-  exports: [BookingsRepository, BookingsService, BookingExpiryService],
+  exports: [
+    BookingsRepository,
+    BookingsService,
+    BookingExpiryService,
+    ProofRetentionService,
+  ],
 })
 export class BookingsModule {}

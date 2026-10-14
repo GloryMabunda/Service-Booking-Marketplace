@@ -16,6 +16,7 @@ const $ = (selector) => document.querySelector(selector);
 const id = new URLSearchParams(location.search).get('id') ?? '';
 const base = `/api/admin/bookings/${encodeURIComponent(id)}`;
 const confirmModal = new bootstrap.Modal('#confirm-modal');
+const rejectModal = new bootstrap.Modal('#reject-modal');
 
 let timeZone = 'Africa/Johannesburg';
 let booking = null;
@@ -146,6 +147,46 @@ function renderProofs(proofs) {
           ),
         );
       }
+      // The file itself, opened or downloaded through the admin-only address
+      const file = `/api/admin/payment-proofs/${encodeURIComponent(proof.id)}/file`;
+      if (proof.fileDeletedAt) {
+        li.append(
+          el(
+            'div',
+            'small text-secondary',
+            'The file was removed after the retention period.',
+          ),
+        );
+      } else {
+        const links = el('div', 'small');
+        const view = el('a', 'me-3', 'View');
+        view.href = file;
+        view.target = '_blank';
+        view.rel = 'noopener';
+        const download = el('a', '', 'Download');
+        download.href = `${file}?download=true`;
+        links.append(view, download);
+        li.append(links);
+      }
+      if (proof.status === 'received') {
+        const buttons = el('div', 'mt-1');
+        const accept = el(
+          'button',
+          'btn btn-sm btn-outline-primary me-2',
+          'Accept proof',
+        );
+        accept.type = 'button';
+        accept.addEventListener('click', () => acceptProof(proof));
+        const reject = el(
+          'button',
+          'btn btn-sm btn-outline-danger',
+          'Reject proof',
+        );
+        reject.type = 'button';
+        reject.addEventListener('click', () => openReject(proof));
+        buttons.append(accept, reject);
+        li.append(buttons);
+      }
       if (proof.usedOnOtherBookings.length) {
         li.append(
           el(
@@ -222,11 +263,9 @@ async function act(method, path, payload, done) {
   clearErrors();
   const buttons = document.querySelectorAll('main button');
   for (const button of buttons) button.disabled = true;
-  const { ok, status, data } = await adminApi(
-    method,
-    `${base}${path}`,
-    payload,
-  );
+  // Paths starting with /api/ are used as they are (a proof's own address)
+  const url = path.startsWith('/api/') ? path : `${base}${path}`;
+  const { ok, status, data } = await adminApi(method, url, payload);
   for (const button of buttons) button.disabled = false;
 
   if (!ok) {
@@ -359,6 +398,57 @@ $('#cancel-button').addEventListener('click', () => {
       );
     },
   });
+});
+
+// Accepting or rejecting a proof of payment (#72). Accepting does not confirm
+// the booking: that is a separate step, after the bank check (BR-8).
+function acceptProof(proof) {
+  ask({
+    title: 'Accept this proof',
+    text: "Mark this proof of payment as accepted? This doesn't confirm the booking: do that after you can see the money in your bank account.",
+    yes: 'Yes, accept it',
+    run: () =>
+      act(
+        'PATCH',
+        `/api/admin/payment-proofs/${encodeURIComponent(proof.id)}`,
+        { status: 'accepted' },
+        () => ({ kind: 'success', text: 'The proof was marked as accepted.' }),
+      ),
+  });
+}
+
+let rejecting = null;
+function openReject(proof) {
+  rejecting = proof;
+  $('#reject-reason').value = '';
+  $('#reject-reason').classList.remove('is-invalid');
+  rejectModal.show();
+}
+$('#reject-yes').addEventListener('click', async () => {
+  const reason = $('#reject-reason').value.trim();
+  if (!reason) {
+    $('#reject-reason').classList.add('is-invalid');
+    $('#reject-reason-error').textContent = 'Give the client a reason.';
+    return;
+  }
+  const done = await act(
+    'PATCH',
+    `/api/admin/payment-proofs/${encodeURIComponent(rejecting.id)}`,
+    { status: 'rejected', rejectionReason: reason },
+    (data) =>
+      data.emailSentTo
+        ? {
+            kind: 'success',
+            text: `The proof was rejected and ${data.emailSentTo} was emailed the reason.`,
+          }
+        : booking.status === 'pending'
+          ? {
+              kind: 'warning',
+              text: "The proof was rejected, but the email couldn't be sent. You can send the client a new booking link to try again.",
+            }
+          : { kind: 'success', text: 'The proof was rejected.' },
+  );
+  if (done) rejectModal.hide();
 });
 
 // Record a refund that was paid (#74)

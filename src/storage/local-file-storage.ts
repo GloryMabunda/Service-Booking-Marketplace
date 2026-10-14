@@ -1,6 +1,7 @@
 import {
   link,
   mkdir,
+  stat,
   readdir,
   readFile,
   rm,
@@ -59,6 +60,15 @@ export class LocalFileStorage implements FileStorage {
       return names.filter((name) => STORAGE_KEY.test(name));
     } catch (error) {
       if (isMissing(error)) return [];
+      throw error;
+    }
+  }
+
+  async modifiedAt(area: StorageArea, key: string): Promise<Date | null> {
+    try {
+      return (await stat(this.pathOf(area, key))).mtime;
+    } catch (error) {
+      if (isMissing(error)) return null;
       throw error;
     }
   }

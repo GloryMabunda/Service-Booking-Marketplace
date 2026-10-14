@@ -60,6 +60,17 @@ describe('LocalFileStorage', () => {
     expect(await readdir(join(root, 'private'))).toHaveLength(2);
   });
 
+  it('tells when a file was written, or null if it is not there', async () => {
+    const key = newStorageKey();
+    const before = Date.now() - 2000;
+    await storage.save('private', key, Buffer.from('x'));
+    const written = await storage.modifiedAt('private', key);
+    expect(written?.getTime()).toBeGreaterThan(before);
+    expect(written?.getTime()).toBeLessThanOrEqual(Date.now() + 2000);
+    expect(await storage.modifiedAt('private', newStorageKey())).toBeNull();
+    expect(await storage.modifiedAt('public', key)).toBeNull();
+  });
+
   it('lists nothing when the area does not exist yet', async () => {
     expect(await storage.list('public')).toEqual([]);
   });

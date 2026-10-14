@@ -221,6 +221,59 @@
       </div>
     </main>
 
+    <!-- Rejecting a proof of payment: the reason is emailed to the client -->
+    <div
+      class="modal fade"
+      id="reject-modal"
+      tabindex="-1"
+      aria-labelledby="reject-title"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="reject-title">
+              Reject this proof of payment
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              The client is emailed your reason and asked to upload a new proof.
+              The email does not contain their booking link.
+            </p>
+            <label class="form-label" for="reject-reason"
+              >Reason (shown to the client)</label
+            >
+            <textarea
+              class="form-control"
+              id="reject-reason"
+              rows="3"
+              maxlength="500"
+            ></textarea>
+            <div class="invalid-feedback" id="reject-reason-error"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              data-bs-dismiss="modal"
+            >
+              Go back
+            </button>
+            <button type="button" class="btn btn-danger" id="reject-yes">
+              Reject proof
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Asked before the actions that email the client or can't be undone -->
     <div
       class="modal fade"

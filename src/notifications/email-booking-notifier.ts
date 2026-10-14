@@ -17,6 +17,7 @@ import {
   renderAdminClientCancelled,
   renderAdminProofUploaded,
 } from './admin-emails.js';
+import { renderProofRejected } from './proof-emails.js';
 import {
   renderAdminNewBooking,
   renderBookingExpired,
@@ -168,6 +169,33 @@ export class EmailBookingNotifier implements BookingNotifier {
         cancelledBy,
         refund,
         bookUrl: `${this.siteUrl()}/services.html`,
+      }),
+    });
+  }
+
+  // 4.3: the owner rejected a proof. The reason is hers, shown as written; the
+  // email points to the Find my booking page and carries no link (BR-14).
+  async proofRejected(
+    booking: BookingRecord,
+    reason: string,
+  ): Promise<boolean> {
+    const { settings, service } = await this.context(booking);
+    const { timeZone } = settings;
+    return this.notifications.sendEmail({
+      bookingId: booking.id,
+      type: 'proof_rejected',
+      to: booking.clientEmail,
+      replyTo: settings.businessEmail,
+      email: renderProofRejected({
+        clientFirstName: firstName(booking),
+        business: business(settings),
+        reference: booking.reference,
+        service,
+        when: formatWhen(booking.startAt, timeZone),
+        reason,
+        deposit: formatRand(booking.depositAmount),
+        deadline: formatWhen(booking.depositDueAt ?? booking.startAt, timeZone),
+        lookupUrl: `${this.siteUrl()}/lookup.html`,
       }),
     });
   }

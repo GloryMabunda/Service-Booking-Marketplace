@@ -83,6 +83,71 @@ export const extendDeadlineSchema = z.strictObject({
 // POST /api/admin/bookings/:id/refund takes no fields
 export const recordRefundSchema = z.strictObject({});
 
+// PATCH /api/admin/payment-proofs/:id (docs/api.md 7.10)
+export const reviewProofSchema = z
+  .strictObject({
+    status: z.enum(['accepted', 'rejected'], {
+      error: 'Choose accepted or rejected.',
+    }),
+    rejectionReason: z
+      .string({ error: 'The reason must be text.' })
+      .trim()
+      .min(1, 'Give the client a reason.')
+      .max(500, 'The reason must be at most 500 characters.')
+      .optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.status === 'rejected' && !value.rejectionReason) {
+      context.addIssue({
+        code: 'custom',
+        path: ['rejectionReason'],
+        message: 'Give the client a reason for rejecting the proof.',
+      });
+    }
+    if (value.status === 'accepted' && value.rejectionReason !== undefined) {
+      context.addIssue({
+        code: 'custom',
+        path: ['rejectionReason'],
+        message: 'A reason is only for a rejected proof.',
+      });
+    }
+  });
+
+// GET /api/admin/payment-proofs/:id/file
+export const proofFileQuerySchema = z.strictObject({
+  download: z.literal('true', { error: 'Use download=true.' }).optional(),
+});
+
+// GET /api/admin/calendar (docs/api.md 7.11)
+export const calendarQuerySchema = z
+  .strictObject({
+    from: calendarDay,
+    to: calendarDay,
+    includeCancelled: z
+      .enum(['true', 'false'], { error: 'Use includeCancelled=true.' })
+      .optional()
+      .transform((value) => value === 'true'),
+  })
+  .superRefine((value, context) => {
+    const days =
+      (Date.parse(`${value.to}T00:00:00Z`) -
+        Date.parse(`${value.from}T00:00:00Z`)) /
+      86_400_000;
+    if (days < 0) {
+      context.addIssue({
+        code: 'custom',
+        path: ['to'],
+        message: 'The end date can not be before the start date.',
+      });
+    } else if (days > 62) {
+      context.addIssue({
+        code: 'custom',
+        path: ['to'],
+        message: 'Ask for at most 62 days at a time.',
+      });
+    }
+  });
+
 // PATCH /api/admin/bookings/:id/status
 export const changeStatusSchema = z.strictObject({
   status: z.enum(['cancelled', 'completed', 'no_show'], {
