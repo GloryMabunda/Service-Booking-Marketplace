@@ -55,8 +55,18 @@ function linkButton(label, onClick) {
 
 function row(service) {
   const tr = el('tr', service.isActive ? '' : 'mbg-row-inactive');
-  const name = el('th', 'fw-semibold', service.name);
+  const name = el('th', 'fw-semibold');
   name.scope = 'row';
+  if (service.image) {
+    const thumb = el('img', 'rounded me-2 align-middle');
+    thumb.src = service.image.thumb.url;
+    thumb.alt = '';
+    thumb.width = 40;
+    thumb.height = 30;
+    thumb.style.objectFit = 'cover';
+    name.append(thumb);
+  }
+  name.append(document.createTextNode(service.name));
   tr.append(
     name,
     el('td', '', formatDuration(service.durationMinutes)),
@@ -151,10 +161,81 @@ function openForm(service) {
   document.querySelector('#svc-active').checked = service
     ? service.isActive
     : true;
+  showCurrentPhoto(service?.image ?? null);
   document.querySelector('#svc-travel').checked = service
     ? service.availableForTravel
     : false;
   serviceModal.show();
+}
+
+// --- The service's picture --------------------------------------------------
+
+const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+const photoInput = document.querySelector('#svc-photo');
+const photoPreview = document.querySelector('#svc-photo-preview');
+
+function showCurrentPhoto(image) {
+  photoInput.value = '';
+  photoInput.classList.remove('is-invalid');
+  document.querySelector('#svc-photo-alt').value = image?.altText ?? '';
+  document.querySelector('#svc-photo-remove').checked = false;
+  document.querySelector('#svc-photo-remove-row').hidden = !image;
+  photoPreview.hidden = !image;
+  if (image) photoPreview.src = image.thumb.url;
+}
+
+// A chosen file is previewed at once, before anything is sent
+photoInput.addEventListener('change', () => {
+  const file = photoInput.files?.[0];
+  photoInput.classList.remove('is-invalid');
+  if (!file) return;
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+    photoInput.classList.add('is-invalid');
+    document.querySelector('#svc-photo-error').textContent =
+      'Choose a JPEG, PNG or WebP picture.';
+    photoInput.value = '';
+    return;
+  }
+  if (file.size > MAX_PHOTO_BYTES) {
+    photoInput.classList.add('is-invalid');
+    document.querySelector('#svc-photo-error').textContent =
+      'The picture must be 15 MB or smaller.';
+    photoInput.value = '';
+    return;
+  }
+  // A data: address, because the page's content policy allows no blob: pictures
+  const reader = new FileReader();
+  reader.onload = () => {
+    photoPreview.src = String(reader.result);
+    photoPreview.hidden = false;
+  };
+  reader.readAsDataURL(file);
+  document.querySelector('#svc-photo-remove').checked = false;
+});
+
+// Sends the chosen picture (or removes the current one) for a saved service.
+// Returns the updated service, or a sentence saying what went wrong.
+async function savePhoto(saved) {
+  const file = photoInput.files?.[0];
+  if (file) {
+    const data = new FormData();
+    data.append('file', file);
+    const alt = document.querySelector('#svc-photo-alt').value.trim();
+    if (alt) data.append('altText', alt);
+    const res = await fetch(`/api/admin/services/${saved.id}/image`, {
+      method: 'PUT',
+      body: data,
+    });
+    const body = await res.json().catch(() => null);
+    if (res.ok) return { service: body.service };
+    return { problem: body?.message ?? "the picture couldn't be uploaded" };
+  }
+  if (document.querySelector('#svc-photo-remove').checked && saved.image) {
+    const result = await api('DELETE', `/${saved.id}/image`);
+    if (result.ok) return { service: { ...saved, image: null } };
+    return { problem: "the picture couldn't be removed" };
+  }
+  return { service: saved };
 }
 
 // The same rules as the API (docs/api.md 7.12), so mistakes show up before
@@ -218,7 +299,9 @@ form.addEventListener('submit', async (event) => {
       : await api('POST', '', payload);
 
     if (result.ok) {
-      const saved = result.data.service;
+      let saved = result.data.service;
+      const photo = await savePhoto(saved);
+      if (photo.service) saved = photo.service;
       services = editingId
         ? services.map((s) => (s.id === saved.id ? saved : s))
         : [...services, saved];
@@ -228,6 +311,12 @@ form.addEventListener('submit', async (event) => {
       render();
       serviceModal.hide();
       showMessage(editingId ? `Saved ${saved.name}.` : `Added ${saved.name}.`);
+      if (photo.problem) {
+        showMessage(
+          `${saved.name} was saved, but ${photo.problem}. Open it again to retry.`,
+          'warning',
+        );
+      }
       return;
     }
 

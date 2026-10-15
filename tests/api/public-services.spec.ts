@@ -87,6 +87,7 @@ describe('Public services API', () => {
         durationMinutes: 90,
         depositAmount: '600.25',
         availableForTravel: false,
+        image: null,
       },
       {
         id: expect.any(String) as string,
@@ -96,6 +97,7 @@ describe('Public services API', () => {
         durationMinutes: 90,
         depositAmount: '325.00',
         availableForTravel: false,
+        image: null,
       },
     ]);
   });

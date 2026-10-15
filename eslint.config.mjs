@@ -41,6 +41,7 @@ export default tseslint.config(
       'tests/security/**/*.ts',
       'tests/e2e/**/*.ts',
       'tests/api/travel.spec.ts',
+      'tests/api/service-photos.spec.ts',
       'tests/contract/**/*.ts',
     ],
     rules: {

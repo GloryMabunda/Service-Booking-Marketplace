@@ -95,7 +95,10 @@ function servicePhoto(serviceId) {
 function serviceCard(service, depositApplies) {
   const column = el('div', 'col-12 col-md-6 col-lg-4');
   const card = el('article', 'card mbg-card-raised h-100');
-  const photo = servicePhoto(service.id);
+  // The owner's own picture for the service comes first; a gallery photo
+  // tagged with the service is the fallback
+  const galleryPhoto = servicePhoto(service.id);
+  const photo = service.image ?? galleryPhoto;
   if (photo) {
     card.append(
       image(photo.thumb, 'card-img-top mbg-service-photo', { alt: photo.alt }),
@@ -125,7 +128,7 @@ function serviceCard(service, depositApplies) {
   const book = el('a', 'btn btn-book', 'Book');
   book.href = `/book.html?service=${encodeURIComponent(service.id)}`;
   buttons.append(book);
-  if (photo) {
+  if (galleryPhoto) {
     const see = el('a', 'btn btn-outline-primary', 'See photos');
     see.href = '#gallery';
     see.addEventListener('click', () => chooseFilter(service.id));

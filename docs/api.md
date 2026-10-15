@@ -48,6 +48,8 @@ This document describes every endpoint: method, path, access, request, response 
 | `GET /api/admin/services` | Admin | [7.12](#712-services) |
 | `POST /api/admin/services` | Admin | [7.12](#712-services) |
 | `PATCH /api/admin/services/:id` | Admin | [7.12](#712-services) |
+| `PUT /api/admin/services/:id/image` | Admin | [7.12](#712-services) |
+| `DELETE /api/admin/services/:id/image` | Admin | [7.12](#712-services) |
 | `DELETE /api/admin/services/:id` | Admin | [7.12](#712-services) |
 | `GET /api/admin/availability` | Admin | [7.13](#713-availability) |
 | `PUT /api/admin/availability` | Admin | [7.13](#713-availability) |
@@ -258,7 +260,12 @@ Business details, active services with their deposit amounts, and the bookable d
       "price": "650.00",
       "durationMinutes": 90,
       "depositAmount": "325.00",
-      "availableForTravel": true
+      "availableForTravel": true,
+      "image": {
+        "alt": "Soft Glam",
+        "large": { "url": "/media/9f2c….webp", "width": 1600, "height": 1067 },
+        "thumb": { "url": "/media/41ab….webp", "width": 480, "height": 320 }
+      }
     }
   ],
   "depositPercent": "50.00",
@@ -287,6 +294,7 @@ Business details, active services with their deposit amounts, and the bookable d
 | Field | Rule |
 | --- | --- |
 | `services` | Sorted by name. `depositAmount` is `depositPercent × price`, rounded half-up to cents |
+| `image` | The picture the owner uploaded for the service's card, in the same shape as the photos in [4.6](#46-get-apisite), or `null`. `alt` is the owner's description, or the service name |
 | `availableForTravel` | Whether the service can be done at the client's place (BR-17). Only meaningful when `travel` is not `null` |
 | `travel` | The travel fee rules (C-10), or `null` while the owner hasn't entered a home address. **Never includes the home address** |
 | `business` | From settings. `phone` can be `null`. `email` is also the fallback address for sending proof of payment (C-5) |
@@ -1041,9 +1049,11 @@ Manage services (A-5).
 | `GET /api/admin/services` | Query `includeInactive` (default `true`) | `200 { "services": [Service] }`, sorted by name |
 | `POST /api/admin/services` | `{ "name", "description", "price", "durationMinutes", "isActive", "availableForTravel" }` | `201 { "service": Service }` |
 | `PATCH /api/admin/services/:id` | Any of the same fields | `200 { "service": Service }` |
+| `PUT /api/admin/services/:id/image` | `multipart/form-data`: field `file` (one photo) and optional text field `altText` (up to 250 characters) | `200 { "service": Service }`. Replaces the current picture and deletes its files |
+| `DELETE /api/admin/services/:id/image` | — | `204`, whether or not there was a picture. Deletes the files |
 | `DELETE /api/admin/services/:id` | — | `204` if the service had no bookings and was deleted; `200 { "service": Service, "deactivated": true }` if it has bookings and was deactivated instead |
 
-**`Service`**: `{ "id", "name", "description", "price", "durationMinutes", "isActive", "availableForTravel", "bookingCount", "createdAt", "updatedAt" }`.
+**`Service`**: `{ "id", "name", "description", "price", "durationMinutes", "isActive", "availableForTravel", "image", "bookingCount", "createdAt", "updatedAt" }`. `image` is an `AdminImage` (as in [7.16](#716-site-content)) or `null`.
 
 | Field | Rule |
 | --- | --- |
@@ -1059,6 +1069,8 @@ Editing a service never changes existing bookings, which keep their own price an
 The portal page for this section is `/admin/services.html`: a table (name, duration, price, bookings, status), an Add and Edit form with the same rules checked in the browser, Activate or Deactivate, and Delete (only offered for a service with no bookings).
 
 **Delete.** A service that nobody has booked is deleted (`204`, no body). If it has bookings, deleting it would orphan them (the database refuses: `ON DELETE RESTRICT`), so it is **deactivated** instead and the response says so: `200 { "service": {…, "isActive": false}, "deactivated": true }`. This also holds if a client books it in the same moment as the delete.
+
+**The picture.** The upload follows the rules for every website photo (BR-16, see "Photo uploads" below): JPEG, PNG or WebP checked from the content, up to 15 MB and 50 megapixels, rotated upright, all metadata removed, saved as a large (1600 px) and a thumbnail (480 px) WebP; the upload counts toward the 60 photos an hour. Errors: `400 FILE_MISSING`, `400 FILE_INVALID`, `400 IMAGE_TOO_LARGE`, `413 FILE_TOO_LARGE`, `415 UNSUPPORTED_FILE_TYPE`, `404 NOT_FOUND`, `429`. Deleting a service deletes its picture; deactivating one (because it has bookings) keeps it. The portal's Add and Edit form has a picture section with a preview, a description and a Remove option.
 
 An id that isn't a UUID is treated like an unknown id: `404 NOT_FOUND`. A bad `includeInactive` (not `true` or `false`) is `400 VALIDATION_FAILED`.
 

@@ -11,9 +11,32 @@ const errorBox = document.querySelector('#services-error');
 const emptyBox = document.querySelector('#services-empty');
 const list = document.querySelector('#services-list');
 
+// The picture the owner uploaded for the service. Without one, a soft
+// placeholder keeps the cards the same height and the page tidy.
+function servicePicture(service) {
+  if (service.image) {
+    const img = el('img', 'card-img-top mbg-service-picture');
+    img.src = service.image.thumb.url;
+    // The big version on a wide card, so it stays sharp
+    img.srcset = `${service.image.thumb.url} ${service.image.thumb.width}w, ${service.image.large.url} ${service.image.large.width}w`;
+    img.sizes = '(min-width: 768px) 50vw, 100vw';
+    img.alt = service.image.alt;
+    img.width = service.image.thumb.width;
+    img.height = service.image.thumb.height;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    return img;
+  }
+  const empty = el('div', 'mbg-service-picture mbg-service-picture-empty');
+  empty.setAttribute('aria-hidden', 'true');
+  empty.append(el('i', 'bi bi-stars'));
+  return empty;
+}
+
 function serviceCard(service, depositApplies) {
   const column = el('div', 'col-12 col-md-6');
-  const card = el('article', 'card mbg-card-raised h-100');
+  const card = el('article', 'card mbg-card-raised h-100 overflow-hidden');
+  card.append(servicePicture(service));
   const body = el('div', 'card-body d-flex flex-column');
 
   body.append(el('h2', 'h3 text-body mb-2', service.name));

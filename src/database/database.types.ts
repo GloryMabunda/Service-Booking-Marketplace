@@ -177,6 +177,7 @@ export interface Services {
   description: Generated<string>;
   duration_minutes: number;
   id: Generated<string>;
+  image_id: string | null;
   is_active: Generated<boolean>;
   name: string;
   price: Numeric;

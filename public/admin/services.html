@@ -171,6 +171,58 @@
                 <div class="invalid-feedback" id="svc-duration-error"></div>
               </div>
             </div>
+            <fieldset class="mb-3">
+              <legend class="form-label fs-6">Picture</legend>
+              <div class="d-flex gap-3 align-items-start">
+                <img
+                  id="svc-photo-preview"
+                  class="rounded border"
+                  width="96"
+                  height="72"
+                  alt=""
+                  hidden
+                  style="object-fit: cover"
+                />
+                <div class="flex-grow-1">
+                  <label class="visually-hidden" for="svc-photo"
+                    >Choose a picture</label
+                  >
+                  <input
+                    class="form-control form-control-sm"
+                    id="svc-photo"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                  />
+                  <label class="visually-hidden" for="svc-photo-alt"
+                    >Describe the picture</label
+                  >
+                  <input
+                    class="form-control form-control-sm mt-2"
+                    id="svc-photo-alt"
+                    maxlength="250"
+                    placeholder="Describe the picture, for people who can't see it"
+                    autocomplete="off"
+                  />
+                  <div class="form-text">
+                    This is the picture clients see on the service's card. JPEG,
+                    PNG or WebP, up to 15 MB. Location and camera details are
+                    removed automatically. Only upload pictures you have
+                    permission to show.
+                  </div>
+                  <div class="invalid-feedback" id="svc-photo-error"></div>
+                  <div class="form-check mt-2" id="svc-photo-remove-row" hidden>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="svc-photo-remove"
+                    />
+                    <label class="form-check-label" for="svc-photo-remove"
+                      >Remove the current picture</label
+                    >
+                  </div>
+                </div>
+              </div>
+            </fieldset>
             <div class="form-check form-switch">
               <input
                 class="form-check-input"
