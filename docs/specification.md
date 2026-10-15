@@ -228,7 +228,7 @@ The concurrency test is the most important: preventing double-booking is the sys
 ## 11. Technology
 
 - **Backend:** Node.js, TypeScript, NestJS, REST, PostgreSQL accessed through Kysely, a type-safe SQL query builder running on the `pg` (node-postgres) driver, decided in #18: values always bound as parameters, database types generated from the schema, queries kept in a repository class per feature, and migrations written in SQL. File uploads through NestJS's Multer integration (`FileInterceptor`) with size limits, and content-type detection from file bytes (for example the `file-type` package).
-- **File storage:** local disk in development and tests; private blob storage in production (Azure Blob Storage if the hosting recommendation is accepted), behind the `FileStorage` interface. Website photos are processed with `sharp`.
+- **File storage:** local disk in development and tests; the same folder structure on the production server's backed-up disk (decided in #86, `docs/hosting.md`), behind the `FileStorage` interface so cloud storage can be added later. Website photos are processed with `sharp`.
 - **Frontend:** HTML5, CSS3, Bootstrap, Bootstrap Icons, vanilla JavaScript (`FormData` and `fetch` for uploads), FullCalendar. No React, Angular or Vue, by design. The look (colours, fonts, components, logo use; light mode only) follows the [style guide](style-guide.md).
 - **Notifications:** Nodemailer for email; SMS provider to be selected.
 - **Tooling:** Git, GitHub, GitHub Actions, npm.
@@ -273,4 +273,4 @@ A payment gateway with automatic confirmation and refunds (making proof upload u
 
 Open question 1 (slot interval) was decided in #14: start times every hour, and the buffer after the last booking may run past closing (BR-13).
 
-2. **Hosting target.** Recommended: Azure App Service plus Azure Database for PostgreSQL in South Africa North, deployed by GitHub Actions, with Azure Blob Storage (private container) for proof files. To be decided in M8.
+Open question 2 (hosting target) was decided in #86: one virtual server (VPS) in South Africa running the app and PostgreSQL, with a backed-up disk for photos and proofs, deployed by GitHub Actions over SSH. See `docs/hosting.md`.
