@@ -81,7 +81,13 @@ function toRecord(row: Selectable<DB['bookings']>): BookingRecord {
 // because its time, buffer included, overlaps a Pending or Confirmed one:
 // the other client got there first. Everything else passes through unchanged.
 export function translateBookingError(error: unknown): unknown {
-  if (isPgError(error, '23P01', 'bookings_no_overlap')) {
+  // 40P01 deadlock_detected: two overlapping bookings saved at the same moment
+  // can wait on each other while the constraint checks them; PostgreSQL ends
+  // one. For the client that is the same as losing the slot.
+  if (
+    isPgError(error, '23P01', 'bookings_no_overlap') ||
+    isPgError(error, '40P01')
+  ) {
     return new ApiException(
       409,
       'SLOT_UNAVAILABLE',

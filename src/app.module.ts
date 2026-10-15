@@ -18,6 +18,7 @@ import { SettingsModule } from './settings/settings.module.js';
 import { TravelModule } from './travel/travel.module.js';
 import { SiteModule } from './site/site.module.js';
 import { HealthModule } from './health/health.module.js';
+import { DemoModule } from './demo/demo.module.js';
 import { AdminModule } from './admin/admin.module.js';
 
 @Module({
@@ -52,6 +53,7 @@ import { AdminModule } from './admin/admin.module.js';
     SiteModule,
     AdminModule,
     HealthModule,
+    DemoModule,
   ],
   // Every error leaves the API in the shape from docs/api.md section 2.
   providers: [{ provide: APP_FILTER, useClass: ApiExceptionFilter }],
