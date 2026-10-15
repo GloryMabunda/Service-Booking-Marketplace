@@ -34,6 +34,7 @@ This document says what personal data the system keeps and why, how long it is k
 | Whose | What | Where it is stored | Why | Who can see it |
 | --- | --- | --- | --- | --- |
 | **Clients** | Name, email address, phone number (as +27…) | `bookings` | To make and manage the appointment and contact the client about it | You (portal). The client sees their own booking only |
+| Clients | **The address of an appointment at their place**, and the distance and travel fee worked out from it | `bookings` (`appointment_address`, `travel_*`) | So you can find the client and charge the travel fee (BR-17, #115) | You (portal), the client on their own booking page, and in their booking emails. Never on the public site, never in a log |
 | Clients | Notes typed on the booking form (optional) | `bookings.notes` | So you know what they asked for | You |
 | Clients | Appointment time, service, price, deposit, status, who cancelled and when | `bookings` | The booking itself, and to work out refunds | You. The client sees their own |
 | Clients | **Proof of payment** (a PDF or image they upload) | The private storage area (`uploads/private`) | To check a deposit before you confirm a booking | You only, and only while signed in |
@@ -44,6 +45,7 @@ This document says what personal data the system keeps and why, how long it is k
 | The owner | A session: a SHA-256 hash of the sign-in cookie, when it was made and last used | `sessions` | To keep you signed in (12 hours idle, 7 days at most) | The system only |
 | **People in website photos** | The photos, and **who confirmed permission and when** | `images`, `gallery_items` | To show your work, with consent (BR-16) | Everyone, once you publish them. You can delete any photo at any time |
 | People quoted | A first name or initial and a quote you entered | `testimonials` | To show kind words, with permission | Everyone, once shown |
+| **The owner** | Her **home address**, as the starting point for travel distances | `settings.home_address` | To work out travel fees (BR-17) | You. A client who comes to your place is given it in their booking emails and on their private booking page. It is not on the public site or in any public answer |
 | **The business** | Its bank account details | `settings` | To tell clients where to pay a deposit | Shown to a client in their payment email and on their booking page while a deposit is due |
 
 **Others who handle the data:**
@@ -52,6 +54,7 @@ This document says what personal data the system keeps and why, how long it is k
 | --- | --- | --- |
 | Your **email provider** (SMTP) | Every email the system sends: the client's address, the booking details, your bank details and the booking link | Choose a provider that sends over an encrypted connection and sign its data-processing terms |
 | Your **hosting provider** | Everything, as the place the system runs | Decided in M8. Prefer a South African or EU region |
+| **OpenRouteService** (HeiGIT, Germany) | The home address and the client's appointment address, when a client asks for the travel fee, so it can find them on a map and measure the road distance. No name, email or phone is sent | Used only when a client chooses "at your place". Answers are remembered for a day. See `docs/travel.md` |
 | **Google Fonts** (`fonts.googleapis.com`) | The visitor's IP address, when a page loads | See decision D2 |
 | **jsDelivr** (`cdn.jsdelivr.net`) | The visitor's IP address, when a page loads Bootstrap | Every file is checked against an integrity hash, so the CDN can't change it |
 
@@ -126,7 +129,7 @@ These are duties the software can't do for you. Get advice on each.
 
 1. **Write a privacy notice** and link it from the site: who you are, what you collect (section 2), why, how long, who else receives it (your email and hosting providers), and how to contact you. The site doesn't have one yet.
 2. **Register an information officer** with the Information Regulator. A sole trader is usually her own information officer, but registration is still required.
-3. **Sign data-processing terms** with your email and hosting providers, and choose where the data is stored.
+3. **Sign data-processing terms** with your email and hosting providers (and read the OpenRouteService terms, `docs/travel.md`), and choose where the data is stored.
 4. **Deal with requests.** A client may ask to see, correct or delete their data. Search the Bookings page by their email to see everything held. There is no delete button in v1; ask your developer to remove a client (a short database command) until D1 is decided.
 5. **Know what to do after a breach.** If personal data may have been seen by someone it shouldn't, POPIA requires you to tell the Information Regulator and the people affected as soon as reasonably possible. Keep this document and the log retention in mind: they tell you what could have been exposed.
 6. **Keep the system updated.** Run `npm audit --omit=dev` now and then (the build does it for you).

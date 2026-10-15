@@ -12,6 +12,7 @@ export interface Service {
   price: string;
   durationMinutes: number;
   isActive: boolean;
+  availableForTravel: boolean;
   bookingCount: number;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +29,7 @@ export function toService(
     price: row.price,
     durationMinutes: row.duration_minutes,
     isActive: row.is_active,
+    availableForTravel: row.available_for_travel,
     bookingCount,
     createdAt: isoUtc(new Date(row.created_at)),
     updatedAt: isoUtc(new Date(row.updated_at)),
@@ -60,6 +62,7 @@ const fields = {
     .min(1, 'The duration must be between 1 and 720 minutes.')
     .max(720, 'The duration must be between 1 and 720 minutes.'),
   isActive: z.boolean({ error: 'Must be true or false.' }),
+  availableForTravel: z.boolean({ error: 'Must be true or false.' }),
 };
 
 // POST /api/admin/services: name, price and duration are required.
@@ -69,6 +72,7 @@ export const createServiceSchema = z.strictObject({
   price: fields.price,
   durationMinutes: fields.durationMinutes,
   isActive: fields.isActive.default(true),
+  availableForTravel: fields.availableForTravel.default(false),
 });
 
 // PATCH /api/admin/services/:id: any of the same fields.

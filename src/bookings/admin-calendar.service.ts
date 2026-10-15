@@ -30,6 +30,7 @@ export class AdminCalendarService {
         'bookings.start_at',
         'bookings.end_at',
         'bookings.status',
+        'bookings.location',
         'services.name as service_name',
       ])
       .where('bookings.start_at', '<', end)
@@ -58,6 +59,7 @@ export class AdminCalendarService {
         start: isoUtc(new Date(b.start_at)),
         end: isoUtc(new Date(b.end_at)),
         status: b.status,
+        location: b.location,
       })),
       blockedTimes: blocked.map((t) => ({
         id: t.id,

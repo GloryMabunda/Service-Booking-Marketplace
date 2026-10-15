@@ -28,6 +28,7 @@ describe('createBookingSchema (C-3, C-4)', () => {
       clientEmail: 'sarah@example.com',
       clientPhone: '+27821234567',
       notes: 'Birthday makeup',
+      location: 'studio',
     });
   });
 
@@ -154,5 +155,55 @@ describe('bankingDetailsAreSet (#28, #45)', () => {
 
   it('is false for a blank detail', () => {
     expect(bankingDetailsAreSet({ ...real, branchCode: '  ' })).toBe(false);
+  });
+});
+
+describe('createBookingSchema: where the appointment is (#115)', () => {
+  it('needs an address when the appointment is at the client’s place', () => {
+    const result = createBookingSchema.safeParse({
+      ...valid,
+      location: 'client',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toEqual(['appointmentAddress']);
+  });
+
+  it('accepts and trims the address', () => {
+    const result = createBookingSchema.parse({
+      ...valid,
+      location: 'client',
+      appointmentAddress: '  12 Protea Road, Sunnyside, Pretoria ',
+    });
+    expect(result.appointmentAddress).toBe(
+      '12 Protea Road, Sunnyside, Pretoria',
+    );
+  });
+
+  it('refuses an address for an appointment at the owner’s place', () => {
+    expect(
+      createBookingSchema.safeParse({
+        ...valid,
+        location: 'studio',
+        appointmentAddress: '12 Protea Road, Sunnyside',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('refuses a place that is neither', () => {
+    expect(
+      createBookingSchema.safeParse({ ...valid, location: 'beach' }).success,
+    ).toBe(false);
+  });
+
+  it('refuses an address that is too short or too long', () => {
+    for (const appointmentAddress of ['x', 'y'.repeat(301)]) {
+      expect(
+        createBookingSchema.safeParse({
+          ...valid,
+          location: 'client',
+          appointmentAddress,
+        }).success,
+      ).toBe(false);
+    }
   });
 });

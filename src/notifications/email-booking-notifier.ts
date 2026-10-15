@@ -121,10 +121,9 @@ export class EmailBookingNotifier implements BookingNotifier {
         when: formatWhen(booking.startAt, timeZone),
         endTime: formatTime(booking.endAt, timeZone),
         price: formatRand(booking.priceAtBooking),
+        ...where(booking, settings),
         amountReceived: formatRand(received),
-        balance: formatRand(
-          formatCents(toCents(booking.priceAtBooking) - toCents(received)),
-        ),
+        balance: formatRand(balanceOf(booking, received)),
         refund,
         link: bookingLink(this.siteUrl(), token),
       }),
@@ -285,9 +284,7 @@ export class EmailBookingNotifier implements BookingNotifier {
 
     if (booking.status === 'pending' && booking.depositDueAt) {
       type = 'payment_instructions';
-      const balance = formatCents(
-        toCents(booking.priceAtBooking) - toCents(booking.depositAmount),
-      );
+      const balance = balanceOf(booking, booking.depositAmount);
       email = renderPaymentInstructions({
         clientFirstName: firstName(booking),
         business: business(settings),
@@ -296,6 +293,7 @@ export class EmailBookingNotifier implements BookingNotifier {
         when: formatWhen(booking.startAt, timeZone),
         endTime: formatTime(booking.endAt, timeZone),
         price: formatRand(booking.priceAtBooking),
+        ...where(booking, settings),
         deposit: formatRand(booking.depositAmount),
         balance: formatRand(balance),
         deadline: formatWhen(booking.depositDueAt, timeZone),
@@ -313,6 +311,7 @@ export class EmailBookingNotifier implements BookingNotifier {
         when: formatWhen(booking.startAt, timeZone),
         endTime: formatTime(booking.endAt, timeZone),
         price: formatRand(booking.priceAtBooking),
+        ...where(booking, settings),
         link,
         newLink,
       });
@@ -342,6 +341,7 @@ export class EmailBookingNotifier implements BookingNotifier {
         when: formatWhen(booking.startAt, timeZone),
         endTime: formatTime(booking.endAt, timeZone),
         price: formatRand(booking.priceAtBooking),
+        ...where(booking, settings, true),
         clientName: booking.clientName,
         clientEmail: booking.clientEmail,
         clientPhone: booking.clientPhone,
@@ -374,6 +374,34 @@ export class EmailBookingNotifier implements BookingNotifier {
     const port = this.config.get('PORT', { infer: true });
     return (configured ?? `http://localhost:${port}`).replace(/\/+$/, '');
   }
+}
+
+// What the client still owes on the day: the price less what they paid toward
+// the service. A travel fee paid with the deposit is not part of the price.
+function balanceOf(booking: BookingRecord, paid: string): string {
+  const towardService = Math.max(0, toCents(paid) - toCents(booking.travelFee));
+  return formatCents(
+    Math.max(0, toCents(booking.priceAtBooking) - towardService),
+  );
+}
+
+// Where the appointment is, for the email's summary (#115). A client who comes
+// to the owner is given her address here, and nowhere on the public site.
+function where(
+  booking: BookingRecord,
+  settings: Settings,
+  forOwner = false,
+): { where?: string; travelFee?: string } {
+  if (booking.location === 'client') {
+    return {
+      where: forOwner
+        ? `At the client's place: ${booking.appointmentAddress ?? ''} (${booking.travelDistanceKm ?? '?'} km one way)`
+        : `At your place: ${booking.appointmentAddress ?? ''}`,
+      travelFee: formatRand(booking.travelFee),
+    };
+  }
+  if (forOwner || !settings.homeAddress) return {};
+  return { where: `At my place: ${settings.homeAddress}` };
 }
 
 const firstName = (booking: BookingRecord) =>

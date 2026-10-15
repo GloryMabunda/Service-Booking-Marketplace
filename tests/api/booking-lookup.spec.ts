@@ -148,6 +148,9 @@ describe('Booking lookup', () => {
         price: '650.00',
         depositAmount: '325.00',
         depositDueAt: expect.stringMatching(/Z$/) as string,
+        location: 'studio',
+        appointmentAddress: null,
+        travelFee: '0.00',
         proofs: [],
       });
       expect(canResendBookingLink).toBe(true);
@@ -317,6 +320,7 @@ describe('Booking lookup', () => {
           .set({
             start_at: new Date(Date.now() - 3_600_000),
             end_at: new Date(Date.now() + 1_800_000),
+            occupied_from: null,
             occupied_until: new Date(Date.now() + 5_400_000),
           })
           .where('id', '=', booking.id)

@@ -12,7 +12,13 @@ import { formatDay, localDate, localTime } from '/js/time-zone.js';
 const $ = (selector) => document.querySelector(selector);
 const form = $('#booking-form');
 const submitButton = $('#submit-button');
-const FIELDS = ['clientName', 'clientEmail', 'clientPhone', 'notes'];
+const FIELDS = [
+  'clientName',
+  'clientEmail',
+  'clientPhone',
+  'notes',
+  'appointmentAddress',
+];
 
 let service = null;
 let business = null;
@@ -20,6 +26,10 @@ let timeZone = 'Africa/Johannesburg';
 let startAt = null; // Date
 let endAt = null;
 let depositPercent = 0;
+let travelTerms = null;
+let place = 'studio'; // 'studio' (our place) or 'client' (their place)
+let quote = null; // the travel quote for the address as typed, or null
+let quotedAddress = null;
 
 function showPageError(text) {
   $('#page-loading').hidden = true;
@@ -54,6 +64,7 @@ async function load() {
     business = data.business;
     timeZone = data.bookingWindow.timeZone;
     depositPercent = Number(data.depositPercent);
+    travelTerms = data.travel;
   } catch {
     showPageError("We couldn't load this page. Please refresh and try again.");
     return;
@@ -63,10 +74,20 @@ async function load() {
     return;
   }
 
+  // At the client's place (#115): only if the owner travels and this service can
+  if (
+    params.get('location') === 'client' &&
+    travelTerms &&
+    service.availableForTravel
+  ) {
+    place = 'client';
+  }
+
   startAt = start;
   endAt = new Date(start.getTime() + service.durationMinutes * 60_000);
   $('#back-link').href = `/book.html?service=${encodeURIComponent(service.id)}`;
   renderSummary();
+  setupAddress();
   $('#page-loading').hidden = true;
   $('#content').hidden = false;
   $('#clientName').focus();
@@ -80,8 +101,23 @@ function renderSummary() {
     ['Duration', formatDuration(service.durationMinutes)],
     ['Price', formatRand(service.price)],
   ];
-  if (depositPercent > 0)
+  if (place === 'client') {
+    rows.push(['Where', 'At your place']);
+    if (quote) {
+      rows.push(
+        ['Distance', `${quote.travel.distanceKm} km each way`],
+        ['Travel fee', formatRand(quote.travel.travelFee)],
+      );
+    }
+  } else if (travelTerms && service.availableForTravel) {
+    rows.push(['Where', 'At our place']);
+  }
+  if (quote) {
+    rows.push(['Deposit', formatRand(quote.deposit.deposit)]);
+    rows.push(['Balance on the day', formatRand(quote.deposit.balance)]);
+  } else if (depositPercent > 0) {
     rows.push(['Deposit', formatRand(service.depositAmount)]);
+  }
 
   const cells = [];
   for (const [label, value] of rows) {
@@ -92,9 +128,94 @@ function renderSummary() {
   }
   $('#summary').replaceChildren(...cells);
   $('#summary-note').textContent =
-    depositPercent > 0
+    depositPercent > 0 || quote
       ? "Your booking is confirmed once the deposit reaches our account. You'll have until the deadline in your email to pay."
       : 'No deposit is needed: your booking is confirmed straight away.';
+}
+
+// --- The client's place (#115) ---------------------------------------------
+
+function setupAddress() {
+  if (place !== 'client') return;
+  $('#address-group').hidden = false;
+  updateSubmitState();
+  $('#appointmentAddress').addEventListener('input', () => {
+    // A fee belongs to the address it was worked out for
+    if (quote && $('#appointmentAddress').value.trim() !== quotedAddress) {
+      quote = null;
+      quotedAddress = null;
+      $('#quote-result').textContent = '';
+      renderSummary();
+    }
+    updateSubmitState();
+  });
+  $('#quote-button').addEventListener('click', getQuote);
+}
+
+// At the client's place the button stays off until the fee is on screen
+function updateSubmitState() {
+  const needsQuote = place === 'client' && !quote;
+  submitButton.disabled = needsQuote;
+  $('#submit-note').hidden = !needsQuote;
+}
+
+async function getQuote() {
+  clearErrors();
+  const address = $('#appointmentAddress').value.trim();
+  const result = $('#quote-result');
+  result.className = 'small mt-2';
+  if (address.length < 5) {
+    fieldError(
+      'appointmentAddress',
+      'Enter the full address, with the suburb and town.',
+    );
+    $('#appointmentAddress').focus();
+    return;
+  }
+  const button = $('#quote-button');
+  button.disabled = true;
+  result.textContent = 'Working out the travel fee…';
+  try {
+    const res = await fetch('/api/travel/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ serviceId: service.id, address }),
+    });
+    const body = await res.json().catch(() => null);
+    if (res.ok) {
+      quote = body;
+      quotedAddress = address;
+      const t = body.travel;
+      const parts = [`${formatRand(t.callOutFee)} call-out`];
+      if (Number(t.kmFee) > 0) {
+        parts.push(
+          `${t.chargeableKm} km × ${formatRand(t.ratePerKm)} = ${formatRand(t.kmFee)}`,
+        );
+      }
+      const back = t.chargeReturn ? ', charged there and back' : '';
+      result.className = 'small mt-2 text-body';
+      result.textContent = `Travel fee ${formatRand(t.travelFee)} (${parts.join(' + ')}). ${t.distanceKm} km each way${back}. Your deposit is now ${formatRand(body.deposit.deposit)}.`;
+      renderSummary();
+    } else if (res.status === 429) {
+      result.className = 'small mt-2 text-danger';
+      result.textContent =
+        'Too many tries. Please wait a minute and try again.';
+    } else if (body?.code === 'ADDRESS_NOT_FOUND' || body?.code === 'TOO_FAR') {
+      result.textContent = '';
+      fieldError('appointmentAddress', body.message);
+    } else {
+      result.className = 'small mt-2 text-danger';
+      result.textContent =
+        body?.message ??
+        "We can't work out the travel fee right now. Please try again, or choose our place.";
+    }
+  } catch {
+    result.className = 'small mt-2 text-danger';
+    result.textContent =
+      "Can't reach the server. Check your connection and try again.";
+  }
+  button.disabled = false;
+  updateSubmitState();
 }
 
 // --- Checking the details ---------------------------------------------------
@@ -118,6 +239,8 @@ function readForm() {
   const clientEmail = $('#clientEmail').value.trim();
   const clientPhone = $('#clientPhone').value.trim();
   const notes = $('#notes').value.trim();
+  const address =
+    place === 'client' ? $('#appointmentAddress').value.trim() : '';
   let valid = true;
   const check = (ok, name, text) => {
     if (!ok) {
@@ -149,6 +272,19 @@ function readForm() {
     'The notes must be at most 1,000 characters.',
   );
 
+  if (place === 'client') {
+    check(
+      address.length >= 5 && address.length <= 300,
+      'appointmentAddress',
+      'Enter the full address, with the suburb and town.',
+    );
+    check(
+      quote !== null && address === quotedAddress,
+      'appointmentAddress',
+      'Work out the travel fee for this address first.',
+    );
+  }
+
   if (!valid) {
     // Focus the first problem so keyboard and screen reader users land on it
     form.querySelector('.is-invalid')?.focus();
@@ -161,6 +297,9 @@ function readForm() {
     clientEmail,
     clientPhone,
     ...(notes ? { notes } : {}),
+    ...(place === 'client'
+      ? { location: 'client', appointmentAddress: address }
+      : {}),
   };
 }
 
@@ -225,6 +364,24 @@ function showFailure(status, body) {
       'Please choose another.',
       [link('Choose a service', '/services.html')],
     );
+  } else if (code === 'TRAVEL_UNAVAILABLE' || code === 'TRAVEL_NOT_OFFERED') {
+    showAlert(
+      'warning',
+      'Travel bookings are not available right now.',
+      body.message,
+      [
+        link(
+          'Choose our place instead',
+          `/book.html?service=${encodeURIComponent(service.id)}`,
+        ),
+      ],
+    );
+  } else if (code === 'ADDRESS_NOT_FOUND' || code === 'TOO_FAR') {
+    quote = null;
+    quotedAddress = null;
+    renderSummary();
+    fieldError('appointmentAddress', body.message);
+    $('#appointmentAddress').focus();
   } else if (code === 'BOOKING_NOT_READY') {
     showAlert(
       'info',
@@ -298,8 +455,9 @@ form.addEventListener('submit', async (event) => {
       'Check your connection and try again. Your details are kept.',
     );
   }
-  submitButton.disabled = false;
   submitButton.textContent = 'Book and get payment instructions';
+  submitButton.disabled = false;
+  updateSubmitState();
 });
 
 load();

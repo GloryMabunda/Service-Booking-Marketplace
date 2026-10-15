@@ -61,6 +61,7 @@
                 <div class="col-6"><label class="form-label" for="sdu">Duration (minutes)</label><input class="form-control" id="sdu" type="number" value="90" min="1" max="720"></div>
               </div>
               <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sa" checked><label class="form-check-label" for="sa">Active (clients can book it)</label></div>
+              <div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="st"><label class="form-check-label" for="st">Can be done at the client's place</label><div class="form-text">Clients can then ask you to come to them and pay a travel fee. Set the fee under Settings (C-10, A-11).</div></div>
               <div class="wf-note">Changes don't affect existing bookings, which keep their price and duration (BR-4). Validation matches the API: unique name, price ≥ 0, duration 1–720 minutes.</div>
             </div>
             <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-dark">Save</button></div>

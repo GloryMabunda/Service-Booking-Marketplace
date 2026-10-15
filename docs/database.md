@@ -241,6 +241,7 @@ The administrator account, created by the seed script (#26): `npm run seed:admin
 | `price` | `numeric(10,2)` | `>= 0` |
 | `duration_minutes` | `integer` | `> 0` and at most 720 (12 hours) |
 | `is_active` | `boolean` | Default `true`. Inactive services are hidden from clients and can't be newly booked (BR-5) |
+| `available_for_travel` | `boolean` | Default `false`. When `true` (and the owner has set a home address) clients can ask for the appointment at their own place (BR-17, #115) |
 | `created_at`, `updated_at` | `timestamptz` | |
 
 A service with bookings can't be deleted (foreign key `RESTRICT`, which raises SQLSTATE `23001` `restrict_violation`); `DELETE /admin/services` deactivates it instead (#30).
@@ -287,8 +288,14 @@ Dates or time ranges the owner has blocked (A-6). A whole day is stored as midni
 | `start_at` | `timestamptz` | Appointment start |
 | `end_at` | `timestamptz` | Appointment end. `end_at - start_at` is the service duration at booking time (BR-4) |
 | `occupied_until` | `timestamptz` | `end_at` plus the buffer at booking time (BR-13). The slot is occupied from `start_at` to `occupied_until`. See [section 4](#4-preventing-double-booking) |
+| `occupied_from` | `timestamptz` | Nullable. `start_at` minus the travel time kept free before an appointment at the client's place (BR-17). Null means `start_at`. The slot is occupied from `COALESCE(occupied_from, start_at)` to `occupied_until` |
+| `location` | `booking_location` | Enum: `studio` (the owner's place, default) or `client` (the client's place) (BR-17) |
+| `appointment_address` | `text` | The client's address. Set when `location` is `client`, null otherwise. Personal information: see `docs/security.md` |
+| `travel_distance_km` | `numeric(6,1)` | One-way road distance at booking time. Set only for `client` |
+| `travel_call_out_fee`, `travel_rate_per_km` | `numeric(10,2)` | The fee rules at booking time (BR-4). Set only for `client` |
+| `travel_fee` | `numeric(10,2)` | Default `0`. The travel fee, already included in `deposit_amount` |
 | `price_at_booking` | `numeric(10,2)` | Service price at booking time (BR-4) |
-| `deposit_amount` | `numeric(10,2)` | `deposit_percent × price_at_booking`, rounded to cents (BR-7). `0` when no deposit applies. Never more than the price |
+| `deposit_amount` | `numeric(10,2)` | `deposit_percent × price_at_booking`, rounded to cents (BR-7), plus `travel_fee` (BR-17). `0` when nothing is due. The service part is never more than the price |
 | `deposit_due_at` | `timestamptz` | Nullable. The deposit deadline (BR-9). Required while Pending; null for bookings that started Confirmed |
 | `booking_token_hash` | `bytea` | Nullable. SHA-256 of the booking link token, 32 bytes (BR-15). Unique. Replaced when a new link is issued, so the old link stops working |
 | `booking_token_created_at` | `timestamptz` | Nullable. When the current link was issued |
@@ -310,7 +317,9 @@ Dates or time ranges the owner has blocked (A-6). A whole day is stored as midni
 | Constraint | Rule |
 | --- | --- |
 | Times in order | `start_at < end_at <= occupied_until` |
-| Deposit within price | `0 <= deposit_amount <= price_at_booking` |
+| Deposit within price | `0 <= deposit_amount <= price_at_booking + travel_fee` (`bookings_deposit_range`; the travel fee is part of the deposit, #115) |
+| Where and address together | `(location = 'client') = (appointment_address IS NOT NULL)` and `(location = 'client') = (travel_distance_km IS NOT NULL)` |
+| Travel time before | `occupied_from IS NULL OR occupied_from <= start_at` |
 | Pending has a deadline | `status <> 'pending' OR deposit_due_at IS NOT NULL` |
 | Cancellation recorded | `status <> 'cancelled' OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL)` |
 | Payment recorded together | `amount_received`, `payment_verified_at` and `payment_verified_by` are all null or all set |
@@ -407,6 +416,13 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 | `business_name` | `text` | | 1 to 100 characters. Shown on the public pages and in emails (C-1) |
 | `business_email` | `text` | | Contact email shown to clients, including as the fallback for sending proof of payment (C-5) |
 | `business_phone` | `text` | | Nullable. Contact phone shown to clients |
+| `home_address` | `text` | | Nullable. The owner's private home address, the starting point for travel distances (BR-17). Null turns travel off. Never in a public response |
+| `travel_call_out_fee` | `numeric(10,2)` | 0 | `>= 0`. Charged on every travel booking |
+| `travel_rate_per_km` | `numeric(10,2)` | 0 | `>= 0` |
+| `travel_free_km` | `integer` | 0 | `>= 0`. Kilometres not charged for |
+| `travel_max_km` | `integer` | 30 | 1 to 500. The furthest one-way distance the owner travels |
+| `travel_charge_return` | `boolean` | `true` | Whether the trip back is charged too |
+| `travel_extra_minutes` | `integer` | 30 | 0 to 240. Travel time kept free before and after a travel appointment |
 | `updated_at` | `timestamptz` | `now()` | |
 | `updated_by` | `uuid` | | Nullable. Foreign key to `users` |
 
@@ -516,6 +532,13 @@ ALTER TABLE bookings
   WHERE (status IN ('pending', 'confirmed'));
 ```
 
+> **Changed in #115.** The range now starts at `COALESCE(occupied_from, start_at)`, so the travel time kept free *before* an appointment at the client's place counts as occupied too:
+>
+> ```sql
+> EXCLUDE USING gist (tstzrange(COALESCE(occupied_from, start_at), occupied_until, '[)') WITH &&)
+> WHERE (status IN ('pending', 'confirmed'))
+> ```
+
 How it works:
 
 - **The range.** `tstzrange(start_at, occupied_until, '[)')` is the time the booking occupies: the appointment plus the buffer after it (BR-13). `[)` means the start is included and the end is not, so a booking ending at 12:00 doesn't clash with one starting at 12:00.
@@ -581,6 +604,7 @@ Home page tables:
 | --- | --- | --- |
 | Proof-of-payment files | 90 days after the booking reaches a terminal status | Daily job deletes the file through `FileStorage` and sets `file_deleted_at` (BR-14, #77). The row's metadata stays for the audit trail. |
 | Website photos, testimonials, FAQ | Until the owner deletes them | Deleting a gallery photo deletes its files and rows straight away. |
+| Appointment addresses (bookings at the client's place) | With the booking | An address is personal information kept on the booking row, so it follows the retention decision for bookings (#85, `docs/security.md`). It is never copied elsewhere and never logged. |
 | Bookings, proofs (metadata), notifications | Not deleted in v1 | Retention for the remaining personal data is decided in the security and POPIA review (#85). |
 
 ## 8. Additions to the specification
@@ -592,6 +616,7 @@ This design adds these fields to spec section 6, which has been updated to match
 | `occupied_until` (Booking) | The exclusion constraint needs each booking's full footprint (duration plus buffer) stored at booking time. See [section 4](#4-preventing-double-booking). |
 | `refund_due` (Booking) | The dashboard's "refunds due" (A-2) and the owner's refund notification (BR-12) need to know, at cancellation time, whether a refund is owed. Working it out later from the current refund settings would give the wrong answer after the owner changes them. |
 | `min_payment_window_hours` (Setting) | Without it, a client booking just outside the minimum notice gets a deadline minutes away (BR-9), and the booking expires almost immediately. |
+| `location`, `appointment_address`, `travel_*`, `occupied_from` (Booking); `home_address`, `travel_*` (Setting); `available_for_travel` (Service) | Appointments at the client's place with a travel fee (BR-17, #115). The migration is `1792100000000_travel_bookings.ts`. |
 | `business_name`, `business_email`, `business_phone` (Setting) | The public pages need the business details (C-1) and a contact email for sending proof by email (C-5). Keeping them in settings means another business can use the system by changing configuration. |
 
 The home page tables (`site_content`, `images`, `gallery_items`, `testimonials`, `faqs`) are the entities added to spec section 6 by C-9, A-10 and BR-16.

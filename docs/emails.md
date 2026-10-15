@@ -88,6 +88,8 @@ You're receiving this because you made a booking with {{business.name}}.
 
 ## 4. Client emails
 
+> **Where the appointment is (#115).** Every email that summarises a booking gets two extra rows after *When* (and the owner's new-booking email too), only when they apply: **Where** and **Travel fee**. At the owner's place the client's emails say `Where: At my place: <owner's home address>` (this is the only place besides the private booking page where her address appears) and have no travel fee row. At the client's place they say `Where: At your place: <address>` and `Travel fee: R149`, and the deposit includes the fee. The owner's new-booking email says `Where: At the client's place: <address> (10.0 km one way)` and shows the travel fee. The balance quoted to the client is always the price less the service's part of the deposit, so the travel fee never reduces it.
+
 ### 4.1 Payment instructions · `payment_instructions`
 
 **When:** a booking is created with a deposit (status Pending). Also sent, with the "new link" variant, when a new booking link is issued while the booking is Pending (C-6, BR-15).

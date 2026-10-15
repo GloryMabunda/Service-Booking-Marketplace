@@ -92,6 +92,13 @@ describe('Admin settings API', () => {
         businessName: 'Make Up by Glory',
         businessEmail: 'bookings@example.com',
         businessPhone: null,
+        homeAddress: null,
+        travelCallOutFee: '0.00',
+        travelRatePerKm: '0.00',
+        travelFreeKm: 0,
+        travelMaxKm: 30,
+        travelChargeReturn: true,
+        travelExtraMinutes: 30,
         updatedAt: expect.stringMatching(
           // To the second, as the API document says (section 1)
           /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/,

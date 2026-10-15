@@ -72,7 +72,16 @@ function render({ booking: b, proofs, notifications }) {
         'When',
         `${whenText(b.startAt, timeZone)}–${localTime(new Date(b.endAt), timeZone)}`,
       ],
-      ['Held until', localTime(new Date(b.occupiedUntil), timeZone)],
+      [
+        'Where',
+        b.location === 'client'
+          ? `At the client's place: ${b.appointmentAddress} (${b.travelDistanceKm} km each way)`
+          : 'At your place',
+      ],
+      [
+        'Time held',
+        `${localTime(new Date(b.occupiedFrom), timeZone)}–${localTime(new Date(b.occupiedUntil), timeZone)}`,
+      ],
       ['Notes', b.notes],
     ],
     $('#appointment'),
@@ -95,6 +104,10 @@ function render({ booking: b, proofs, notifications }) {
     [
       ['Status', PAYMENT[b.paymentStatus]],
       ['Price', formatRand(b.price)],
+      [
+        'Travel fee (in the deposit)',
+        b.location === 'client' ? formatRand(b.travelFee) : null,
+      ],
       ['Deposit', formatRand(b.depositAmount)],
       [
         'Deposit due by',

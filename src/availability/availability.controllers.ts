@@ -34,9 +34,17 @@ export class PublicAvailabilityController {
     @Query() query: unknown,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { serviceId, date } = parseBody(availabilityQuerySchema, query);
+    const { serviceId, date, location } = parseBody(
+      availabilityQuerySchema,
+      query,
+    );
     res.setHeader('Cache-Control', 'no-store');
-    return this.availability.slotsFor(serviceId, date);
+    return this.availability.slotsFor(
+      serviceId,
+      date,
+      new Date(),
+      location === 'client',
+    );
   }
 }
 

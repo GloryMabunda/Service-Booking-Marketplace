@@ -464,15 +464,18 @@ describe('Bookings API', () => {
       expect(text).not.toContain('token');
       expect(text).not.toContain('/booking/');
       expect(Object.keys(bodyOf<CreatedBooking>(res).booking).sort()).toEqual([
+        'appointmentAddress',
         'depositAmount',
         'depositDueAt',
         'endAt',
+        'location',
         'price',
         'reference',
         'service',
         'startAt',
         'status',
         'timeZone',
+        'travelFee',
       ]);
     });
 

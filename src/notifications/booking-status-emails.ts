@@ -1,4 +1,4 @@
-import type { BookingSummaryData } from './booking-emails.js';
+import { type BookingSummaryData, locationRows } from './booking-emails.js';
 import {
   type Block,
   type Business,
@@ -16,6 +16,7 @@ function summary(d: BookingSummaryData): Block {
       ['Booking reference', d.reference],
       ['Service', d.service],
       ['When', `${d.when} (until ${d.endTime})`],
+      ...locationRows(d),
       ['Price', d.price],
     ],
   };

@@ -93,6 +93,12 @@ function render({ booking, canResendBookingLink }) {
     }
     rows.push(['Deposit', deposit]);
   }
+  if (booking.location === 'client') {
+    rows.push(
+      ['Where', `At your place: ${booking.appointmentAddress}`],
+      ['Travel fee', formatRand(booking.travelFee)],
+    );
+  }
   rows.push(['Price', formatRand(booking.price)]);
   const cells = [];
   for (const [name, value] of rows) {

@@ -53,6 +53,12 @@ function render({ booking, emailSentTo }, businessEmail) {
     ['Service', booking.service.name],
     ['When', `${start.day}, ${start.time}–${end.time}`],
   ];
+  if (booking.location === 'client') {
+    rows.push(
+      ['Where', `At your place: ${booking.appointmentAddress}`],
+      ['Travel fee', formatRand(booking.travelFee)],
+    );
+  }
   if (pending) {
     rows.push(['Deposit', formatRand(booking.depositAmount)]);
     const due = dayAndTime(booking.depositDueAt, timeZone);

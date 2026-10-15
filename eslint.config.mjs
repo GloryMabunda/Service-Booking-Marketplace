@@ -40,6 +40,7 @@ export default tseslint.config(
     files: [
       'tests/security/**/*.ts',
       'tests/e2e/**/*.ts',
+      'tests/api/travel.spec.ts',
       'tests/contract/**/*.ts',
     ],
     rules: {

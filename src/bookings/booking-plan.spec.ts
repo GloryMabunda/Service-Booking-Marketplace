@@ -156,3 +156,76 @@ describe('planBooking', () => {
     });
   });
 });
+
+describe('planBooking at the client’s place (#115)', () => {
+  const travel = {
+    address: '12 Protea Road, Sunnyside, Pretoria',
+    extraMinutes: 30,
+    fee: {
+      distanceKm: '10.0',
+      billedKm: '20.0',
+      chargeableKm: '20.0',
+      callOutFee: '50.00',
+      ratePerKm: '4.95',
+      kmFee: '99.00',
+      travelFee: '149.00',
+    },
+  };
+  const atClient = () =>
+    planBooking({
+      service: softGlam,
+      settings,
+      startAt: new Date('2026-11-03T07:00:00Z'),
+      now: new Date('2026-10-20T10:00:00Z'),
+      travel,
+    });
+
+  it('adds the whole travel fee to the deposit', () => {
+    const result = atClient();
+    expect(result.depositAmount).toBe('474.00'); // 325.00 + 149.00
+    expect(result.travelFee).toBe('149.00');
+    expect(result.priceAtBooking).toBe('650.00');
+  });
+
+  it('keeps a snapshot of the address, the distance and the fee rules', () => {
+    expect(atClient()).toMatchObject({
+      location: 'client',
+      appointmentAddress: '12 Protea Road, Sunnyside, Pretoria',
+      travelDistanceKm: '10.0',
+      travelCallOutFee: '50.00',
+      travelRatePerKm: '4.95',
+    });
+  });
+
+  it('blocks travel time before and after, as well as the buffer', () => {
+    const result = atClient();
+    expect(result.occupiedFrom.toISOString()).toBe('2026-11-03T06:30:00.000Z');
+    // ends 08:30, plus the 60-minute buffer and 30 minutes of travel
+    expect(result.occupiedUntil.toISOString()).toBe('2026-11-03T10:00:00.000Z');
+  });
+
+  it('is Pending even when the service itself needs no deposit, because the travel fee is due', () => {
+    const result = planBooking({
+      service: softGlam,
+      settings: { ...settings, depositPercent: '0.00' },
+      startAt: new Date('2026-11-03T07:00:00Z'),
+      now: new Date('2026-10-20T10:00:00Z'),
+      travel,
+    });
+    expect(result.depositAmount).toBe('149.00');
+    expect(result.status).toBe('pending');
+  });
+
+  it('leaves a booking at the owner’s place untouched', () => {
+    const result = plan();
+    expect(result).toMatchObject({
+      location: 'studio',
+      appointmentAddress: null,
+      travelDistanceKm: null,
+      travelFee: '0.00',
+    });
+    expect(result.occupiedFrom.toISOString()).toBe(
+      result.startAt.toISOString(),
+    );
+  });
+});

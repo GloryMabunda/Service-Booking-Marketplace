@@ -5,6 +5,8 @@
 
 import type { ColumnType } from 'kysely';
 
+export type BookingLocation = 'client' | 'studio';
+
 export type BookingStatus =
   'cancelled' | 'completed' | 'confirmed' | 'expired' | 'no_show' | 'pending';
 
@@ -70,6 +72,7 @@ export interface BlockedTimes {
 
 export interface Bookings {
   amount_received: Numeric | null;
+  appointment_address: string | null;
   booking_token_created_at: Timestamp | null;
   booking_token_hash: Buffer | null;
   cancelled_at: Timestamp | null;
@@ -82,7 +85,9 @@ export interface Bookings {
   deposit_due_at: Timestamp | null;
   end_at: Timestamp;
   id: Generated<string>;
+  location: Generated<BookingLocation>;
   notes: string | null;
+  occupied_from: Timestamp | null;
   occupied_until: Timestamp;
   payment_verified_at: Timestamp | null;
   payment_verified_by: string | null;
@@ -93,6 +98,10 @@ export interface Bookings {
   service_id: string;
   start_at: Timestamp;
   status: BookingStatus;
+  travel_call_out_fee: Numeric | null;
+  travel_distance_km: Numeric | null;
+  travel_fee: Generated<Numeric>;
+  travel_rate_per_km: Numeric | null;
   updated_at: Generated<Timestamp>;
 }
 
@@ -163,6 +172,7 @@ export interface PaymentProofs {
 }
 
 export interface Services {
+  available_for_travel: Generated<boolean>;
   created_at: Generated<Timestamp>;
   description: Generated<string>;
   duration_minutes: number;
@@ -190,6 +200,7 @@ export interface Settings {
   deposit_hold_hours: Generated<number>;
   deposit_percent: Generated<Numeric>;
   deposit_refundable: Generated<boolean>;
+  home_address: string | null;
   id: Generated<number>;
   max_advance_days: Generated<number>;
   min_notice_hours: Generated<number>;
@@ -197,6 +208,12 @@ export interface Settings {
   refund_cutoff_hours: Generated<number>;
   slot_interval_minutes: Generated<number>;
   time_zone: Generated<string>;
+  travel_call_out_fee: Generated<Numeric>;
+  travel_charge_return: Generated<boolean>;
+  travel_extra_minutes: Generated<number>;
+  travel_free_km: Generated<number>;
+  travel_max_km: Generated<number>;
+  travel_rate_per_km: Generated<Numeric>;
   updated_at: Generated<Timestamp>;
   updated_by: string | null;
 }

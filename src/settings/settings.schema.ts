@@ -27,6 +27,15 @@ export interface Settings {
   businessName: string;
   businessEmail: string;
   businessPhone: string | null;
+  // Travel to clients (#115). The home address is private: it is only ever
+  // shown to the owner and in the emails of clients who come to her.
+  homeAddress: string | null;
+  travelCallOutFee: string; // "50.00"
+  travelRatePerKm: string; // "4.95"
+  travelFreeKm: number;
+  travelMaxKm: number;
+  travelChargeReturn: boolean;
+  travelExtraMinutes: number;
   updatedAt: string; // ISO 8601 in UTC
 }
 
@@ -62,6 +71,16 @@ const text = (label: string) =>
     .trim()
     .min(1, `Enter the ${label}.`)
     .max(100, `The ${label} must be at most 100 characters.`);
+
+const money = (label: string) =>
+  z
+    .string({ error: `Enter the ${label} as an amount, such as "4.95".` })
+    .trim()
+    .regex(
+      /^\d{1,6}(\.\d{1,2})?$/,
+      `Enter the ${label} as an amount, such as "4.95".`,
+    )
+    .transform((s) => Number(s).toFixed(2));
 
 export function isValidTimeZone(name: string): boolean {
   try {
@@ -127,6 +146,18 @@ export const settingsPatchSchema = z
         return phone;
       })
       .nullable(),
+    homeAddress: z
+      .string({ error: 'Enter the home address, or null.' })
+      .trim()
+      .max(300, 'The address must be at most 300 characters.')
+      .nullable()
+      .transform((s) => (s ? s : null)),
+    travelCallOutFee: money('call-out fee'),
+    travelRatePerKm: money('rate per km'),
+    travelFreeKm: wholeNumber(0, 500),
+    travelMaxKm: wholeNumber(1, 500),
+    travelChargeReturn: z.boolean({ error: 'Must be true or false.' }),
+    travelExtraMinutes: wholeNumber(0, 240),
   })
   .partial();
 

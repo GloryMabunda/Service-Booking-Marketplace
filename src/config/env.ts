@@ -58,6 +58,13 @@ export const envSchema = z
     SMTP_PASSWORD: optionalText,
     // The address emails come from, for example: Make Up by Glory <bookings@example.com>
     MAIL_FROM: optionalText,
+    // Travel fees (#115): the OpenRouteService key that finds the distance to a
+    // client's address. Without it travel bookings say they are unavailable.
+    OPENROUTESERVICE_API_KEY: optionalText,
+    // Only for trying the app against a stand-in maps service; leave empty
+    OPENROUTESERVICE_URL: optionalText.pipe(
+      z.url('must be a full web address').optional(),
+    ),
     // The public address of the site, used to build the links in emails
     PUBLIC_URL: optionalText.pipe(
       z.url('must be a full web address').optional(),

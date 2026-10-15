@@ -60,6 +60,13 @@
             <div class="form-text">South African number.</div>
           </div>
           <div class="mb-3">
+            <label class="form-label" for="addr">Address for the appointment</label>
+            <textarea class="form-control" id="addr" rows="2" maxlength="300">12 Protea Road, Sunnyside, Pretoria</textarea>
+            <div class="form-text">Include the street, suburb and town so we can find you.</div>
+            <button class="btn btn-outline-dark btn-sm mt-2" type="button">Work out the travel fee</button>
+            <div class="small mt-2">Travel fee R149 (R50 call-out + 20.0 km &times; R4.95 = R99). 10.0 km each way, charged there and back. Your deposit is now R474.</div>
+          </div>
+          <div class="mb-3">
             <label class="form-label" for="notes">Notes <span class="text-secondary">(optional)</span></label>
             <textarea class="form-control" id="notes" rows="3" maxlength="1000">Birthday makeup</textarea>
             <div class="form-text">Anything we should know. 15 / 1,000</div>
@@ -67,6 +74,7 @@
           <p class="small text-secondary">We use your details only to manage this booking. See our privacy notice.</p>
           <a class="btn btn-dark w-100" href="confirmation.html">Book and get payment instructions</a>
         </form>
+        <div class="wf-note"><strong>Appointment at the client's place (C-10, BR-17, #115).</strong> Shown only when the client chose "At your place" on the date and time step. The address is required, and "Book" stays off until the fee has been worked out for exactly that address (<code>POST /api/travel/quote</code>); editing the address clears the fee. The summary card shows Where, Distance, Travel fee, the new Deposit and the Balance on the day. Errors: <code>ADDRESS_NOT_FOUND</code> ("check the address"), <code>TOO_FAR</code> (shows the maximum distance), <code>TRAVEL_UNAVAILABLE</code> (maps service down: try again or choose the owner's place).</div>
         <div class="wf-note">Client-side validation mirrors the server (#51); the server re-validates everything (C-4). The button is disabled with a spinner while submitting, so it can't be pressed twice. The privacy line links to the POPIA notice (#85).</div>
 
         <span class="wf-state">State: the time was just taken</span>

@@ -78,6 +78,19 @@
             </div>
           </fieldset>
 
+          <fieldset class="card card-body">
+            <legend class="h6">Travel to clients <span class="text-secondary fw-normal">(leave the home address empty to turn travel off)</span></legend>
+            <div class="row g-2">
+              <div class="col-12"><label class="form-label" for="ha">Your home address</label><input class="form-control form-control-sm" id="ha" value="1 Jacaranda Avenue, Brooklyn, Pretoria"><div class="form-text">Private. Distances are measured from here.</div></div>
+              <div class="col-md-4"><label class="form-label" for="co">Call-out fee (R)</label><input class="form-control form-control-sm" id="co" value="50.00"></div>
+              <div class="col-md-4"><label class="form-label" for="rk">Rate per km (R)</label><input class="form-control form-control-sm" id="rk" value="4.95"><div class="form-text">The SARS rate for 2026/27 is R4.95 per km, a good guide.</div></div>
+              <div class="col-md-4"><label class="form-label" for="fk">Free kilometres</label><input class="form-control form-control-sm" id="fk" value="0"></div>
+              <div class="col-md-4"><label class="form-label" for="mk">Furthest you travel (km)</label><input class="form-control form-control-sm" id="mk" value="30"></div>
+              <div class="col-md-4"><label class="form-label" for="em">Extra travel time (minutes)</label><input class="form-control form-control-sm" id="em" value="30"></div>
+              <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" id="cr" checked><label class="form-check-label" for="cr">Charge for the trip back as well</label></div></div>
+            </div>
+          </fieldset>
+
           <div><button class="btn btn-dark btn-sm" type="button">Save settings</button></div>
         </form>
         <div class="wf-note">Every setting in A-8 (<code>GET/PATCH /api/admin/settings</code>), labelled in plain words rather than field names. Validation follows api.md 7.15; for example "Minimum time to pay" can't be longer than "Time to pay". After saving: "Settings saved." Leaving with unsaved changes asks for confirmation.</div>
