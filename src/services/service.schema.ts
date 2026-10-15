@@ -2,6 +2,7 @@ import type { Selectable } from 'kysely';
 import { z } from 'zod';
 import { isoUtc } from '../availability/time-zone.js';
 import type { DB } from '../database/database.types.js';
+import type { AdminImage } from '../site/images.service.js';
 
 // A bookable service (A-5, #29) as the admin API returns it
 // (docs/api.md 7.12). Money is a string with two decimals: "650.00".
@@ -13,6 +14,8 @@ export interface Service {
   durationMinutes: number;
   isActive: boolean;
   availableForTravel: boolean;
+  // The picture the owner uploaded for it, or null
+  image: AdminImage | null;
   bookingCount: number;
   createdAt: string;
   updatedAt: string;
@@ -21,6 +24,7 @@ export interface Service {
 export function toService(
   row: Selectable<DB['services']>,
   bookingCount = 0,
+  image: AdminImage | null = null,
 ): Service {
   return {
     id: row.id,
@@ -30,6 +34,7 @@ export function toService(
     durationMinutes: row.duration_minutes,
     isActive: row.is_active,
     availableForTravel: row.available_for_travel,
+    image,
     bookingCount,
     createdAt: isoUtc(new Date(row.created_at)),
     updatedAt: isoUtc(new Date(row.updated_at)),

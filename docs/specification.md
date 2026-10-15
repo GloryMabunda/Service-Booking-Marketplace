@@ -35,7 +35,7 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 
 | ID | Requirement |
 | --- | --- |
-| C-1 | View business information and the list of active services with description, price, duration and deposit amount. |
+| C-1 | View business information and the list of active services as cards, each with the service's picture (uploaded by the owner, A-5), description, price, duration and deposit amount. A service without a picture shows a neutral placeholder. |
 | C-2 | Select a service and a date, then see only time slots that fit the service's duration, avoid overlapping bookings and blocked periods, and respect the minimum-notice and maximum-advance settings. |
 | C-3 | Submit a booking with name, email, phone and optional notes. No account required. For a service offered at the client's place the client also gives the address (C-10). |
 | C-10 | **Appointment location and travel fee.** For each service the owner allows it on, the client chooses where the appointment happens: at the owner's place or at the client's place. A short explanation tells them a travel fee applies if the owner comes to them. Choosing the client's place asks for the address, and before submitting the client sees the distance, the travel fee breakdown (call-out fee plus kilometres times the rate) and the new deposit. The fee is worked out again on the server (BR-17). |
@@ -54,7 +54,7 @@ v1 assumes a single provider. The administrator account is created by a seed scr
 | A-2 | Dashboard: today's bookings, upcoming bookings, completed this month, bookings awaiting deposit, **bookings with proof awaiting review**, refunds due, and a list of upcoming appointments. |
 | A-3 | List and filter bookings (including by "proof received"); open a booking to see client details, service, date, time, price, deposit, status, notes and any uploaded proofs. |
 | A-4 | Confirm payment (only after the money reflects in the bank account), cancel, extend a deposit deadline, and mark bookings completed or no-show. |
-| A-5 | Create, edit and deactivate services (name, description, price, duration, active flag, and whether it can be done at the client's place). |
+| A-5 | Create, edit and deactivate services (name, description, price, duration, active flag, whether it can be done at the client's place, and a picture for its card). The picture is processed like every website photo (BR-16): metadata removed, stored as a large and a thumbnail WebP, the old one deleted when replaced. |
 | A-6 | Configure working days and hours; block whole dates or time ranges. |
 | A-7 | Calendar view of appointments (FullCalendar), with access to booking details. |
 | A-8 | Settings: minimum notice, maximum advance booking window, slot interval, buffer time, deposit percentage, deposit refund rule, deposit hold duration, minimum payment window, time zone, banking details shown to clients, and business name and contact details, and the travel rules (A-11). |
@@ -113,7 +113,7 @@ Key fields for each entity are listed below. The full design (types, constraints
 | Entity | Key fields |
 | --- | --- |
 | User | id, email, passwordHash, role, createdAt |
-| Service | id, name, description, price, durationMinutes, isActive, availableForTravel |
+| Service | id, name, description, price, durationMinutes, isActive, availableForTravel, imageId (optional picture) |
 | Availability | id, dayOfWeek, startTime, endTime, isWorkingDay |
 | BlockedTime | id, startAt, endAt, reason |
 | Booking | id, reference (e.g. BK-000123), serviceId, clientName, clientEmail, clientPhone, startAt, endAt, occupiedUntil (endAt plus the buffer at booking time), occupiedFrom (startAt minus travel time), location (studio/client), appointmentAddress, travelDistanceKm, travelCallOutFee, travelRatePerKm, travelFee, priceAtBooking, depositAmount (includes the travel fee), depositDueAt, bookingTokenHash, bookingTokenCreatedAt, amountReceived, paymentVerifiedAt, paymentVerifiedBy, refundDue, refundedAt, cancelledAt, cancelledBy (client/admin), status, notes, createdAt |
@@ -181,6 +181,7 @@ All paths are under `/api` (for example `GET /api/services`); pages, including t
 | `POST /admin/bookings/:id/refund` | Admin | Record that a refund due has been paid |
 | `GET /admin/calendar?from&to` | Admin | Appointments for the calendar view |
 | `GET/POST /admin/services`, `PATCH/DELETE /admin/services/:id` | Admin | List (including inactive) and manage services |
+| `PUT/DELETE /admin/services/:id/image` | Admin | The picture on a service's card (A-5) |
 | `GET/PUT /admin/availability` | Admin | Working hours |
 | `GET/POST /admin/blocked-times`, `DELETE /admin/blocked-times/:id` | Admin | List, block and unblock time |
 | `GET/PATCH /admin/settings` | Admin | All settings in A-8 |

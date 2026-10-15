@@ -10,6 +10,11 @@ import {
   bookingWindow,
 } from '../settings/booking-window.js';
 import { SettingsService } from '../settings/settings.service.js';
+import {
+  ImagesService,
+  type ImageRow,
+  type PublicImage,
+} from '../site/images.service.js';
 import { type TravelTerms, travelTerms } from '../travel/travel-terms.js';
 import {
   type CreateServiceInput,
@@ -28,6 +33,8 @@ export interface PublicServices {
     durationMinutes: number;
     depositAmount: string;
     availableForTravel: boolean;
+    // The owner's picture for the service, or null
+    image: PublicImage | null;
   }[];
   depositPercent: string;
   business: { name: string; email: string; phone: string | null };
@@ -47,6 +54,7 @@ export class ServicesService {
   constructor(
     @Inject(DATABASE) private readonly db: Kysely<DB>,
     private readonly settings: SettingsService,
+    private readonly images: ImagesService,
   ) {}
 
   // Services with how many bookings each has, sorted by name ignoring capitals.
@@ -57,7 +65,10 @@ export class ServicesService {
       .orderBy(sql`lower(services.name)`)
       .orderBy('services.id')
       .execute();
-    return rows.map((row) => toService(row, Number(row.booking_count)));
+    const photos = await this.images.findMany(rows.map((r) => r.image_id));
+    return rows.map((row) =>
+      toService(row, Number(row.booking_count), this.adminImage(photos, row)),
+    );
   }
 
   // What clients see (C-1, #32): active services only (BR-5), each with its
@@ -75,16 +86,21 @@ export class ServicesService {
         .execute(),
       this.settings.get(),
     ]);
+    const photos = await this.images.findMany(rows.map((r) => r.image_id));
     return {
-      services: rows.map((row) => ({
-        id: row.id,
-        name: row.name,
-        description: row.description,
-        price: row.price,
-        durationMinutes: row.duration_minutes,
-        depositAmount: percentOf(settings.depositPercent, row.price),
-        availableForTravel: row.available_for_travel,
-      })),
+      services: rows.map((row) => {
+        const photo = row.image_id ? photos.get(row.image_id) : undefined;
+        return {
+          id: row.id,
+          name: row.name,
+          description: row.description,
+          price: row.price,
+          durationMinutes: row.duration_minutes,
+          depositAmount: percentOf(settings.depositPercent, row.price),
+          availableForTravel: row.available_for_travel,
+          image: photo ? this.images.publicView(photo, row.name) : null,
+        };
+      }),
       travel: travelTerms(settings),
       depositPercent: settings.depositPercent,
       business: {
@@ -149,9 +165,10 @@ export class ServicesService {
   async remove(
     id: string,
   ): Promise<{ deleted: true } | { deleted: false; service: Service }> {
-    await this.get(id); // 404 if it doesn't exist
+    const existing = await this.get(id); // 404 if it doesn't exist
     try {
       await this.db.deleteFrom('services').where('id', '=', id).execute();
+      await this.removePhotoOf(existing);
       return { deleted: true };
     } catch (error) {
       // Also covers a booking made a moment ago, between any check and here.
@@ -204,7 +221,61 @@ export class ServicesService {
       .where('services.id', '=', id)
       .executeTakeFirst();
     if (!row) throw NOT_FOUND();
-    return toService(row, Number(row.booking_count));
+    const photos = await this.images.findMany([row.image_id]);
+    return toService(
+      row,
+      Number(row.booking_count),
+      this.adminImage(photos, row),
+    );
+  }
+
+  // Puts the owner's picture on a service and removes the one it replaces
+  // (and its files). Returns the service.
+  async setImage(
+    id: string,
+    upload: Buffer,
+    adminId: string,
+    altText: string | null,
+  ): Promise<Service> {
+    const before = await this.get(id); // 404 if it doesn't exist
+    const created = await this.images.create(upload, adminId, altText);
+    try {
+      await this.db
+        .updateTable('services')
+        .set({ image_id: created.id, updated_at: new Date() })
+        .where('id', '=', id)
+        .execute();
+    } catch (error) {
+      await this.images.delete(created);
+      throw error;
+    }
+    await this.removePhotoOf(before);
+    return this.get(id);
+  }
+
+  async removeImage(id: string): Promise<void> {
+    const before = await this.get(id);
+    await this.db
+      .updateTable('services')
+      .set({ image_id: null, updated_at: new Date() })
+      .where('id', '=', id)
+      .execute();
+    await this.removePhotoOf(before);
+  }
+
+  private adminImage(
+    photos: Map<string, ImageRow>,
+    row: { image_id: string | null },
+  ) {
+    const photo = row.image_id ? photos.get(row.image_id) : undefined;
+    return photo ? this.images.adminView(photo) : null;
+  }
+
+  // Deletes the photo record and files of a service that no longer uses it
+  private async removePhotoOf(service: Service): Promise<void> {
+    if (!service.image) return;
+    const row = await this.images.find(service.image.id);
+    if (row) await this.images.delete(row);
   }
 
   private withBookingCount() {

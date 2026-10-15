@@ -105,6 +105,7 @@ describe('Admin services API', () => {
         durationMinutes: 90,
         isActive: true,
         availableForTravel: false,
+        image: null,
         bookingCount: 0,
         createdAt: expect.any(String) as string,
         updatedAt: expect.any(String) as string,

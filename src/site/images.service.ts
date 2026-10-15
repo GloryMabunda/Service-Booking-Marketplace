@@ -126,6 +126,17 @@ export class ImagesService {
     );
   }
 
+  async findMany(ids: (string | null)[]): Promise<Map<string, ImageRow>> {
+    const wanted = [...new Set(ids.filter((id): id is string => id !== null))];
+    if (wanted.length === 0) return new Map();
+    const rows = await this.db
+      .selectFrom('images')
+      .selectAll()
+      .where('id', 'in', wanted)
+      .execute();
+    return new Map(rows.map((row) => [row.id, row]));
+  }
+
   // The photo behind a /media key: a large or a thumbnail key
   async findByKey(key: string): Promise<ImageRow | null> {
     return (

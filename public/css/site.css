@@ -333,6 +333,23 @@ admin-header .nav-link.active {
   object-fit: cover;
 }
 
+/* The picture on a service card (services page): the same shape for every
+   card, whatever size the photo was */
+.mbg-service-picture {
+  width: 100%;
+  height: 14rem;
+  object-fit: cover;
+  display: block;
+}
+.mbg-service-picture-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mbg-tint-lilac);
+  color: var(--mbg-magenta);
+  font-size: 2.5rem;
+}
+
 /* Gallery: square-ish tiles that open the large photo */
 .mbg-gallery-tile {
   display: block;
