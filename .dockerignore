@@ -1,0 +1,16 @@
+.git
+.github
+.vscode
+.vs
+node_modules
+dist
+obj
+uploads
+tests
+docs
+deploy
+.env
+.env.*
+!.env.example
+*.log
+Dockerfile

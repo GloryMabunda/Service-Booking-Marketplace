@@ -30,6 +30,7 @@ This document describes every endpoint: method, path, access, request, response 
 | `POST /api/booking/:token/cancel` | Booking link | [5.3](#53-post-apibookingtokencancel) |
 | `GET /api/site` | Public | [4.6](#46-get-apisite) |
 | `GET /media/:key` | Public | [4.7](#47-get-mediakey) |
+| `GET /api/health` | Public | [4.9](#49-get-apihealth) |
 | `POST /api/auth/login` | Public | [6.1](#61-post-apiauthlogin) |
 | `POST /api/auth/logout` | Admin | [6.2](#62-post-apiauthlogout) |
 | `GET /api/auth/me` | Admin | [6.3](#63-get-apiauthme) |
@@ -595,6 +596,16 @@ The travel fee and the new deposit for an appointment at the client's place (C-1
 Sent with `Cache-Control: no-store`. Limited to **15 requests per minute per IP address**, because each call may use the maps service's daily allowance (the provider also remembers recent answers).
 
 **Errors:** `400 VALIDATION_FAILED`, `400 SERVICE_UNAVAILABLE`, `400 TRAVEL_NOT_OFFERED`, `400 ADDRESS_NOT_FOUND` (the maps service can't find the address; ask the client to check it), `400 TOO_FAR` (further than the maximum distance), `503 TRAVEL_UNAVAILABLE` (no home address set, no maps service set up, or the maps service is down: try again or choose the owner's place), `429`.
+
+### 4.9 `GET /api/health`
+
+Is the app running, and can it reach its database? (#91) Used by the container health check, the deploy script and an outside uptime monitor. Public, never cached, and it says nothing else about the system.
+
+**Response `200`**: `{ "status": "ok" }`
+
+**Response `503`**: `{ "status": "unavailable" }`, when the database doesn't answer within 3 seconds. No reason is given.
+
+---
 
 ## 5. Booking link endpoints
 

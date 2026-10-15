@@ -1,0 +1,73 @@
+# The production stack on the server (#87, docs/deployment.md): the app,
+# PostgreSQL and Caddy (HTTPS). Lives in /opt/booking next to a .env file that
+# holds the secrets and is never in Git (see .env.production.example).
+#
+# Only Caddy is reachable from the internet (ports 80 and 443). The database
+# and the app have no published ports: they talk over the stack's private
+# network.
+
+name: booking
+
+# Logs go to the container runtime (docker compose logs app), kept small so they
+# cannot fill the disk
+x-logging: &log
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '5'
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    logging: *log
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      POSTGRES_DB: booking
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U booking -d booking']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    image: ${APP_IMAGE:?set by deploy.sh}
+    restart: unless-stopped
+    logging: *log
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://booking:${DB_PASSWORD}@db:5432/booking
+      NODE_ENV: production
+      PORT: '3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/data/uploads
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    logging: *log
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  db-data:
+  uploads:
+  caddy-data:
+  caddy-config:

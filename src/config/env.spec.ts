@@ -119,3 +119,46 @@ describe('TRUST_PROXY', () => {
     },
   );
 });
+
+describe('production settings (#89)', () => {
+  const production = {
+    NODE_ENV: 'production',
+    DATABASE_URL: 'postgres://booking:booking@db:5432/booking',
+    SMTP_HOST: 'smtp.example.co.za',
+    MAIL_FROM: 'Make Up by Glory <bookings@example.co.za>',
+    PUBLIC_URL: 'https://bookings.example.co.za',
+  };
+
+  it('accepts a complete production setup', () => {
+    expect(validateEnv(production).NODE_ENV).toBe('production');
+  });
+
+  it('refuses to start without an email provider, so no client is left without their emails', () => {
+    expect(() => validateEnv({ ...production, SMTP_HOST: '' })).toThrow(
+      /SMTP_HOST: is required in production/,
+    );
+  });
+
+  it('refuses to start without the public address, which the links in emails need', () => {
+    expect(() => validateEnv({ ...production, PUBLIC_URL: '' })).toThrow(
+      /PUBLIC_URL: is required in production/,
+    );
+  });
+
+  it('lists both when both are missing', () => {
+    expect(() =>
+      validateEnv({
+        NODE_ENV: 'production',
+        DATABASE_URL: production.DATABASE_URL,
+      }),
+    ).toThrow(/SMTP_HOST[\s\S]*PUBLIC_URL/);
+  });
+
+  it('does not ask for them in development or tests', () => {
+    for (const NODE_ENV of ['development', 'test']) {
+      expect(() =>
+        validateEnv({ NODE_ENV, DATABASE_URL: production.DATABASE_URL }),
+      ).not.toThrow();
+    }
+  });
+});
