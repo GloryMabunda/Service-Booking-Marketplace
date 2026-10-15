@@ -1,0 +1,7 @@
+# HTTPS for the site (#87). Caddy gets and renews a free certificate by itself
+# for the address in SITE_ADDRESS (for example: bookings.example.co.za), and
+# passes requests to the app. The app sets its own security headers.
+{$SITE_ADDRESS} {
+	encode zstd gzip
+	reverse_proxy app:3000
+}

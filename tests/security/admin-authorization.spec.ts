@@ -28,6 +28,7 @@ const PUBLIC_ROUTES = [
   'POST /api/booking/:token/proofs',
   'POST /api/bookings',
   'POST /api/travel/quote',
+  'GET /api/health',
   'POST /api/bookings/:reference/lookup',
   'POST /api/bookings/:reference/resend-booking-link',
 ];

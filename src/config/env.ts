@@ -71,6 +71,24 @@ export const envSchema = z
     ),
   })
   .superRefine((env, context) => {
+    // In production a booking without its emails is useless to the client, and
+    // links in emails need the public address (#89), so both are required.
+    if (env.NODE_ENV === 'production') {
+      if (!env.SMTP_HOST) {
+        context.addIssue({
+          code: 'custom',
+          path: ['SMTP_HOST'],
+          message: 'is required in production, so clients get their emails',
+        });
+      }
+      if (!env.PUBLIC_URL) {
+        context.addIssue({
+          code: 'custom',
+          path: ['PUBLIC_URL'],
+          message: 'is required in production, for the links in emails',
+        });
+      }
+    }
     if (env.SMTP_HOST && !env.MAIL_FROM) {
       context.addIssue({
         code: 'custom',

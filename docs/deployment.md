@@ -1,0 +1,74 @@
+# Deployment
+
+How the app runs in production, and how a new version gets there. The hosting choice (one South African VPS) is in [hosting.md](hosting.md). The files are in [`deploy/`](../deploy), the [`Dockerfile`](../Dockerfile) and [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml).
+
+## The picture
+
+```
+internet ──443──> Caddy (HTTPS, free certificate)
+                    └──> app (the Node.js app, port 3000, private)
+                           ├──> db (PostgreSQL 17, private)
+                           └──> uploads (a Docker volume: proofs and photos)
+```
+
+Everything runs as three containers started by one `docker-compose.yml` in `/opt/booking` on the server. Only Caddy publishes ports (80 and 443). The database and the app can't be reached from the internet. Each container's log is kept small (5 files of 10 MB).
+
+## One-time setup of the server (you, or your developer)
+
+1. **Create the VPS** with Ubuntu LTS and add your SSH key. Give the server a name in DNS: an `A` record for your domain pointing at the server's address.
+2. **Update and protect it.** `apt update && apt upgrade`; turn on automatic security updates (`unattended-upgrades`); allow only ports 22, 80 and 443 in the firewall (`ufw`); disable password logins for SSH.
+3. **Install Docker** (the official `docker-ce` packages with the Compose plugin).
+4. **Make a deploy user** that can run Docker but has no other power: `adduser deploy`, `usermod -aG docker deploy`, and `mkdir /opt/booking && chown deploy /opt/booking`.
+5. **Make a deploy key.** On your computer: `ssh-keygen -t ed25519 -f deploy_key -N ""`. Put `deploy_key.pub` in `/home/deploy/.ssh/authorized_keys` on the server. Keep `deploy_key` (the private half) for step 8 and then delete it from your computer.
+6. **Create `/opt/booking/.env`** from [`deploy/.env.production.example`](../deploy/.env.production.example) and fill it in (the file lists each value). `chmod 600 /opt/booking/.env`. This file is the only place the production secrets live: never in Git, never in a workflow.
+7. **Let the server download the image.** The image is published to GitHub's registry as `ghcr.io/<owner>/<repo>`. Either make that package public (the image holds no secrets: the code is the same as in the repository) or, on the server, run `docker login ghcr.io` with a read-only token.
+8. **Tell GitHub about the server.** In the repository, Settings, Environments, create `production` and add the secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` (the private key from step 5) and `DEPLOY_KNOWN_HOSTS` (the output of `ssh-keyscan -t ed25519 <host>`, checked against the fingerprint your provider shows). Under Settings, Variables, add `SITE_ADDRESS` (your domain). You can also add a required reviewer to the environment, so every deploy waits for your click.
+9. **Turn it on.** Add the variable `DEPLOY_ENABLED` = `true`. Until then the workflow does nothing.
+10. **Run the first deploy** from the Actions tab (Deploy, Run workflow). Then create the administrator, typing the password at the prompt so it isn't kept in a file:
+
+    ```bash
+    cd /opt/booking
+    read -rp "Admin email: " E; read -rsp "Admin password (12+ characters): " P; echo
+    APP_IMAGE=$(cat current-image) docker compose run --rm -e ADMIN_EMAIL="$E" -e ADMIN_PASSWORD="$P" app node dist/scripts/seed-admin.js
+    unset P
+    ```
+
+11. **Set up backups** (see below), including a copy off the server.
+12. **Set up outside monitoring**: a free uptime service (for example UptimeRobot) that requests `https://<your domain>/api/health` every 5 minutes and emails you when it fails.
+
+## What happens on each deploy
+
+After every push to `main` whose CI run passes, the Deploy workflow:
+
+1. builds the image from exactly the commit CI tested and pushes it to the registry;
+2. copies `docker-compose.yml`, `Caddyfile` and the scripts to `/opt/booking`;
+3. runs `deploy.sh <image>` on the server, which
+   1. **backs up** the database and the uploads,
+   2. **applies the database migrations** with the new version (`node dist/scripts/migrate.js`). **If a migration fails, the deploy stops here and the running version is not changed**: a failed migration is rolled back by PostgreSQL and the old app keeps serving,
+   3. starts the new version and waits for its health check; **if it never becomes healthy, the previous version is put back**;
+4. finally requests `/api/health` on the live address.
+
+Because the old version keeps running while migrations are applied (and returns if the new one fails), every migration must work with both versions: add columns and tables first, and remove or rename them in a later release.
+
+## Backups and restoring
+
+- `backup.sh` makes `backups/db-<time>.sql.gz` and `backups/uploads-<time>.tar.gz`, and deletes ones older than 14 days. It runs before every deploy and nightly: add `15 2 * * * /opt/booking/backup.sh` to the deploy user's crontab (`crontab -e`).
+- **Copy the `backups` folder off the server** every night (for example `rclone` or `rsync` to a second provider, or the provider's own snapshot service). A backup on the same machine is lost with the machine. The copies hold client details and proofs of payment: keep them private and encrypted at rest, and cover them in the privacy notice (`docs/security.md`).
+- `restore.sh <time>` puts a backup back (it asks first). **Practise a restore once** on a spare copy before you rely on it; the v1.0 release checklist (#92) includes it.
+
+## Logs and health
+
+- `GET /api/health` answers `{"status":"ok"}` when the app can reach its database, and 503 otherwise. Docker uses it to mark the app healthy, `deploy.sh` waits for it, and the outside monitor asks it.
+- Errors and request lines go to the container log: `docker compose logs --tail 200 app`. Booking links are masked (`/booking/***`) and client details are not written to the log (`docs/security.md`, checked by tests).
+
+## Settings that production requires
+
+The app refuses to start in production without `SMTP_HOST` (clients must get their emails) and `PUBLIC_URL` (links in emails), and `deploy/docker-compose.yml` refuses to start without `DB_PASSWORD` and `SITE_ADDRESS`. `TRUST_PROXY=1` tells the app that Caddy is in front, so rate limits count each visitor and not Caddy.
+
+## Trying the image on your own computer
+
+```bash
+docker build -t booking-test .
+```
+
+The image runs as an unprivileged user, keeps uploads in `/data/uploads` (a volume) and needs the settings above. The automated tests do not use it: they run against the source.
