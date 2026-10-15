@@ -30,6 +30,7 @@ describe('createServiceSchema', () => {
       price: '650.00',
       durationMinutes: 90,
       isActive: true,
+      availableForTravel: false,
     });
   });
 
@@ -141,6 +142,7 @@ describe('toService', () => {
           price: '650.00',
           duration_minutes: 90,
           is_active: true,
+          available_for_travel: false,
           created_at: new Date('2026-10-13T08:00:00Z'),
           updated_at: new Date('2026-10-13T09:30:00Z'),
         },
@@ -153,6 +155,7 @@ describe('toService', () => {
       price: '650.00',
       durationMinutes: 90,
       isActive: true,
+      availableForTravel: false,
       bookingCount: 3,
       createdAt: '2026-10-13T08:00:00Z',
       updatedAt: '2026-10-13T09:30:00Z',

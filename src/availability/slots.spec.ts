@@ -214,3 +214,37 @@ describe('overlaps', () => {
     expect(overlaps(make(10, 20), make(0, 10))).toBe(false);
   });
 });
+
+describe('calculateSlots with travel time (#115)', () => {
+  it('keeps travel time clear on both sides of an existing booking', () => {
+    // One hour appointments, no buffer, someone already booked 12:00-13:00
+    const input = {
+      durationMinutes: 60,
+      bufferMinutes: 0,
+      busy: [interval('12:00', '13:00')],
+    };
+    // At the owner's place, 11:00 and 13:00 fit right up against it
+    expect(times(input)).toEqual(expect.arrayContaining(['11:00', '13:00']));
+    // With 30 minutes of travel each way they no longer do
+    const withTravel = times({ ...input, travelMinutes: 30 });
+    expect(withTravel).not.toContain('11:00');
+    expect(withTravel).not.toContain('13:00');
+    expect(withTravel).toEqual(expect.arrayContaining(['10:00', '14:00']));
+  });
+
+  it('offers fewer start times than at the owner’s place when the day is busy', () => {
+    const busy = [interval('12:00', '14:00')];
+    expect(times({ busy, travelMinutes: 30 }).length).toBeLessThanOrEqual(
+      times({ busy }).length,
+    );
+    expect(times({ busy, travelMinutes: 30 })).not.toContain('11:00');
+  });
+
+  it('reports the span a booking would occupy, travel included', () => {
+    const [slot] = calculateSlots({ ...base, travelMinutes: 30 });
+    // 09:00 start, 90 minutes + 60 buffer + 30 travel after
+    expect(slot.occupiedUntil.getTime() - at('09:00').getTime()).toBe(
+      (90 + 60 + 30) * 60_000,
+    );
+  });
+});

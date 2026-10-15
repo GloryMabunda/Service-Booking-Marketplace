@@ -22,6 +22,11 @@ export interface BookingSummary {
   price: string;
   depositAmount: string;
   depositDueAt: string | null;
+  // Where the appointment is (#115). At the owner's place, her address is
+  // given only on the private booking page and in emails, not here.
+  location: 'studio' | 'client';
+  appointmentAddress: string | null;
+  travelFee: string;
   proofs: {
     uploadedAt: string;
     status: 'received' | 'accepted' | 'rejected';
@@ -77,6 +82,9 @@ export class BookingLookupService {
             'bookings.deposit_amount',
             'bookings.deposit_due_at',
             'bookings.payment_verified_at',
+            'bookings.location',
+            'bookings.appointment_address',
+            'bookings.travel_fee',
             'services.name as service_name',
           ])
           .where('bookings.reference', '=', reference.trim().toUpperCase())
@@ -115,6 +123,9 @@ export interface SummaryRow {
   deposit_amount: string;
   deposit_due_at: Date | null;
   payment_verified_at: Date | null;
+  location: 'studio' | 'client';
+  appointment_address: string | null;
+  travel_fee: string;
   service_name: string;
 }
 
@@ -168,6 +179,9 @@ export function toBookingSummary(
     depositDueAt: row.deposit_due_at
       ? isoUtc(new Date(row.deposit_due_at))
       : null,
+    location: row.location,
+    appointmentAddress: row.appointment_address,
+    travelFee: row.travel_fee,
     proofs: proofs.map((p) => ({
       uploadedAt: isoUtc(new Date(p.uploaded_at)),
       status: p.status,

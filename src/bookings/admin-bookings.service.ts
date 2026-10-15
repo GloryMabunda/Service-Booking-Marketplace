@@ -37,7 +37,12 @@ export interface AdminBooking {
   client: { name: string; email: string; phone: string };
   startAt: string;
   endAt: string;
+  occupiedFrom: string;
   occupiedUntil: string;
+  location: 'studio' | 'client';
+  appointmentAddress: string | null;
+  travelDistanceKm: string | null;
+  travelFee: string;
   price: string;
   depositAmount: string;
   depositDueAt: string | null;
@@ -593,7 +598,12 @@ export class AdminBookingsService {
         },
         startAt: iso(row.start_at) as string,
         endAt: iso(row.end_at) as string,
+        occupiedFrom: iso(row.occupied_from ?? row.start_at) as string,
         occupiedUntil: iso(row.occupied_until) as string,
+        location: row.location,
+        appointmentAddress: row.appointment_address,
+        travelDistanceKm: row.travel_distance_km,
+        travelFee: row.travel_fee,
         price: row.price_at_booking,
         depositAmount: row.deposit_amount,
         depositDueAt: iso(row.deposit_due_at),

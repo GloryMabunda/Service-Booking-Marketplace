@@ -140,4 +140,9 @@ export const blockedTimesQuerySchema = z.strictObject({
 export const availabilityQuerySchema = z.strictObject({
   serviceId: z.guid({ error: 'Enter the service.' }),
   date: calendarDay,
+  // Where the appointment will be (#115): travel time is blocked around an
+  // appointment at the client's place, so the open times differ
+  location: z
+    .enum(['studio', 'client'], { error: 'Choose studio or client.' })
+    .default('studio'),
 });

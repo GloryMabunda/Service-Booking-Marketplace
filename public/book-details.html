@@ -140,6 +140,37 @@
                 <div class="form-text">A South African number.</div>
                 <div class="invalid-feedback" id="clientPhone-error"></div>
               </div>
+              <div class="mb-3" id="address-group" hidden>
+                <label class="form-label" for="appointmentAddress"
+                  >Address for the appointment</label
+                >
+                <textarea
+                  class="form-control"
+                  id="appointmentAddress"
+                  rows="2"
+                  maxlength="300"
+                  autocomplete="street-address"
+                ></textarea>
+                <div class="form-text">
+                  Include the street, suburb and town so we can find you.
+                </div>
+                <div
+                  class="invalid-feedback"
+                  id="appointmentAddress-error"
+                ></div>
+                <button
+                  class="btn btn-outline-primary mt-2"
+                  type="button"
+                  id="quote-button"
+                >
+                  Work out the travel fee
+                </button>
+                <div
+                  class="small mt-2"
+                  id="quote-result"
+                  aria-live="polite"
+                ></div>
+              </div>
               <div class="mb-3">
                 <label class="form-label" for="notes"
                   >Notes <span class="text-secondary">(optional)</span></label
@@ -166,6 +197,10 @@
               >
                 Book and get payment instructions
               </button>
+              <p class="small text-secondary mt-2 mb-0" id="submit-note" hidden>
+                Work out the travel fee for your address first, so you see your
+                deposit before you book.
+              </p>
             </form>
           </div>
         </div>

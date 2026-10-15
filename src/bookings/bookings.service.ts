@@ -8,9 +8,10 @@ import type { DB } from '../database/database.types.js';
 import { ServicesService } from '../services/services.service.js';
 import { bankingDetailsAreSet } from '../settings/settings.schema.js';
 import { SettingsService } from '../settings/settings.service.js';
+import { TravelService } from '../travel/travel.service.js';
 import type { CreateBookingInput } from './booking.schema.js';
 import { BOOKING_NOTIFIER, type BookingNotifier } from './booking-notifier.js';
-import { planBooking } from './booking-plan.js';
+import { planBooking, type TravelPlan } from './booking-plan.js';
 import { generateBookingToken, hashBookingToken } from './booking-token.js';
 import {
   type BookingRecord,
@@ -33,6 +34,9 @@ export interface CreatedBooking {
     price: string;
     depositAmount: string;
     depositDueAt: string | null;
+    location: 'studio' | 'client';
+    appointmentAddress: string | null;
+    travelFee: string;
   };
   // The address the booking email went to, or null if it couldn't be sent
   emailSentTo: string | null;
@@ -48,6 +52,7 @@ export class BookingsService {
     private readonly availability: AvailabilityService,
     private readonly services: ServicesService,
     private readonly settings: SettingsService,
+    private readonly travel: TravelService,
     @Inject(BOOKING_NOTIFIER) private readonly notifier: BookingNotifier,
   ) {}
 
@@ -70,9 +75,31 @@ export class BookingsService {
     }
 
     const settings = await this.settings.get();
+
+    // 1b. An appointment at the client's place (#115): the service must offer
+    // it, and the fee is worked out here from the address; a figure the page
+    // showed is never trusted.
+    let travel: TravelPlan | undefined;
+    if (input.location === 'client') {
+      if (!service.availableForTravel || !settings.homeAddress) {
+        throw new ApiException(
+          400,
+          'TRAVEL_NOT_OFFERED',
+          "That service isn't offered at the client's place.",
+        );
+      }
+      const address = input.appointmentAddress as string;
+      travel = {
+        address,
+        fee: await this.travel.feeFor(address, settings),
+        extraMinutes: settings.travelExtraMinutes,
+      };
+    }
+
     const plan = planBooking({
+      travel,
       service: {
-        price: await this.priceOf(service.id),
+        price: await this.services.priceOf(service.id),
         durationMinutes: service.durationMinutes,
       },
       settings,
@@ -96,7 +123,14 @@ export class BookingsService {
 
     // 3. The slot, by the same rules that offered it. The database has the
     // last word (BR-2) if someone else books it a moment from now.
-    if (!(await this.availability.isSlotOpen(service.id, input.startAt, now))) {
+    if (
+      !(await this.availability.isSlotOpen(
+        service.id,
+        input.startAt,
+        now,
+        input.location === 'client',
+      ))
+    ) {
       throw new ApiException(
         409,
         'SLOT_UNAVAILABLE',
@@ -156,18 +190,12 @@ export class BookingsService {
         depositDueAt: booking.depositDueAt
           ? isoUtc(booking.depositDueAt)
           : null,
+        location: booking.location,
+        appointmentAddress: booking.appointmentAddress,
+        travelFee: booking.travelFee,
       },
       emailSentTo: emailSent ? booking.clientEmail : null,
     };
-  }
-
-  private async priceOf(serviceId: string): Promise<string> {
-    const row = await this.db
-      .selectFrom('services')
-      .select('price')
-      .where('id', '=', serviceId)
-      .executeTakeFirstOrThrow();
-    return row.price;
   }
 
   private async sendEmail(

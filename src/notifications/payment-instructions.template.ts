@@ -1,4 +1,5 @@
 import type { BankingDetails } from '../settings/settings.schema.js';
+import { locationRows } from './booking-emails.js';
 import { escapeHtml } from './email-format.js';
 
 // The "payment instructions" email (docs/emails.md 4.1, #56). Every value is
@@ -11,6 +12,8 @@ export interface PaymentInstructionsData {
   when: string;
   endTime: string;
   price: string;
+  where?: string;
+  travelFee?: string;
   deposit: string;
   balance: string;
   deadline: string;
@@ -40,6 +43,7 @@ export function renderPaymentInstructions(
     ['Booking reference', d.reference],
     ['Service', d.service],
     ['When', `${d.when} (until ${d.endTime})`],
+    ...locationRows(d),
     ['Price', d.price],
   ];
   const bank = [

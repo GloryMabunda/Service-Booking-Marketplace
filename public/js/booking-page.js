@@ -56,8 +56,18 @@ function render() {
       'When',
       `${whenText(booking.startAt, tz)}–${localTime(new Date(booking.endAt), tz)}`,
     ],
-    ['Price', formatRand(booking.price)],
   ];
+  // Where the appointment is (#115). Our address is given here, on the private
+  // page, and in emails, and nowhere on the public site.
+  if (booking.location === 'client') {
+    summary.push(
+      ['Where', `At your place: ${booking.appointmentAddress}`],
+      ['Travel fee', formatRand(booking.travelFee)],
+    );
+  } else if (page.ownerAddress) {
+    summary.push(['Where', `At our place: ${page.ownerAddress}`]);
+  }
+  summary.push(['Price', formatRand(booking.price)]);
   if (Number(booking.depositAmount) > 0) {
     summary.push(['Deposit', formatRand(booking.depositAmount)]);
     summary.push(['Payment', PAYMENT[booking.paymentStatus]]);

@@ -116,6 +116,9 @@ export class PublicBookingService {
         proofs,
         settings.timeZone,
       ),
+      // The owner's address, for a client who comes to her (#115). It is only
+      // on this private page and in emails, never on the public site.
+      ownerAddress: link.location === 'studio' ? settings.homeAddress : null,
       // The banking details are only needed while there is a deposit to pay
       bankingDetails: pending ? settings.bankingDetails : null,
       business: {

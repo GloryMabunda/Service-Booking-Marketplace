@@ -16,6 +16,20 @@ export interface BookingSummaryData {
   when: string;
   endTime: string;
   price: string;
+  // Where the appointment is, and the travel fee when it is at the client's
+  // place (#115); the owner's address appears only in emails to her clients
+  where?: string;
+  travelFee?: string;
+}
+
+export function locationRows(d: {
+  where?: string;
+  travelFee?: string;
+}): [string, string][] {
+  const rows: [string, string][] = [];
+  if (d.where) rows.push(['Where', d.where]);
+  if (d.travelFee) rows.push(['Travel fee', d.travelFee]);
+  return rows;
 }
 
 function summary(d: BookingSummaryData): Block {
@@ -24,6 +38,7 @@ function summary(d: BookingSummaryData): Block {
       ['Booking reference', d.reference],
       ['Service', d.service],
       ['When', `${d.when} (until ${d.endTime})`],
+      ...locationRows(d),
       ['Price', d.price],
     ],
   };
@@ -109,6 +124,7 @@ export function renderAdminNewBooking(d: AdminNewBookingData): RenderedEmail {
     ['Phone', d.clientPhone],
     ['Service', d.service],
     ['When', `${d.when} (until ${d.endTime})`],
+    ...locationRows(d),
     ['Price', d.price],
   ];
   if (d.deposit) {

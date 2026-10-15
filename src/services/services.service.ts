@@ -10,6 +10,7 @@ import {
   bookingWindow,
 } from '../settings/booking-window.js';
 import { SettingsService } from '../settings/settings.service.js';
+import { type TravelTerms, travelTerms } from '../travel/travel-terms.js';
 import {
   type CreateServiceInput,
   type Service,
@@ -26,10 +27,13 @@ export interface PublicServices {
     price: string;
     durationMinutes: number;
     depositAmount: string;
+    availableForTravel: boolean;
   }[];
   depositPercent: string;
   business: { name: string; email: string; phone: string | null };
   bookingWindow: BookingWindow;
+  // The travel fee rules, or null while the owner hasn't set up travel
+  travel: TravelTerms | null;
 }
 
 const NOT_FOUND = () =>
@@ -79,7 +83,9 @@ export class ServicesService {
         price: row.price,
         durationMinutes: row.duration_minutes,
         depositAmount: percentOf(settings.depositPercent, row.price),
+        availableForTravel: row.available_for_travel,
       })),
+      travel: travelTerms(settings),
       depositPercent: settings.depositPercent,
       business: {
         name: settings.businessName,
@@ -100,6 +106,7 @@ export class ServicesService {
           price: input.price,
           duration_minutes: input.durationMinutes,
           is_active: input.isActive,
+          available_for_travel: input.availableForTravel,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -116,6 +123,7 @@ export class ServicesService {
       price: patch.price,
       duration_minutes: patch.durationMinutes,
       is_active: patch.isActive,
+      available_for_travel: patch.availableForTravel,
     };
     const changes = Object.values(set).some((value) => value !== undefined);
 
@@ -159,18 +167,36 @@ export class ServicesService {
 
   // An active service (BR-5), or null if it doesn't exist or is inactive.
   // `id` must be a valid UUID; callers check that first.
-  async findActive(
-    id: string,
-  ): Promise<{ id: string; name: string; durationMinutes: number } | null> {
+  async findActive(id: string): Promise<{
+    id: string;
+    name: string;
+    durationMinutes: number;
+    availableForTravel: boolean;
+  } | null> {
     const row = await this.db
       .selectFrom('services')
-      .select(['id', 'name', 'duration_minutes'])
+      .select(['id', 'name', 'duration_minutes', 'available_for_travel'])
       .where('id', '=', id)
       .where('is_active', '=', true)
       .executeTakeFirst();
     return row
-      ? { id: row.id, name: row.name, durationMinutes: row.duration_minutes }
+      ? {
+          id: row.id,
+          name: row.name,
+          durationMinutes: row.duration_minutes,
+          availableForTravel: row.available_for_travel,
+        }
       : null;
+  }
+
+  // The list price of a service, for working out a deposit
+  async priceOf(id: string): Promise<string> {
+    const row = await this.db
+      .selectFrom('services')
+      .select('price')
+      .where('id', '=', id)
+      .executeTakeFirstOrThrow();
+    return row.price;
   }
 
   async get(id: string): Promise<Service> {

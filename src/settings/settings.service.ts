@@ -79,6 +79,13 @@ export class SettingsService {
           business_name: patch.businessName,
           business_email: patch.businessEmail,
           business_phone: patch.businessPhone,
+          home_address: patch.homeAddress,
+          travel_call_out_fee: patch.travelCallOutFee,
+          travel_rate_per_km: patch.travelRatePerKm,
+          travel_free_km: patch.travelFreeKm,
+          travel_max_km: patch.travelMaxKm,
+          travel_charge_return: patch.travelChargeReturn,
+          travel_extra_minutes: patch.travelExtraMinutes,
           updated_at: new Date(),
           updated_by: userId,
         })
@@ -111,6 +118,13 @@ function toSettings(row: Selectable<DB['settings']>): Settings {
     businessName: row.business_name,
     businessEmail: row.business_email,
     businessPhone: row.business_phone,
+    homeAddress: row.home_address,
+    travelCallOutFee: row.travel_call_out_fee,
+    travelRatePerKm: row.travel_rate_per_km,
+    travelFreeKm: row.travel_free_km,
+    travelMaxKm: row.travel_max_km,
+    travelChargeReturn: row.travel_charge_return,
+    travelExtraMinutes: row.travel_extra_minutes,
     updatedAt: isoUtc(new Date(row.updated_at)),
   };
 }

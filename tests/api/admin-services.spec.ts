@@ -104,6 +104,7 @@ describe('Admin services API', () => {
         price: '650.00',
         durationMinutes: 90,
         isActive: true,
+        availableForTravel: false,
         bookingCount: 0,
         createdAt: expect.any(String) as string,
         updatedAt: expect.any(String) as string,

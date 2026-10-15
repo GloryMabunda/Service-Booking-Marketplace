@@ -21,6 +21,7 @@ This document describes every endpoint: method, path, access, request, response 
 | --- | --- | --- |
 | `GET /api/services` | Public | [4.1](#41-get-apiservices) |
 | `GET /api/availability` | Public | [4.2](#42-get-apiavailability) |
+| `POST /api/travel/quote` | Public | [4.8](#48-post-apitravelquote) |
 | `POST /api/bookings` | Public | [4.3](#43-post-apibookings) |
 | `POST /api/bookings/:reference/lookup` | Public (reference + email) | [4.4](#44-post-apibookingsreferencelookup) |
 | `POST /api/bookings/:reference/resend-booking-link` | Public (reference + email) | [4.5](#45-post-apibookingsreferenceresend-booking-link) |
@@ -161,6 +162,9 @@ Every error has the same shape:
 | --- | --- | --- | --- |
 | 400 | `VALIDATION_FAILED` | Missing, malformed or out-of-range input | Any endpoint with input |
 | 400 | `SERVICE_UNAVAILABLE` | The service doesn't exist or is inactive (BR-5) | Availability, create booking |
+| 400 | `TRAVEL_NOT_OFFERED` | The service isn't offered at the client's place, or the owner has no home address set (BR-17) | Availability, travel quote, create booking |
+| 400 | `ADDRESS_NOT_FOUND` | The maps service can't find the client's address | Travel quote, create booking |
+| 400 | `TOO_FAR` | The address is further than the maximum travel distance | Travel quote, create booking |
 | 400 | `FILE_MISSING` | No file in the `file` field, or more than one file | Proof upload |
 | 400 | `FILE_INVALID` | The file is empty or couldn't be read | Proof upload, photo uploads |
 | 400 | `CONSENT_REQUIRED` | Gallery upload without confirming permission from the people in the photos (BR-16) | Gallery upload |
@@ -184,6 +188,7 @@ Every error has the same shape:
 | 413 | `FILE_TOO_LARGE` | The file is over the limit: 5 MB for proofs, 15 MB for photos. The upload is stopped as soon as the limit is passed | Proof upload, photo uploads |
 | 415 | `UNSUPPORTED_FILE_TYPE` | The file's content isn't an accepted type, whatever its name says: PDF, JPEG or PNG for proofs; JPEG, PNG or WebP for photos | Proof upload, photo uploads |
 | 429 | `RATE_LIMITED` | Too many requests; see `Retry-After` | Rate-limited endpoints |
+| 503 | `TRAVEL_UNAVAILABLE` | The travel fee can't be worked out: no home address, no maps service set up, or the maps service is down or refusing requests. The client is told to try again or choose the owner's place; nothing is saved | Travel quote, create booking |
 | 503 | `BOOKING_NOT_READY` | The owner hasn't entered her banking details yet (they are still the "Not set yet" placeholders), so a booking that needs a deposit can't give the client anywhere to pay. Bookings with no deposit still work | Create booking |
 | 500 | `INTERNAL_ERROR` | Unexpected failure. Logged with a request ID; the message is generic | Any |
 
@@ -251,10 +256,18 @@ Business details, active services with their deposit amounts, and the bookable d
       "description": "Natural, glowing makeup for any occasion.",
       "price": "650.00",
       "durationMinutes": 90,
-      "depositAmount": "325.00"
+      "depositAmount": "325.00",
+      "availableForTravel": true
     }
   ],
   "depositPercent": "50.00",
+  "travel": {
+    "callOutFee": "50.00",
+    "ratePerKm": "4.95",
+    "freeKm": 0,
+    "maxKm": 30,
+    "chargeReturn": true
+  },
   "business": {
     "name": "Make Up by Glory",
     "email": "bookings@example.com",
@@ -273,6 +286,8 @@ Business details, active services with their deposit amounts, and the bookable d
 | Field | Rule |
 | --- | --- |
 | `services` | Sorted by name. `depositAmount` is `depositPercent × price`, rounded half-up to cents |
+| `availableForTravel` | Whether the service can be done at the client's place (BR-17). Only meaningful when `travel` is not `null` |
+| `travel` | The travel fee rules (C-10), or `null` while the owner hasn't entered a home address. **Never includes the home address** |
 | `business` | From settings. `phone` can be `null`. `email` is also the fallback address for sending proof of payment (C-5) |
 | `bookingWindow.earliestStartAt` | Now plus `minNoticeHours`, plus `minPaymentWindowHours` when a deposit applies (BR-9, BR-10) |
 | `bookingWindow.latestStartAt` | Now plus `maxAdvanceDays` (BR-10) |
@@ -296,6 +311,7 @@ The start times a client can book for a service on a date (C-2, BR-1, BR-6, BR-1
 | --- | --- | --- |
 | `serviceId` | Yes | UUID of an active service |
 | `date` | Yes | `YYYY-MM-DD` in the business time zone |
+| `location` | No | `studio` (default) or `client`. For `client` the travel time before and after is kept free as well (BR-17), so fewer times may be open |
 
 **Response `200`**
 
@@ -321,7 +337,7 @@ The response is sent with `Cache-Control: no-store`, because slots change as boo
 
 **Re-checking at booking time.** `POST /api/bookings` (#45) re-checks the chosen start time with the same code (`AvailabilityService.isSlotOpen`), so a slot that was offered a minute ago but has since been booked, blocked or become too soon is refused.
 
-**Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE` (unknown or inactive service), `429`.
+**Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE` (unknown or inactive service), `400 TRAVEL_NOT_OFFERED` (`location=client` for a service that isn't offered there, or while travel is off), `429`.
 
 ### 4.3 `POST /api/bookings`
 
@@ -336,7 +352,9 @@ Create a booking (C-3, C-4, C-5). The server re-checks everything at submission:
   "clientName": "Sarah Mokoena",
   "clientEmail": "sarah@example.com",
   "clientPhone": "082 123 4567",
-  "notes": "Birthday makeup"
+  "notes": "Birthday makeup",
+  "location": "client",
+  "appointmentAddress": "12 Protea Road, Sunnyside, Pretoria"
 }
 ```
 
@@ -348,6 +366,10 @@ Create a booking (C-3, C-4, C-5). The server re-checks everything at submission:
 | `clientEmail` | Required. Valid email address, at most 254 characters |
 | `clientPhone` | Required. A South African number in any common format; stored in E.164 (`+27821234567`) |
 | `notes` | Optional. At most 1,000 characters |
+| `location` | Optional. `studio` (default) or `client` (BR-17). `client` needs a service with `availableForTravel` and a home address in Settings |
+| `appointmentAddress` | Required when `location` is `client`, refused when it is `studio`. 5 to 300 characters |
+
+The travel fee is never sent: a request with `travelFee`, `depositAmount` or any other unknown field is refused. The server works the fee out from the address.
 
 **Response `201`**
 
@@ -362,7 +384,10 @@ Create a booking (C-3, C-4, C-5). The server re-checks everything at submission:
     "timeZone": "Africa/Johannesburg",
     "price": "650.00",
     "depositAmount": "325.00",
-    "depositDueAt": "2026-11-02T07:00:00Z"
+    "depositDueAt": "2026-11-02T07:00:00Z",
+    "location": "studio",
+    "appointmentAddress": null,
+    "travelFee": "0.00"
   },
   "emailSentTo": "sarah@example.com"
 }
@@ -380,7 +405,9 @@ The emails are sent after the booking is saved. If sending fails, the booking st
 
 The endpoint is limited to **10 requests per hour per IP address** (section 3), and every response carries the `RateLimit-*` headers.
 
-**Errors:** `400 VALIDATION_FAILED`, `400 SERVICE_UNAVAILABLE`, `409 SLOT_UNAVAILABLE`, `409 PENDING_LIMIT_REACHED`, `429`, `503 BOOKING_NOT_READY`.
+**Appointments at the client's place.** With `location: "client"` the server also checks that the service is offered there (`400 TRAVEL_NOT_OFFERED`), works out the fee (`400 ADDRESS_NOT_FOUND`, `400 TOO_FAR`, `503 TRAVEL_UNAVAILABLE`, saving nothing), and re-checks the slot with the travel time kept free (`409 SLOT_UNAVAILABLE`). `depositAmount` then includes `travelFee`.
+
+**Errors:** `400 VALIDATION_FAILED`, `400 SERVICE_UNAVAILABLE`, `400 TRAVEL_NOT_OFFERED`, `400 ADDRESS_NOT_FOUND`, `400 TOO_FAR`, `409 SLOT_UNAVAILABLE`, `409 PENDING_LIMIT_REACHED`, `429`, `503 BOOKING_NOT_READY`, `503 TRAVEL_UNAVAILABLE`.
 
 ### 4.4 `POST /api/bookings/:reference/lookup`
 
@@ -531,6 +558,44 @@ Only keys in the `images` table are served, from the public storage area. Proof-
 
 ---
 
+### 4.8 `POST /api/travel/quote`
+
+The travel fee and the new deposit for an appointment at the client's place (C-10, BR-17). The booking form calls it so the client sees the fee before they book; `POST /api/bookings` works the fee out again.
+
+**Request**
+
+```json
+{ "serviceId": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10", "address": "12 Protea Road, Sunnyside, Pretoria" }
+```
+
+`address` is 5 to 300 characters.
+
+**Response `200`**
+
+```json
+{
+  "travel": {
+    "distanceKm": "10.0",
+    "billedKm": "20.0",
+    "chargeableKm": "20.0",
+    "callOutFee": "50.00",
+    "ratePerKm": "4.95",
+    "kmFee": "99.00",
+    "travelFee": "149.00",
+    "freeKm": 0,
+    "chargeReturn": true
+  },
+  "price": "650.00",
+  "deposit": { "servicePart": "325.00", "travelFee": "149.00", "deposit": "474.00", "balance": "325.00" }
+}
+```
+
+`distanceKm` is the one-way road distance. `billedKm` is that, doubled when the trip back is charged. `chargeableKm` is `billedKm` less the free kilometres. `travelFee = callOutFee + chargeableKm × ratePerKm`, rounded half-up to the cent. `deposit.deposit` is the deposit percentage of the price plus the whole travel fee.
+
+Sent with `Cache-Control: no-store`. Limited to **15 requests per minute per IP address**, because each call may use the maps service's daily allowance (the provider also remembers recent answers).
+
+**Errors:** `400 VALIDATION_FAILED`, `400 SERVICE_UNAVAILABLE`, `400 TRAVEL_NOT_OFFERED`, `400 ADDRESS_NOT_FOUND` (the maps service can't find the address; ask the client to check it), `400 TOO_FAR` (further than the maximum distance), `503 TRAVEL_UNAVAILABLE` (no home address set, no maps service set up, or the maps service is down: try again or choose the owner's place), `429`.
+
 ## 5. Booking link endpoints
 
 These endpoints are reached only through the booking link emailed to the client (BR-15). The `:token` is the raw token from the link; the server hashes it with SHA-256 and looks up `bookings.booking_token_hash`.
@@ -558,6 +623,7 @@ Data for the booking page (C-7). Opening it never changes the booking.
     "accountType": "Cheque"
   },
   "business": { "name": "Make Up by Glory", "email": "bookings@example.com", "phone": "+27821234567" },
+  "ownerAddress": "1 Jacaranda Avenue, Brooklyn, Pretoria",
   "canUploadProof": true,
   "proofsRemaining": 2,
   "canCancel": true,
@@ -573,6 +639,7 @@ Data for the booking page (C-7). Opening it never changes the booking.
 | --- | --- |
 | `bankingDetails` | Present while Pending; `null` once Confirmed |
 | `business` | Business name and contact details, as in [4.1](#41-get-apiservices) |
+| `ownerAddress` | The owner's address, for a booking at the owner's place; `null` for a booking at the client's place or when none is set. It is only here and in the booking emails, never on the public site or in the look-up (BR-17). `booking` also carries `location`, `appointmentAddress` and `travelFee` |
 | `canUploadProof` | `true` while Pending and fewer than 3 proofs exist (BR-14) |
 | `proofsRemaining` | `3 −` number of proofs |
 | `canCancel` | `true` while the link is active (BR-12) |
@@ -687,7 +754,12 @@ All paths below require authentication ([section 6](#6-authentication)). Each ca
   "client": { "name": "Sarah Mokoena", "email": "sarah@example.com", "phone": "+27821234567" },
   "startAt": "2026-11-03T07:00:00Z",
   "endAt": "2026-11-03T08:30:00Z",
+  "occupiedFrom": "2026-11-03T07:00:00Z",
   "occupiedUntil": "2026-11-03T09:30:00Z",
+  "location": "studio",
+  "appointmentAddress": null,
+  "travelDistanceKm": null,
+  "travelFee": "0.00",
   "price": "650.00",
   "depositAmount": "325.00",
   "depositDueAt": "2026-11-02T07:00:00Z",
@@ -956,11 +1028,11 @@ Manage services (A-5).
 | Endpoint | Request | Response |
 | --- | --- | --- |
 | `GET /api/admin/services` | Query `includeInactive` (default `true`) | `200 { "services": [Service] }`, sorted by name |
-| `POST /api/admin/services` | `{ "name", "description", "price", "durationMinutes", "isActive" }` | `201 { "service": Service }` |
+| `POST /api/admin/services` | `{ "name", "description", "price", "durationMinutes", "isActive", "availableForTravel" }` | `201 { "service": Service }` |
 | `PATCH /api/admin/services/:id` | Any of the same fields | `200 { "service": Service }` |
 | `DELETE /api/admin/services/:id` | — | `204` if the service had no bookings and was deleted; `200 { "service": Service, "deactivated": true }` if it has bookings and was deactivated instead |
 
-**`Service`**: `{ "id", "name", "description", "price", "durationMinutes", "isActive", "bookingCount", "createdAt", "updatedAt" }`.
+**`Service`**: `{ "id", "name", "description", "price", "durationMinutes", "isActive", "availableForTravel", "bookingCount", "createdAt", "updatedAt" }`.
 
 | Field | Rule |
 | --- | --- |
@@ -969,6 +1041,7 @@ Manage services (A-5).
 | `price` | Required on create. `"0.00"` or more |
 | `durationMinutes` | Required on create. 1 to 720 |
 | `isActive` | Optional. Default `true` |
+| `availableForTravel` | Optional. Default `false`. Whether clients can ask for this service at their own place (BR-17) |
 
 Editing a service never changes existing bookings, which keep their own price and duration (BR-4). `PATCH` with an empty body changes nothing and returns the service. `bookingCount` counts every booking of the service, whatever its status.
 
@@ -1051,6 +1124,13 @@ All settings in A-8.
     "businessName": "Make Up by Glory",
     "businessEmail": "bookings@example.com",
     "businessPhone": "+27821234567",
+    "homeAddress": "1 Jacaranda Avenue, Brooklyn, Pretoria",
+    "travelCallOutFee": "50.00",
+    "travelRatePerKm": "4.95",
+    "travelFreeKm": 0,
+    "travelMaxKm": 30,
+    "travelChargeReturn": true,
+    "travelExtraMinutes": 30,
     "updatedAt": "2026-10-10T08:00:00Z"
   }
 }
@@ -1074,6 +1154,12 @@ All settings in A-8.
 | `businessName` | 1 to 100 characters |
 | `businessEmail` | A valid email address, stored in lower case |
 | `businessPhone` | A South African phone number in any common format, stored in E.164 (`+27821234567`); or `null` to remove it |
+| `homeAddress` | Up to 300 characters, or `null`/empty to turn travel off. Private (BR-17) |
+| `travelCallOutFee`, `travelRatePerKm` | Amounts such as `"50.00"`, `"0.00"` or more |
+| `travelFreeKm` | 0 to 500 |
+| `travelMaxKm` | 1 to 500 |
+| `travelChargeReturn` | Boolean |
+| `travelExtraMinutes` | 0 to 240 |
 
 New settings apply to new bookings and future slot calculations only. Existing bookings keep their price, deposit, deadline and occupied time.
 

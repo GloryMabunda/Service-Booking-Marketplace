@@ -15,6 +15,7 @@ import { PaymentsModule } from './payments/payments.module.js';
 import { StorageModule } from './storage/storage.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { SettingsModule } from './settings/settings.module.js';
+import { TravelModule } from './travel/travel.module.js';
 import { SiteModule } from './site/site.module.js';
 import { AdminModule } from './admin/admin.module.js';
 
@@ -46,6 +47,7 @@ import { AdminModule } from './admin/admin.module.js';
     StorageModule,
     NotificationsModule,
     SettingsModule,
+    TravelModule,
     SiteModule,
     AdminModule,
   ],

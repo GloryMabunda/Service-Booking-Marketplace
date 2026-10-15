@@ -576,6 +576,7 @@ describe('Admin proofs and calendar API', () => {
           start: pending.start_at.toISOString().replace('.000Z', 'Z'),
           end: pending.end_at.toISOString().replace('.000Z', 'Z'),
           status: 'pending',
+          location: 'studio',
         },
       ]);
       const d2 = day(confirmed.start_at);

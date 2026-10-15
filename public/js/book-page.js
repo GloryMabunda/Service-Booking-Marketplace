@@ -22,6 +22,8 @@ const continueButton = $('#continue');
 let service = null;
 let bookingWindow = null; // the booking window from the API
 let depositPercent = 0;
+let travel = null; // the travel fee rules, or null when travel isn't offered
+let place = 'studio'; // 'studio' (our place) or 'client' (their place)
 let visibleMonth = null; // { year, month } with month 1 to 12
 let selectedDate = null;
 let selectedSlot = null; // { startAt, localTime }
@@ -51,6 +53,7 @@ async function load() {
     }
     bookingWindow = data.bookingWindow;
     depositPercent = Number(data.depositPercent);
+    travel = data.travel;
   } catch {
     showPageError("We couldn't load this page. Please refresh and try again.");
     return;
@@ -65,11 +68,40 @@ async function load() {
     facts.push(`Deposit ${formatRand(service.depositAmount)}`);
   $('#service-facts').textContent = facts.join(' · ');
 
+  setupLocationChoice();
+
   const [year, month] = bookingWindow.firstDate.split('-').map(Number);
   visibleMonth = { year, month };
   renderCalendar();
   pageLoading.hidden = true;
   picker.hidden = false;
+}
+
+// --- Where the appointment is (#115) ---------------------------------------
+
+// Shown only when the owner travels and this service can be done at the
+// client's place. The fee is explained here and worked out exactly, from their
+// address, on the next page.
+function setupLocationChoice() {
+  if (!travel || !service.availableForTravel) return;
+  const rate = formatRand(travel.ratePerKm);
+  const parts = [`a call-out fee of ${formatRand(travel.callOutFee)}`];
+  if (Number(travel.ratePerKm) > 0) {
+    parts.push(
+      `${rate} per km${travel.chargeReturn ? ' for the trip there and back' : ''}${travel.freeKm > 0 ? ` after the first ${travel.freeKm} km` : ''}`,
+    );
+  }
+  $('#travel-explanation').textContent =
+    `If we come to you, a travel fee applies: ${parts.join(' plus ')}. It is paid with your deposit. We travel up to ${travel.maxKm} km, and you'll see the exact fee before you book.`;
+  $('#location-choice').hidden = false;
+  for (const radio of document.querySelectorAll('input[name="location"]')) {
+    radio.addEventListener('change', () => {
+      place = radio.value;
+      // Travel time is blocked around the appointment, so the open times differ
+      if (selectedDate) chooseDate(selectedDate);
+      else resetSlots();
+    });
+  }
 }
 
 // --- The calendar ----------------------------------------------------------
@@ -160,7 +192,7 @@ async function chooseDate(date) {
 
   try {
     const res = await fetch(
-      `/api/availability?${new URLSearchParams({ serviceId: service.id, date })}`,
+      `/api/availability?${new URLSearchParams({ serviceId: service.id, date, location: place })}`,
     );
     if (request !== slotRequest) return; // the client has moved on
     $('#slots-loading').hidden = true;
@@ -250,7 +282,7 @@ function updateContinue() {
 continueButton.addEventListener('click', () => {
   // The details page (#51) takes the service and the chosen start time.
   location.assign(
-    `/book-details.html?${new URLSearchParams({ service: service.id, start: selectedSlot.startAt })}`,
+    `/book-details.html?${new URLSearchParams({ service: service.id, start: selectedSlot.startAt, location: place })}`,
   );
 });
 

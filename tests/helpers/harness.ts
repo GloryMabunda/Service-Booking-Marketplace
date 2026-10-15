@@ -20,6 +20,12 @@ import {
   type EmailMessage,
   type EmailProvider,
 } from '../../src/notifications/email-provider.js';
+import {
+  AddressNotFoundError,
+  DISTANCE_PROVIDER,
+  DistanceUnavailableError,
+  type DistanceProvider,
+} from '../../src/travel/distance-provider.js';
 import { FILE_STORAGE } from '../../src/storage/file-storage.js';
 import { LocalFileStorage } from '../../src/storage/local-file-storage.js';
 import { removeTestAdmin, signInTestAdmin, type TestAdmin } from './admin.js';
@@ -43,6 +49,23 @@ export class FakeEmailProvider implements EmailProvider {
   }
 }
 
+// Road distances by address, so no test ever calls a real maps service. An
+// address not in `meters` is not found; `down` makes the whole service fail.
+export class FakeDistanceProvider implements DistanceProvider {
+  meters = new Map<string, number>();
+  down = false;
+  calls = 0;
+  roadDistanceMeters(from: string, to: string): Promise<number> {
+    this.calls += 1;
+    if (this.down) return Promise.reject(new DistanceUnavailableError('down'));
+    const meters = this.meters.get(to);
+    if (meters === undefined) {
+      return Promise.reject(new AddressNotFoundError('client'));
+    }
+    return Promise.resolve(meters);
+  }
+}
+
 export const sha256 = (data: string | Buffer) =>
   createHash('sha256').update(data).digest();
 
@@ -60,6 +83,7 @@ export interface Harness {
   app: INestApplication<App>;
   db: Kysely<DB>;
   provider: FakeEmailProvider;
+  distance: FakeDistanceProvider;
   storage: LocalFileStorage;
   uploadDir: string;
   admin: TestAdmin;
@@ -82,6 +106,7 @@ export interface Harness {
 export async function startHarness(prefix: string): Promise<Harness> {
   const db = createTestDatabase();
   const provider = new FakeEmailProvider();
+  const distance = new FakeDistanceProvider();
   const uploadDir = await mkdtemp(join(tmpdir(), 'mbg-harness-'));
   const storage = new LocalFileStorage(uploadDir);
   const original = await db
@@ -97,6 +122,8 @@ export async function startHarness(prefix: string): Promise<Harness> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(EMAIL_PROVIDER)
     .useValue(provider)
+    .overrideProvider(DISTANCE_PROVIDER)
+    .useValue(distance)
     .overrideProvider(FILE_STORAGE)
     .useValue(storage)
     .compile();
@@ -132,6 +159,7 @@ export async function startHarness(prefix: string): Promise<Harness> {
     app,
     db,
     provider,
+    distance,
     storage,
     uploadDir,
     admin,

@@ -18,7 +18,14 @@ export interface BookingRecord {
   clientPhone: string; // E.164
   startAt: Date;
   endAt: Date;
+  occupiedFrom: Date;
   occupiedUntil: Date;
+  location: 'studio' | 'client';
+  appointmentAddress: string | null;
+  travelDistanceKm: string | null;
+  travelCallOutFee: string | null;
+  travelRatePerKm: string | null;
+  travelFee: string;
   priceAtBooking: string;
   depositAmount: string;
   depositDueAt: Date | null;
@@ -50,7 +57,14 @@ function toRecord(row: Selectable<DB['bookings']>): BookingRecord {
     clientPhone: row.client_phone,
     startAt: new Date(row.start_at),
     endAt: new Date(row.end_at),
+    occupiedFrom: new Date(row.occupied_from ?? row.start_at),
     occupiedUntil: new Date(row.occupied_until),
+    location: row.location,
+    appointmentAddress: row.appointment_address,
+    travelDistanceKm: row.travel_distance_km,
+    travelCallOutFee: row.travel_call_out_fee,
+    travelRatePerKm: row.travel_rate_per_km,
+    travelFee: row.travel_fee,
     priceAtBooking: row.price_at_booking,
     depositAmount: row.deposit_amount,
     depositDueAt: row.deposit_due_at ? new Date(row.deposit_due_at) : null,
@@ -99,7 +113,14 @@ export class BookingsRepository {
           client_phone: booking.clientPhone,
           start_at: booking.startAt,
           end_at: booking.endAt,
+          occupied_from: booking.occupiedFrom,
           occupied_until: booking.occupiedUntil,
+          location: booking.location,
+          appointment_address: booking.appointmentAddress,
+          travel_distance_km: booking.travelDistanceKm,
+          travel_call_out_fee: booking.travelCallOutFee,
+          travel_rate_per_km: booking.travelRatePerKm,
+          travel_fee: booking.travelFee,
           price_at_booking: booking.priceAtBooking,
           deposit_amount: booking.depositAmount,
           deposit_due_at: booking.depositDueAt,

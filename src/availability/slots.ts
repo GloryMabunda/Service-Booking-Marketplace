@@ -18,6 +18,9 @@ export interface SlotInput {
   durationMinutes: number;
   slotIntervalMinutes: number;
   bufferMinutes: number;
+  // Travel time blocked before and after an appointment at the client's place
+  // (#115); 0 at the owner's place
+  travelMinutes?: number;
   // Time already taken: each Pending or Confirmed booking from its start to
   // occupied_until (its buffer included), and every blocked time.
   busy: Interval[];
@@ -63,13 +66,15 @@ export function calculateSlots(input: SlotInput): Slot[] {
     // The appointment must end within working hours (the loop condition); the
     // buffer after it may run past closing time (BR-13).
     const endAt = new Date(t + input.durationMinutes * MINUTE_MS);
+    const travel = (input.travelMinutes ?? 0) * MINUTE_MS;
+    const occupiedFrom = new Date(t - travel);
     const occupiedUntil = new Date(
-      endAt.getTime() + input.bufferMinutes * MINUTE_MS,
+      endAt.getTime() + input.bufferMinutes * MINUTE_MS + travel,
     );
 
     if (startAt < input.earliestStart || startAt > input.latestStart) continue;
     // The whole span, buffer included, must be free of bookings and blocked time.
-    const span = { start: startAt, end: occupiedUntil };
+    const span = { start: occupiedFrom, end: occupiedUntil };
     if (input.busy.some((interval) => overlaps(span, interval))) continue;
 
     slots.push({

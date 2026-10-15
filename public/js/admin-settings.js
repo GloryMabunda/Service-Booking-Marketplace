@@ -9,7 +9,7 @@ import { apiProblem, showMessage } from '/js/admin-bookings-shared.js';
 const $ = (selector) => document.querySelector(selector);
 const form = $('#settings-form');
 
-// type: text | number | percent | checkbox | phone
+// type: text | number | percent | money | checkbox | phone | optional
 // path: the field in the API ("bankingDetails.bank" is inside bankingDetails)
 const SECTIONS = [
   {
@@ -130,6 +130,54 @@ const SECTIONS = [
       },
     ],
   },
+  {
+    title: 'Travel to clients',
+    intro:
+      "Clients can ask you to come to them, for the services you allow it on. The travel fee is a call-out fee plus a rate per km from your home, worked out from the client's address, and is paid with the deposit. Leave the home address empty to turn travel off.",
+    fields: [
+      {
+        path: 'homeAddress',
+        label: 'Your home address',
+        type: 'optional',
+        hint: 'Private. Distances are measured from here. Only you, and clients who come to you, ever see it, in their booking emails.',
+      },
+      {
+        path: 'travelCallOutFee',
+        label: 'Call-out fee (R)',
+        type: 'money',
+        hint: 'Charged on every travel booking, for example 50.00.',
+      },
+      {
+        path: 'travelRatePerKm',
+        label: 'Rate per km (R)',
+        type: 'money',
+        hint: 'The SARS rate for 2026/27 is R4.95 per km, a good guide.',
+      },
+      {
+        path: 'travelFreeKm',
+        label: 'Free kilometres',
+        type: 'number',
+        hint: '0 to 500. Not charged for, counted before the rate applies.',
+      },
+      {
+        path: 'travelMaxKm',
+        label: 'Furthest you travel (km)',
+        type: 'number',
+        hint: '1 to 500, one way by road. Further addresses are refused.',
+      },
+      {
+        path: 'travelChargeReturn',
+        label: 'Charge for the trip back as well',
+        type: 'checkbox',
+      },
+      {
+        path: 'travelExtraMinutes',
+        label: 'Extra travel time (minutes)',
+        type: 'number',
+        hint: '0 to 240. Kept free before and after a travel appointment, so you are never booked back to back across town.',
+      },
+    ],
+  },
 ];
 
 const FIELDS = SECTIONS.flatMap((section) => section.fields);
@@ -171,7 +219,8 @@ function fieldRow(field) {
         : 'text';
   if (field.inputmode) input.inputMode = field.inputmode;
   else if (field.type === 'number') input.inputMode = 'numeric';
-  else if (field.type === 'percent') input.inputMode = 'decimal';
+  else if (field.type === 'percent' || field.type === 'money')
+    input.inputMode = 'decimal';
   input.autocomplete = 'off';
 
   const label = el(
@@ -239,7 +288,8 @@ function read() {
       // Anything that isn't a whole number goes to the server as text, which
       // refuses it with the right message
       value = /^\d+$/.test(text) ? Number(text) : text;
-    } else if (field.type === 'phone') value = input.value.trim() || null;
+    } else if (field.type === 'phone' || field.type === 'optional')
+      value = input.value.trim() || null;
     else value = input.value.trim();
 
     const [head, tail] = field.path.split('.');

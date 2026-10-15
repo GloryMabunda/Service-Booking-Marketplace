@@ -151,6 +151,9 @@ function openForm(service) {
   document.querySelector('#svc-active').checked = service
     ? service.isActive
     : true;
+  document.querySelector('#svc-travel').checked = service
+    ? service.availableForTravel
+    : false;
   serviceModal.show();
 }
 
@@ -197,6 +200,7 @@ function readForm() {
     price,
     durationMinutes: duration,
     isActive: document.querySelector('#svc-active').checked,
+    availableForTravel: document.querySelector('#svc-travel').checked,
   };
 }
 

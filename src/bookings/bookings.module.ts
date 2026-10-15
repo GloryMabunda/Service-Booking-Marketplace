@@ -4,6 +4,7 @@ import { PaymentsModule } from '../payments/payments.module.js';
 import { NotificationsModule } from '../notifications/notifications.module.js';
 import { ServicesModule } from '../services/services.module.js';
 import { SettingsModule } from '../settings/settings.module.js';
+import { TravelModule } from '../travel/travel.module.js';
 import {
   AdminCalendarController,
   AdminProofsController,
@@ -36,6 +37,7 @@ import { BookingsService } from './bookings.service.js';
     PaymentsModule,
     ServicesModule,
     SettingsModule,
+    TravelModule,
   ],
   controllers: [
     BookingsController,

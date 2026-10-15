@@ -17,8 +17,8 @@ The wireframes are plain HTML pages using Bootstrap from a CDN, so they need a b
 | --- | --- | --- | --- | --- |
 | 0 | Home | [client/home.html](client/home.html) | C-1, C-9 | Hero with Book now; About; services preview; gallery with service filter; testimonials; booking policies generated from settings; FAQ; hours, area and contact |
 | 1 | Services | [client/services.html](client/services.html) | C-1, BR-5, BR-7 | Full service list with deposits; where every Book now lands |
-| 2 | Date and time picker | [client/pick-time.html](client/pick-time.html) | C-2, BR-9, BR-10 | Dates outside the booking window disabled; day with times; day with no times |
-| 3 | Booking form | [client/book.html](client/book.html) | C-3, C-4, BR-11 | Validation error; time just taken (`409`); booking limit reached |
+| 2 | Date and time picker | [client/pick-time.html](client/pick-time.html) | C-2, C-10, BR-9, BR-10, BR-17 | Dates outside the booking window disabled; day with times; day with no times; where the appointment is (our place or the client's) |
+| 3 | Booking form | [client/book.html](client/book.html) | C-3, C-4, C-10, BR-11, BR-17 | Validation error; time just taken (`409`); booking limit reached; travel fee worked out for the client's address |
 | 4 | Confirmation | [client/confirmation.html](client/confirmation.html) | C-5 | Pending with payment steps; Confirmed when no deposit applies |
 | 5 | Booking details lookup | [client/lookup.html](client/lookup.html) | C-6 | Not found; found with a rejected proof; new link requested |
 | 6 | Booking page | [client/booking.html](client/booking.html) | C-7, C-8, BR-12, BR-14, BR-15 | Pending with banking details and upload (uploading, uploaded, errors); cancel confirmation; Confirmed with refund rule; link not valid |

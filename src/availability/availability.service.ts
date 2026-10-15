@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { Kysely } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import { ApiException } from '../common/api-error.js';
 import { DATABASE } from '../database/database.module.js';
 import type { DB } from '../database/database.types.js';
@@ -83,6 +83,7 @@ export class AvailabilityService {
     serviceId: string,
     date: string,
     now = new Date(),
+    atClientsPlace = false,
   ): Promise<AvailableSlots> {
     const service = await this.services.findActive(serviceId);
     if (!service) {
@@ -92,7 +93,22 @@ export class AvailabilityService {
         "That service isn't available.",
       );
     }
+    if (atClientsPlace && !service.availableForTravel) {
+      throw new ApiException(
+        400,
+        'TRAVEL_NOT_OFFERED',
+        "That service isn't offered at the client's place.",
+      );
+    }
     const settings = await this.settings.get();
+    if (atClientsPlace && !settings.homeAddress) {
+      throw new ApiException(
+        400,
+        'TRAVEL_NOT_OFFERED',
+        "Appointments at the client's place aren't offered right now.",
+      );
+    }
+    const travelMinutes = atClientsPlace ? settings.travelExtraMinutes : 0;
     const week = await this.workingDays();
     const day = week.find((d) => d.dayOfWeek === isoDayOfWeek(date));
     const hours =
@@ -109,7 +125,11 @@ export class AvailabilityService {
           durationMinutes: service.durationMinutes,
           slotIntervalMinutes: settings.slotIntervalMinutes,
           bufferMinutes: settings.bufferMinutes,
-          busy: await this.busyAround(date, settings),
+          travelMinutes,
+          busy: await this.busyAround(date, {
+            ...settings,
+            reachMinutes: settings.bufferMinutes + travelMinutes,
+          }),
           earliestStart: earliest,
           latestStart: latest,
         })
@@ -135,12 +155,14 @@ export class AvailabilityService {
     serviceId: string,
     startAt: Date,
     now = new Date(),
+    atClientsPlace = false,
   ): Promise<boolean> {
     const { timeZone } = await this.settings.get();
     const { slots } = await this.slotsFor(
       serviceId,
       localDate(startAt, timeZone),
       now,
+      atClientsPlace,
     );
     return slots.some((slot) => slot.startAt === isoUtc(startAt));
   }
@@ -151,20 +173,20 @@ export class AvailabilityService {
   // may run past it.
   private async busyAround(
     date: string,
-    settings: { timeZone: string; bufferMinutes: number },
+    settings: { timeZone: string; reachMinutes: number },
   ): Promise<Interval[]> {
     const { start, end } = localDayRange(date, settings.timeZone);
-    const reachEnd = new Date(
-      end.getTime() + settings.bufferMinutes * MINUTE_MS,
-    );
+    const reach = settings.reachMinutes * MINUTE_MS;
+    const reachEnd = new Date(end.getTime() + reach);
+    const reachStart = new Date(start.getTime() - reach);
 
     const [bookings, blocked] = await Promise.all([
       this.db
         .selectFrom('bookings')
-        .select(['start_at', 'occupied_until'])
+        .select(['start_at', 'occupied_from', 'occupied_until'])
         .where('status', 'in', ['pending', 'confirmed'])
-        .where('start_at', '<', reachEnd)
-        .where('occupied_until', '>', start)
+        .where(sql`coalesce(occupied_from, start_at)`, '<', reachEnd)
+        .where('occupied_until', '>', reachStart)
         .execute(),
       this.db
         .selectFrom('blocked_times')
@@ -175,7 +197,7 @@ export class AvailabilityService {
     ]);
     return [
       ...bookings.map((b) => ({
-        start: new Date(b.start_at),
+        start: new Date(b.occupied_from ?? b.start_at),
         end: new Date(b.occupied_until),
       })),
       ...blocked.map((b) => ({
