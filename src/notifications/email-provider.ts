@@ -60,7 +60,10 @@ export class SmtpEmailProvider implements EmailProvider {
 
 export function createEmailProvider(
   config: ConfigService<Env, true>,
+  demoMailbox: EmailProvider,
 ): EmailProvider {
+  // Demo mode keeps emails on the demo mailbox page instead of sending them
+  if (config.get('DEMO_MODE', { infer: true })) return demoMailbox;
   return config.get('SMTP_HOST', { infer: true })
     ? new SmtpEmailProvider(config)
     : new NoEmailProvider();

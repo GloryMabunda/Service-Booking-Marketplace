@@ -31,6 +31,7 @@ This document describes every endpoint: method, path, access, request, response 
 | `GET /api/site` | Public | [4.6](#46-get-apisite) |
 | `GET /media/:key` | Public | [4.7](#47-get-mediakey) |
 | `GET /api/health` | Public | [4.9](#49-get-apihealth) |
+| `GET /api/demo/emails` | Public (demo mode only) | [4.10](#410-get-apidemoemails) |
 | `POST /api/auth/login` | Public | [6.1](#61-post-apiauthlogin) |
 | `POST /api/auth/logout` | Admin | [6.2](#62-post-apiauthlogout) |
 | `GET /api/auth/me` | Admin | [6.3](#63-get-apiauthme) |
@@ -609,9 +610,31 @@ Sent with `Cache-Control: no-store`. Limited to **15 requests per minute per IP 
 
 Is the app running, and can it reach its database? (#91) Used by the container health check, the deploy script and an outside uptime monitor. Public, never cached, and it says nothing else about the system.
 
-**Response `200`**: `{ "status": "ok" }`
+**Response `200`**: `{ "status": "ok" }`. In demo mode ([`docs/demo.md`](demo.md)) it is `{ "status": "ok", "demo": true }`, which is how the pages know to show the demo banner.
 
 **Response `503`**: `{ "status": "unavailable" }`, when the database doesn't answer within 3 seconds. No reason is given.
+
+---
+
+### 4.10 `GET /api/demo/emails`
+
+The emails a demo "sent" (`docs/demo.md`). **Only in demo mode** (`DEMO_MODE=true`); everywhere else it answers `404 NOT_FOUND`, because the emails hold booking links. Newest first, at most the latest 50, kept in memory (a restart empties them). Never cached. Limited to 60 requests a minute.
+
+**Response `200`**
+
+```json
+{
+  "emails": [
+    {
+      "id": "6c0f…",
+      "to": "client@example.com",
+      "subject": "Your booking request BK-000001: please pay your deposit",
+      "text": "Hi Demo, …",
+      "sentAt": "2026-10-15T18:16:48Z"
+    }
+  ]
+}
+```
 
 ---
 

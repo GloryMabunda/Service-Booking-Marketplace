@@ -20,6 +20,15 @@ describe('translateBookingError (#43)', () => {
     });
   });
 
+  it('treats a deadlock between two simultaneous overlapping bookings as the same 409', () => {
+    const translated = translateBookingError(pgError('40P01'));
+    expect(translated).toBeInstanceOf(ApiException);
+    expect((translated as ApiException).getStatus()).toBe(409);
+    expect((translated as ApiException).getResponse()).toMatchObject({
+      code: 'SLOT_UNAVAILABLE',
+    });
+  });
+
   it('leaves every other error alone', () => {
     const other = pgError('23505', 'bookings_reference_key');
     expect(translateBookingError(other)).toBe(other);

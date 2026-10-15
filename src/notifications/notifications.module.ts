@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BOOKING_NOTIFIER } from '../bookings/booking-notifier.js';
 import { SettingsModule } from '../settings/settings.module.js';
+import { DemoMailbox } from '../demo/demo-mailbox.js';
 import { EmailBookingNotifier } from './email-booking-notifier.js';
 import { EMAIL_PROVIDER, createEmailProvider } from './email-provider.js';
 import { NotificationsService } from './notifications.service.js';
@@ -15,12 +16,13 @@ import { NotificationsService } from './notifications.service.js';
     {
       provide: EMAIL_PROVIDER,
       useFactory: createEmailProvider,
-      inject: [ConfigService],
+      inject: [ConfigService, DemoMailbox],
     },
+    DemoMailbox,
     NotificationsService,
     EmailBookingNotifier,
     { provide: BOOKING_NOTIFIER, useExisting: EmailBookingNotifier },
   ],
-  exports: [BOOKING_NOTIFIER, NotificationsService],
+  exports: [BOOKING_NOTIFIER, NotificationsService, DemoMailbox],
 })
 export class NotificationsModule {}

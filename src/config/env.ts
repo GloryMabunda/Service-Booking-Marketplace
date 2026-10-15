@@ -65,6 +65,20 @@ export const envSchema = z
     OPENROUTESERVICE_URL: optionalText.pipe(
       z.url('must be a full web address').optional(),
     ),
+    // Demo mode: for trying or showing the app. No email is sent: each one is
+    // kept on a demo mailbox page, so the booking link can be opened. Pages show
+    // a demo banner. Never use it with real clients (docs/demo.md).
+    DEMO_MODE: optionalText.transform((value, context) => {
+      if (value === undefined) return false;
+      if (!/^(true|false|1|0)$/i.test(value)) {
+        context.addIssue({
+          code: 'custom',
+          message: 'must be true or false',
+        });
+        return z.NEVER;
+      }
+      return /^(true|1)$/i.test(value);
+    }),
     // The public address of the site, used to build the links in emails
     PUBLIC_URL: optionalText.pipe(
       z.url('must be a full web address').optional(),
@@ -73,7 +87,17 @@ export const envSchema = z
   .superRefine((env, context) => {
     // In production a booking without its emails is useless to the client, and
     // links in emails need the public address (#89), so both are required.
-    if (env.NODE_ENV === 'production') {
+    // The demo keeps emails on a page anyone can open, so it must never run
+    // with a real email provider, which means real clients.
+    if (env.DEMO_MODE && env.SMTP_HOST) {
+      context.addIssue({
+        code: 'custom',
+        path: ['DEMO_MODE'],
+        message:
+          'cannot be used together with SMTP_HOST: demo mode keeps emails on a public page, so it is only for demo data',
+      });
+    }
+    if (env.NODE_ENV === 'production' && !env.DEMO_MODE) {
       if (!env.SMTP_HOST) {
         context.addIssue({
           code: 'custom',

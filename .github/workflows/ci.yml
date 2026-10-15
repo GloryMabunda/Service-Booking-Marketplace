@@ -83,3 +83,45 @@ jobs:
         run: |
           npm run db:types
           git diff --exit-code src/database/database.types.ts
+
+  # Proves the one-command demo (compose.demo.yml, docs/demo.md) really starts
+  # from nothing: builds the image, migrates, adds the demo data and serves it,
+  # then makes a booking and checks the email reached the demo mailbox.
+  demo:
+    name: The demo starts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Start the demo
+        run: docker compose -f compose.demo.yml up --build -d
+
+      - name: Wait until it answers
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fs http://localhost:3000/api/health | grep -q '"demo":true'; then exit 0; fi
+            sleep 3
+          done
+          docker compose -f compose.demo.yml logs
+          exit 1
+
+      - name: Check the demo data and make a booking
+        run: |
+          services="$(curl -fs http://localhost:3000/api/services)"
+          test "$(echo "$services" | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(d.services.filter(s=>s.image).length)")" = "4"
+          id="$(echo "$services" | node -e "console.log(JSON.parse(require('fs').readFileSync(0,'utf8')).services[0].id)")"
+          day="$(node -e "const d=new Date(Date.now()+10*864e5);while([0,6].includes(d.getUTCDay()))d.setUTCDate(d.getUTCDate()+1);console.log(d.toISOString().slice(0,10))")"
+          slot="$(curl -fs "http://localhost:3000/api/availability?serviceId=$id&date=$day" | node -e "console.log(JSON.parse(require('fs').readFileSync(0,'utf8')).slots[0].startAt)")"
+          curl -fs -X POST http://localhost:3000/api/bookings -H 'Content-Type: application/json' \
+            -d "{\"serviceId\":\"$id\",\"startAt\":\"$slot\",\"clientName\":\"CI Client\",\"clientEmail\":\"ci@example.com\",\"clientPhone\":\"082 555 0100\"}"
+          sleep 3
+          curl -fs http://localhost:3000/api/demo/emails | grep -q '/booking/'
+
+      - name: Show the log if something failed
+        if: failure()
+        run: docker compose -f compose.demo.yml logs
+
+      - name: Stop the demo
+        if: always()
+        run: docker compose -f compose.demo.yml down -v

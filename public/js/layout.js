@@ -18,6 +18,30 @@ const NAV_LINKS = [
   { id: 'lookup', label: 'Find my booking', href: '/lookup.html' },
 ];
 
+// In demo mode (docs/demo.md) every page says so, and points to the demo
+// mailbox where the emails appear. /api/health says whether this is a demo.
+async function showDemoBanner(header) {
+  try {
+    const res = await fetch('/api/health', { cache: 'no-store' });
+    if (!res.ok || !(await res.json()).demo) return;
+  } catch {
+    return;
+  }
+  const bar = document.createElement('div');
+  bar.className = 'mbg-demo-banner text-center small py-2 px-3';
+  bar.setAttribute('role', 'note');
+  bar.append(
+    document.createTextNode(
+      'Demo: nothing here is real and no email is sent. ',
+    ),
+  );
+  const link = document.createElement('a');
+  link.href = '/demo-mailbox.html';
+  link.textContent = 'Open the demo mailbox';
+  bar.append(link);
+  header.prepend(bar);
+}
+
 class SiteHeader extends HTMLElement {
   connectedCallback() {
     const current = this.getAttribute('current');
@@ -48,6 +72,7 @@ class SiteHeader extends HTMLElement {
           </div>
         </nav>
       </header>`;
+    showDemoBanner(this);
   }
 }
 

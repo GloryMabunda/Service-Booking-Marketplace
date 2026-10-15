@@ -1,0 +1,66 @@
+# Try the whole app with one command (docs/demo.md):
+#
+#   docker compose -f compose.demo.yml up --build
+#
+# Then open http://localhost:3000. It builds the app, starts PostgreSQL, creates
+# the tables, fills them with made-up demo data and starts the site. Sign in to
+# the portal at http://localhost:3000/admin/ as demo@example.com with the
+# password demo-admin-1234. No email is sent: the emails the app would send
+# appear on http://localhost:3000/demo-mailbox.html.
+#
+#   docker compose -f compose.demo.yml down       stop it (your demo data is kept)
+#   docker compose -f compose.demo.yml down -v    stop it and delete the demo data
+#
+# Settings you can change in the command line, for example:
+#   DEMO_PORT=8080 DEMO_ADMIN_PASSWORD=choose-your-own-1 docker compose -f compose.demo.yml up --build
+#
+# This is for trying and showing the app. It is not how to run it for real
+# clients: see docs/deployment.md.
+
+name: booking-demo
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: demo-only
+      POSTGRES_DB: booking
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U booking -d booking']
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    image: booking-demo:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '${DEMO_PORT:-3000}:3000'
+    environment:
+      DATABASE_URL: postgres://booking:demo-only@db:5432/booking
+      # Plain http on your own computer, so not the production setting
+      NODE_ENV: development
+      DEMO_MODE: 'true'
+      PUBLIC_URL: http://localhost:${DEMO_PORT:-3000}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-demo-admin-1234}
+    volumes:
+      - uploads:/data/uploads
+    # Creates the tables, adds the demo data once, then starts the site
+    command:
+      - sh
+      - -c
+      - node dist/scripts/migrate.js && node dist/scripts/seed-demo.js && node dist/main.js
+
+volumes:
+  db-data:
+  uploads:

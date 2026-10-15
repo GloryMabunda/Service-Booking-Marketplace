@@ -61,6 +61,30 @@ const ADMIN_LINKS = [
   { id: 'settings', label: 'Settings', href: '/admin/settings.html' },
 ];
 
+// In demo mode (docs/demo.md) every page says so, and points to the demo
+// mailbox where the emails appear. /api/health says whether this is a demo.
+async function showDemoBanner(header) {
+  try {
+    const res = await fetch('/api/health', { cache: 'no-store' });
+    if (!res.ok || !(await res.json()).demo) return;
+  } catch {
+    return;
+  }
+  const bar = document.createElement('div');
+  bar.className = 'mbg-demo-banner text-center small py-2 px-3';
+  bar.setAttribute('role', 'note');
+  bar.append(
+    document.createTextNode(
+      'Demo: nothing here is real and no email is sent. ',
+    ),
+  );
+  const link = document.createElement('a');
+  link.href = '/demo-mailbox.html';
+  link.textContent = 'Open the demo mailbox';
+  bar.append(link);
+  header.prepend(bar);
+}
+
 class AdminHeader extends HTMLElement {
   connectedCallback() {
     const current = this.getAttribute('current') ?? 'dashboard';
@@ -87,6 +111,7 @@ class AdminHeader extends HTMLElement {
         </div>
       </header>`;
     this.querySelector('[data-sign-out]').addEventListener('click', signOut);
+    showDemoBanner(this);
     currentUser.then((user) => {
       this.querySelector('[data-user-email]').textContent = user.email;
     });

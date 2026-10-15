@@ -11,6 +11,7 @@ describe('validateEnv', () => {
       PORT: 3000,
       DATABASE_URL: valid.DATABASE_URL,
       SMTP_PORT: 587,
+      DEMO_MODE: false,
     });
   });
 
@@ -160,5 +161,44 @@ describe('production settings (#89)', () => {
         validateEnv({ NODE_ENV, DATABASE_URL: production.DATABASE_URL }),
       ).not.toThrow();
     }
+  });
+});
+
+describe('DEMO_MODE', () => {
+  const base = { DATABASE_URL: 'postgres://booking:booking@db:5432/booking' };
+
+  it('is off unless set', () => {
+    expect(validateEnv(base).DEMO_MODE).toBe(false);
+    expect(validateEnv({ ...base, DEMO_MODE: '' }).DEMO_MODE).toBe(false);
+  });
+
+  it('reads true, false, 1 and 0', () => {
+    expect(validateEnv({ ...base, DEMO_MODE: 'true' }).DEMO_MODE).toBe(true);
+    expect(validateEnv({ ...base, DEMO_MODE: '1' }).DEMO_MODE).toBe(true);
+    expect(validateEnv({ ...base, DEMO_MODE: 'false' }).DEMO_MODE).toBe(false);
+    expect(validateEnv({ ...base, DEMO_MODE: '0' }).DEMO_MODE).toBe(false);
+  });
+
+  it('refuses anything else', () => {
+    expect(() => validateEnv({ ...base, DEMO_MODE: 'maybe' })).toThrow(
+      /DEMO_MODE: must be true or false/,
+    );
+  });
+
+  it('refuses to run with a real email provider, because the demo shows emails to everyone', () => {
+    expect(() =>
+      validateEnv({
+        ...base,
+        DEMO_MODE: 'true',
+        SMTP_HOST: 'smtp.example.com',
+        MAIL_FROM: 'a@example.com',
+      }),
+    ).toThrow(/DEMO_MODE: cannot be used together with SMTP_HOST/);
+  });
+
+  it('does not ask for email or a public address in production, because there is no email', () => {
+    expect(() =>
+      validateEnv({ ...base, NODE_ENV: 'production', DEMO_MODE: 'true' }),
+    ).not.toThrow();
   });
 });

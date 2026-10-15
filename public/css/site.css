@@ -333,6 +333,17 @@ admin-header .nav-link.active {
   object-fit: cover;
 }
 
+/* The demo banner, shown at the top of every page in demo mode */
+.mbg-demo-banner {
+  background: var(--mbg-tint-cream);
+  color: var(--mbg-ink);
+  border-bottom: 1px solid #e6d3a8;
+}
+.mbg-demo-banner a {
+  color: var(--mbg-magenta);
+  font-weight: 600;
+}
+
 /* The picture on a service card (services page): the same shape for every
    card, whatever size the photo was */
 .mbg-service-picture {

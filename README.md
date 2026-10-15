@@ -32,9 +32,22 @@ The goal is to build a practical booking system that can be adapted to different
 
 ---
 
+# 🚀 Quick start: try it with one command
+
+You only need [Docker](https://www.docker.com/products/docker-desktop/):
+
+```bash
+docker compose -f compose.demo.yml up --build
+```
+
+Then open <http://localhost:3000>. It starts the app and PostgreSQL, creates the tables and fills them with made-up demo data. Sign in to the owner's portal at <http://localhost:3000/admin/> as `demo@example.com` with the password `demo-admin-1234`. The demo sends no email: the emails it would send appear on the [demo mailbox](http://localhost:3000/demo-mailbox.html) page. More in [docs/demo.md](docs/demo.md).
+
+---
+
 # 💻 Getting Started
 
 How to run the project on your own computer. These steps were tested on a fresh clone with no `.env`, no installed packages and an empty database.
+
 
 ## Prerequisites
 
@@ -718,6 +731,7 @@ Project documentation is maintained in the `docs/` directory.
 | [Wireframes](docs/wireframes/README.md) | ✅ Done |
 | [Style guide](docs/style-guide.md) | ✅ v1 (colours, fonts, components, logo) |
 | [Email content](docs/emails.md) | ✅ Done |
+| Demo (`docs/demo.md`) | Done: one-command demo with made-up data, a demo banner and a demo mailbox that shows the emails |
 | Deployment (`docs/deployment.md`) | Groundwork done (M8): Docker image, the server stack, deploy and backup scripts, the deploy workflow (off until you turn it on), the health check. Provisioning the real server needs the owner |
 | Hosting decision (`docs/hosting.md`) | Done (#86): one South African VPS, with the cost estimate and how the M8 plan changes |
 | Travel fees (`docs/travel.md`) | Done (#115): appointments at the client's place, the fee rules, and which maps service is used and why |

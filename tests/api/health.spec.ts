@@ -2,6 +2,7 @@ import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { App } from 'supertest/types.js';
 import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { DATABASE } from '../../src/database/database.module.js';
 import { HealthController } from '../../src/health/health.controller.js';
 import { startHarness, type Harness } from '../helpers/harness.js';
@@ -35,7 +36,10 @@ describe('Health check', () => {
       };
       const moduleRef = await Test.createTestingModule({
         controllers: [HealthController],
-        providers: [{ provide: DATABASE, useValue: failing }],
+        providers: [
+          { provide: DATABASE, useValue: failing },
+          { provide: ConfigService, useValue: { get: () => false } },
+        ],
       }).compile();
       app = moduleRef.createNestApplication<INestApplication<App>>({
         logger: false,

@@ -134,6 +134,10 @@ These are duties the software can't do for you. Get advice on each.
 5. **Know what to do after a breach.** If personal data may have been seen by someone it shouldn't, POPIA requires you to tell the Information Regulator and the people affected as soon as reasonably possible. Keep this document and the log retention in mind: they tell you what could have been exposed.
 6. **Keep the system updated.** Run `npm audit --omit=dev` now and then (the build does it for you).
 
+## Demo mode
+
+`DEMO_MODE=true` (`docs/demo.md`) is for made-up data only. It keeps every email, including the private booking links, on a page that anyone who can open the demo can read. To stop it being used by mistake with real clients, the app **refuses to start** when `DEMO_MODE` is combined with a real email provider (`SMTP_HOST`), the demo data is only added when demo mode is on, and the endpoint behind the page answers 404 everywhere else (tested).
+
 ## 8. Decisions waiting for the owner
 
 | | Decision | Recommendation |
