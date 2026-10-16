@@ -30,9 +30,9 @@ const LOOK = {
     style: 'solid',
   },
   completed: {
-    bg: '#EFE0EB',
-    border: '#C9A3BF',
-    text: '#5A1A4A',
+    bg: '#E6EEFB',
+    border: '#9DB6E0',
+    text: '#123A66',
     mark: '★',
     style: 'solid',
   },
@@ -45,15 +45,15 @@ const LOOK = {
   },
   cancelled: {
     bg: '#FFFFFF',
-    border: '#9A8A96',
-    text: '#6B5A66',
+    border: '#8294AD',
+    text: '#4D6178',
     mark: '∅',
     style: 'dotted',
   },
   expired: {
     bg: '#FFFFFF',
-    border: '#9A8A96',
-    text: '#6B5A66',
+    border: '#8294AD',
+    text: '#4D6178',
     mark: '⌛',
     style: 'dotted',
   },
@@ -77,7 +77,7 @@ function blockedKey() {
   const item = el('li', 'list-inline-item me-3');
   const swatch = el('span', 'd-inline-block align-middle me-1');
   swatch.style.cssText =
-    'width:1rem;height:1rem;border-radius:3px;background:#E8E0E6;border:2px solid #9A8A96';
+    'width:1rem;height:1rem;border-radius:3px;background:#E3E9F2;border:2px solid #8294AD';
   item.append(swatch, document.createTextNode('⛔ Blocked time'));
   return item;
 }
@@ -137,9 +137,9 @@ async function fetchEvents(info, success, failure) {
     title: `⛔ ${time.reason ? `Blocked: ${time.reason}` : 'Blocked'}`,
     start: wall(time.start),
     end: wall(time.end),
-    backgroundColor: '#E8E0E6',
-    borderColor: '#9A8A96',
-    textColor: '#4A3A46',
+    backgroundColor: '#E3E9F2',
+    borderColor: '#8294AD',
+    textColor: '#2B3B52',
     classNames: ['mbg-cal-blocked'],
   }));
   success([...bookings, ...blocked]);

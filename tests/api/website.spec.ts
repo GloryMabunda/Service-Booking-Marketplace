@@ -31,6 +31,7 @@ describe('Public website', () => {
 
   it.each([
     ['/css/tokens.css', /css/],
+    ['/css/theme.css', /css/],
     ['/css/site.css', /css/],
     ['/js/layout.js', /javascript/],
     ['/images/brand/favicon-64.png', /png/],

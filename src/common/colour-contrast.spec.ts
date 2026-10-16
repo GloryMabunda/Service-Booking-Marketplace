@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 // of controls. The colours are read from the style tokens the site really uses,
 // so changing one of them to something too pale fails here.
 
-const tokens = readFileSync('public/css/tokens.css', 'utf8');
+const tokens = readFileSync('public/css/theme.css', 'utf8');
 const color = (name: string): string => {
   const match = new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`).exec(tokens);
   if (!match) throw new Error(`No colour token --${name}`);
@@ -35,10 +35,10 @@ describe('contrast', () => {
 
 const PAGES = [
   'mbg-white',
-  'mbg-tint-blush',
-  'mbg-tint-pink',
+  'mbg-tint-soft',
+  'mbg-tint-accent',
   'mbg-tint-cream',
-  'mbg-tint-lilac',
+  'mbg-tint-primary',
   'mbg-tint-mint',
 ];
 
@@ -52,16 +52,16 @@ describe('text on the site’s backgrounds (normal text, 4.5 to 1)', () => {
   });
 
   it.each(PAGES)('links and headings (magenta) on %s', (bg) => {
-    expect(contrast(color('mbg-magenta'), color(bg))).toBeGreaterThanOrEqual(
+    expect(contrast(color('mbg-primary'), color(bg))).toBeGreaterThanOrEqual(
       4.5,
     );
   });
 
-  it.each(['mbg-white', 'mbg-tint-blush', 'mbg-tint-lilac'])(
+  it.each(['mbg-white', 'mbg-tint-soft', 'mbg-tint-primary'])(
     'small pink text (prices, labels) on %s',
     (bg) => {
       expect(
-        contrast(color('mbg-pink-text'), color(bg)),
+        contrast(color('mbg-accent-text'), color(bg)),
       ).toBeGreaterThanOrEqual(4.5);
     },
   );
@@ -69,16 +69,16 @@ describe('text on the site’s backgrounds (normal text, 4.5 to 1)', () => {
 
 describe('text on buttons and badges', () => {
   it.each([
-    ['white on a magenta button', '#FFFFFF', 'mbg-magenta'],
-    ['white on a magenta button, pressed', '#FFFFFF', 'mbg-magenta-dark'],
-    ['dark text on the orange Book button', 'mbg-on-orange', 'mbg-orange'],
+    ['white on a magenta button', '#FFFFFF', 'mbg-primary'],
+    ['white on a magenta button, pressed', '#FFFFFF', 'mbg-primary-dark'],
+    ['dark text on the orange Book button', 'mbg-on-action', 'mbg-action'],
     [
       'dark text on the orange Book button, pressed',
-      'mbg-on-orange',
-      'mbg-orange-dark',
+      'mbg-on-action',
+      'mbg-action-dark',
     ],
     ['white on a Confirmed badge', '#FFFFFF', 'mbg-green'],
-    ['white on an active chip', '#FFFFFF', 'mbg-magenta'],
+    ['white on an active chip', '#FFFFFF', 'mbg-primary'],
   ])('%s', (_name, fg, bg) => {
     const text = fg.startsWith('#') ? fg : color(fg);
     expect(contrast(text, color(bg))).toBeGreaterThanOrEqual(4.5);
@@ -86,8 +86,8 @@ describe('text on buttons and badges', () => {
 
   it.each([
     ['a Pending badge', '#6E3B00', 'mbg-tint-cream'],
-    ['a Completed badge', '#5A1A4A', 'mbg-tint-lilac'],
-    ['a No-show badge', 'mbg-error-fg', 'mbg-tint-pink'],
+    ['a Completed badge', 'mbg-info-fg', 'mbg-tint-primary'],
+    ['a No-show badge', 'mbg-error-fg', 'mbg-error-bg'],
     ['a Cancelled badge', 'mbg-muted', 'mbg-white'],
   ])('%s', (_name, fg, bg) => {
     const text = fg.startsWith('#') ? fg : color(fg);
@@ -112,14 +112,14 @@ describe('messages', () => {
 describe('large text and edges (3 to 1)', () => {
   it('large pink headings on white', () => {
     expect(
-      contrast(color('mbg-pink'), color('mbg-white')),
+      contrast(color('mbg-accent'), color('mbg-white')),
     ).toBeGreaterThanOrEqual(3);
   });
 
   it('the border of a form field against white is not too faint to find', () => {
     // Bootstrap's form controls use their own grey border; the focus ring is magenta
     expect(
-      contrast(color('mbg-magenta'), color('mbg-white')),
+      contrast(color('mbg-primary'), color('mbg-white')),
     ).toBeGreaterThanOrEqual(3);
   });
 });
@@ -155,6 +155,6 @@ describe('the admin calendar colours', () => {
   );
 
   it('the blocked-time event is readable too', () => {
-    expect(contrast('#4A3A46', '#E8E0E6')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#2B3B52', '#E3E9F2')).toBeGreaterThanOrEqual(4.5);
   });
 });

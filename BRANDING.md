@@ -23,7 +23,7 @@ There is nothing to edit in the code. Changes show on the site within a minute.
 ## A little more
 
 - **Favicon:** replace [`public/images/brand/favicon-64.png`](public/images/brand/favicon-64.png) with a 64 px PNG of your own. It is the one brand file in the repository, and it is neutral.
-- **Colours and fonts:** the look is set in [`public/css/tokens.css`](public/css/tokens.css) (the colours, the fonts and the Bootstrap theme). Change the values there; [`docs/style-guide.md`](docs/style-guide.md) explains each one, and the contrast checks in the tests tell you if a new colour is too faint to read.
+- **Colours:** every colour is in one file, [`public/css/theme.css`](public/css/theme.css). Change the values there (the default is a calm blue); the fonts, sizes and shapes are in [`public/css/tokens.css`](public/css/tokens.css). A private copy of the project can keep its own `theme.css` so new releases never replace its colours. [`docs/style-guide.md`](docs/style-guide.md) explains each one, and the contrast checks in the tests tell you if a new colour is too faint to read.
 - **Wording:** the emails are in [`src/notifications/`](src/notifications/), the page text in [`public/`](public/).
 
 ## Keeping it neutral
