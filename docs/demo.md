@@ -24,9 +24,10 @@ To use another port or password: `DEMO_PORT=8080 DEMO_ADMIN_PASSWORD=choose-your
 
 ## What you get
 
-- Four made-up services with pictures, a home page with About text, testimonials and questions, and a fake bank account, so the whole flow works at once.
+- Five made-up services of an imaginary home cleaning and laundry business, with pictures, a home page with About text, testimonials and questions, and a fake bank account, so the whole flow works at once.
 - **A demo banner** on every page.
 - **A demo mailbox.** The demo sends no email. Every email the app would send (payment instructions with the private booking link, the new-booking email to the owner, confirmations) appears on the demo mailbox page, newest first, with working links. It empties when the demo restarts.
+- **Travel fees and home visits.** The two cleaning services are done at the client's place only, and the three laundry services can be dropped off or collected. A client who chooses their own place gives an address and sees the travel fee (a call-out fee plus a rate per kilometre) before booking. The demo has no maps service, so it makes up a believable distance from the address.
 - A real PostgreSQL database and everything else exactly as in the real app.
 
 ## A good tour

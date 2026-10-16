@@ -107,7 +107,7 @@ This document describes every endpoint: method, path, access, request, response 
   "reference": "BK-000123",
   "status": "pending",
   "paymentStatus": "awaiting_payment",
-  "service": { "name": "Soft Glam", "durationMinutes": 90 },
+  "service": { "name": "Standard Clean", "durationMinutes": 90 },
   "startAt": "2026-11-03T08:00:00Z",
   "endAt": "2026-11-03T09:30:00Z",
   "timeZone": "Africa/Johannesburg",
@@ -258,15 +258,15 @@ Business details, active services with their deposit amounts, and the bookable d
   "services": [
     {
       "id": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10",
-      "name": "Soft Glam",
-      "description": "Natural, glowing makeup for any occasion.",
+      "name": "Standard Clean",
+      "description": "A tidy home, cleaned top to bottom with our own products.",
       "price": "650.00",
       "durationMinutes": 90,
       "depositAmount": "325.00",
       "availableAtOurPlace": true,
       "availableForTravel": true,
       "image": {
-        "alt": "Soft Glam",
+        "alt": "Standard Clean",
         "large": { "url": "/media/9f2c….webp", "width": 1600, "height": 1067 },
         "thumb": { "url": "/media/41ab….webp", "width": 480, "height": 320 }
       }
@@ -281,7 +281,7 @@ Business details, active services with their deposit amounts, and the bookable d
     "chargeReturn": true
   },
   "business": {
-    "name": "Make Up by Glory",
+    "name": "Fresh Start Home Services",
     "email": "bookings@example.com",
     "phone": "+27821234567"
   },
@@ -365,7 +365,7 @@ Create a booking (C-3, C-4, C-5). The server re-checks everything at submission:
   "clientName": "Sarah Mokoena",
   "clientEmail": "sarah@example.com",
   "clientPhone": "082 123 4567",
-  "notes": "Birthday makeup",
+  "notes": "Please keep the door closed: two cats at home.",
   "location": "client",
   "appointmentAddress": "12 Protea Road, Sunnyside, Pretoria"
 }
@@ -391,7 +391,7 @@ The travel fee is never sent: a request with `travelFee`, `depositAmount` or any
   "booking": {
     "reference": "BK-000123",
     "status": "pending",
-    "service": { "name": "Soft Glam", "durationMinutes": 90 },
+    "service": { "name": "Standard Clean", "durationMinutes": 90 },
     "startAt": "2026-11-03T07:00:00Z",
     "endAt": "2026-11-03T08:30:00Z",
     "timeZone": "Africa/Johannesburg",
@@ -479,15 +479,15 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
 
 ```json
 {
-  "business": { "name": "Make Up by Glory", "email": "bookings@example.com", "phone": "+27821234567" },
+  "business": { "name": "Fresh Start Home Services", "email": "bookings@example.com", "phone": "+27821234567" },
   "content": {
-    "tagline": "Makeup for every occasion, from soft glam to bridal.",
+    "tagline": "Cleaning and laundry, done at your place.",
     "about": [
-      "Hi, I'm Glory. I've been doing makeup for weddings, matric dances and special occasions for eight years.",
-      "I travel to you, bringing everything needed for a flawless, long-lasting look."
+      "Hi, I'm Sam. I've been running a home cleaning and laundry service for eight years.",
+      "We come to you, bringing the equipment and the products."
     ],
     "heroImage": {
-      "alt": "Bride with soft glam makeup",
+      "alt": "A bright, freshly cleaned living room",
       "large": { "url": "/media/3f9c2a7e5b1d4c8e9a0f6b2d7c1e4a90.webp", "width": 1600, "height": 1067 },
       "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp", "width": 480, "height": 320 }
     },
@@ -496,7 +496,7 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
     "location": { "type": "travel", "text": "Pretoria East and Centurion" },
     "social": {
       "whatsapp": { "number": "+27821234567", "url": "https://wa.me/27821234567" },
-      "instagram": "https://instagram.com/makeupbyglory",
+      "instagram": "https://instagram.com/freshstarthome",
       "facebook": null,
       "tiktok": null
     }
@@ -527,15 +527,15 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
   "gallery": [
     {
       "id": "c4e8a1f2-6b3d-4e9a-8c7f-1d2e3f4a5b6c",
-      "caption": "Bridal, September",
-      "alt": "Bride with long-wear bridal makeup",
-      "service": { "id": "7a1b2c3d-4e5f-4a6b-9c8d-0e1f2a3b4c5d", "name": "Bridal Makeup" },
+      "caption": "Deep clean, September",
+      "alt": "A spotless kitchen after a deep clean",
+      "service": { "id": "7a1b2c3d-4e5f-4a6b-9c8d-0e1f2a3b4c5d", "name": "Deep Clean" },
       "large": { "url": "/media/5d2e8f1a3c6b4e9d7a0c1b2e3f4d5a6b.webp", "width": 1200, "height": 1600 },
       "thumb": { "url": "/media/9e1d4c7b2a5f4d8e6c3b0a1f2e3d4c5b.webp", "width": 360, "height": 480 }
     }
   ],
   "testimonials": [
-    { "clientName": "Lerato", "quote": "I felt like myself, just more glowing.", "service": { "id": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10", "name": "Soft Glam" } }
+    { "clientName": "Lerato", "quote": "The house felt brand new.", "service": { "id": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10", "name": "Standard Clean" } }
   ],
   "faqs": [
     { "question": "Do you travel to me?", "answer": "Yes, within Pretoria East and Centurion. Further away by arrangement." }
@@ -684,13 +684,13 @@ Data for the booking page (C-7). Opening it never changes the booking.
 {
   "booking": { "...": "BookingSummary" },
   "bankingDetails": {
-    "accountName": "Make Up by Glory",
+    "accountName": "Fresh Start Home Services",
     "bank": "Example Bank",
     "accountNumber": "1234567890",
     "branchCode": "250655",
     "accountType": "Cheque"
   },
-  "business": { "name": "Make Up by Glory", "email": "bookings@example.com", "phone": "+27821234567" },
+  "business": { "name": "Fresh Start Home Services", "email": "bookings@example.com", "phone": "+27821234567" },
   "ownerAddress": "1 Jacaranda Avenue, Brooklyn, Pretoria",
   "canUploadProof": true,
   "proofsRemaining": 2,
@@ -781,13 +781,13 @@ Why not a token: a JWT can't be cancelled before it expires without extra machin
 **Request**
 
 ```json
-{ "email": "glory@example.com", "password": "correct horse battery staple" }
+{ "email": "sam@example.com", "password": "correct horse battery staple" }
 ```
 
 **Response `200`**
 
 ```json
-{ "user": { "email": "glory@example.com", "role": "admin" } }
+{ "user": { "email": "sam@example.com", "role": "admin" } }
 ```
 
 Plus `Set-Cookie: mbg_session=…; Max-Age=604800; Path=/; HttpOnly; SameSite=Strict` (and `Secure` in production), and `Cache-Control: no-store`. The email is matched case-insensitively.
@@ -800,7 +800,7 @@ Ends the session and clears the cookie. **Response `204`**. **Errors:** `401`.
 
 ### 6.3 `GET /api/auth/me`
 
-Who is signed in; the portal pages use it to decide whether to show the login page. **Response `200`**: `{ "user": { "email": "glory@example.com", "role": "admin" } }`, with `Cache-Control: no-store`. **Errors:** `401 UNAUTHENTICATED` when signed out.
+Who is signed in; the portal pages use it to decide whether to show the login page. **Response `200`**: `{ "user": { "email": "sam@example.com", "role": "admin" } }`, with `Cache-Control: no-store`. **Errors:** `401 UNAUTHENTICATED` when signed out.
 
 ---
 
@@ -818,7 +818,7 @@ All paths below require authentication ([section 6](#6-authentication)). Each ca
   "reference": "BK-000123",
   "status": "pending",
   "paymentStatus": "proof_received",
-  "service": { "id": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10", "name": "Soft Glam" },
+  "service": { "id": "5b0f6c3e-2f4a-4c55-9a43-3c1f5e2f8a10", "name": "Standard Clean" },
   "client": { "name": "Sarah Mokoena", "email": "sarah@example.com", "phone": "+27821234567" },
   "startAt": "2026-11-03T07:00:00Z",
   "endAt": "2026-11-03T08:30:00Z",
@@ -838,7 +838,7 @@ All paths below require authentication ([section 6](#6-authentication)). Each ca
   "refundedAt": null,
   "cancelledAt": null,
   "cancelledBy": null,
-  "notes": "Birthday makeup",
+  "notes": "Please keep the door closed: two cats at home.",
   "bookingLinkIssuedAt": "2026-11-01T07:00:00Z",
   "proofCount": 1,
   "createdAt": "2026-11-01T07:00:00Z"
@@ -866,7 +866,7 @@ Dashboard figures (A-2). Days are counted in the business time zone.
       "id": "0d6f8a2c-6a1e-4f7e-9a63-5f7c2b1d9e44",
       "reference": "BK-000123",
       "clientName": "Sarah Mokoena",
-      "serviceName": "Soft Glam",
+      "serviceName": "Standard Clean",
       "startAt": "2026-11-03T07:00:00Z",
       "status": "confirmed"
     }
@@ -1075,7 +1075,7 @@ Appointments for the FullCalendar view (A-7).
     {
       "id": "0d6f8a2c-6a1e-4f7e-9a63-5f7c2b1d9e44",
       "reference": "BK-000123",
-      "title": "Soft Glam · Sarah Mokoena",
+      "title": "Standard Clean · Sarah Mokoena",
       "start": "2026-11-03T07:00:00Z",
       "end": "2026-11-03T08:30:00Z",
       "status": "pending"
@@ -1188,13 +1188,13 @@ All settings in A-8.
     "minPaymentWindowHours": 2,
     "timeZone": "Africa/Johannesburg",
     "bankingDetails": {
-      "accountName": "Make Up by Glory",
+      "accountName": "Fresh Start Home Services",
       "bank": "Example Bank",
       "accountNumber": "1234567890",
       "branchCode": "250655",
       "accountType": "Cheque"
     },
-    "businessName": "Make Up by Glory",
+    "businessName": "Fresh Start Home Services",
     "businessEmail": "bookings@example.com",
     "businessPhone": "+27821234567",
     "homeAddress": "1 Jacaranda Avenue, Brooklyn, Pretoria",
@@ -1264,15 +1264,15 @@ About, contact and area, and the hero and About photos (A-10).
 ```json
 {
   "content": {
-    "tagline": "Makeup for every occasion, from soft glam to bridal.",
-    "aboutText": "Hi, I'm Glory...\n\nI travel to you...",
-    "heroImage": { "id": "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e", "altText": "Bride with soft glam makeup", "width": 1600, "height": 1067, "large": { "url": "/media/3f9c2a7e5b1d4c8e9a0f6b2d7c1e4a90.webp" }, "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp" }, "duplicateOf": [], "uploadedAt": "2026-10-10T08:00:00Z" },
+    "tagline": "Cleaning and laundry, done at your place.",
+    "aboutText": "Hi, I'm Sam...\n\nI travel to you...",
+    "heroImage": { "id": "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e", "altText": "A bright, freshly cleaned living room", "width": 1600, "height": 1067, "large": { "url": "/media/3f9c2a7e5b1d4c8e9a0f6b2d7c1e4a90.webp" }, "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp" }, "duplicateOf": [], "uploadedAt": "2026-10-10T08:00:00Z" },
     "aboutImage": null,
     "logoImage": null,
     "locationType": "travel",
     "locationText": "Pretoria East and Centurion",
     "whatsappNumber": "+27821234567",
-    "instagramUrl": "https://instagram.com/makeupbyglory",
+    "instagramUrl": "https://instagram.com/freshstarthome",
     "facebookUrl": null,
     "tiktokUrl": null,
     "updatedAt": "2026-10-10T08:00:00Z"
@@ -1310,7 +1310,7 @@ Gallery photos (A-10, BR-16).
 ```json
 {
   "results": [
-    { "filename": "bride-sept.jpg", "status": "created", "item": { "...": "GalleryItem" } },
+    { "filename": "kitchen-sept.jpg", "status": "created", "item": { "...": "GalleryItem" } },
     { "filename": "big-scan.png", "status": "failed", "error": { "code": "IMAGE_TOO_LARGE", "message": "This image is more than 50 megapixels. Please upload a smaller version." } }
   ]
 }

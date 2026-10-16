@@ -40,14 +40,14 @@ The service provider can securely log in and:
 
 # 🌍 Real-World Use Case
 
-The portfolio implementation uses **Make Up by Glory** as the example business.
+The portfolio implementation uses **Fresh Start Home Services**, an imaginary home cleaning and laundry business, as the example.
 
 A client visiting the website could:
 
 ```text
 View Services
       ↓
-Choose a Makeup Service
+Choose a Service
       ↓
 View Available Dates
       ↓
@@ -88,12 +88,13 @@ Example:
 
 | Service | Duration | Price |
 |---|---:|---:|
-| Soft Glam | 1h 30m | R650 |
-| Full Glam | 2h | R850 |
-| Bridal Makeup | 2h 30m | R1,200 |
-| Matric Dance Makeup | 2h | R900 |
+| Standard House Clean | 3h | R480 |
+| Deep Clean | 5h | R950 |
+| Laundry Wash | 1h | R140 |
+| Ironing | 1h 30m | R160 |
+| Wash & Iron | 2h | R260 |
 
-These examples are specific to the makeup artist implementation and can be replaced with services appropriate to another business.
+These examples are specific to the home cleaning implementation and can be replaced with services appropriate to another business.
 
 Inactive services are hidden from clients and can't be newly booked; existing bookings are unaffected.
 
@@ -118,7 +119,7 @@ Availability is calculated by the server. A start time is offered only if the se
 
 For example, with a 1-hour buffer, a 2-hour service needs 3 free hours, so the system won't offer a time that would run into the next appointment.
 
-All times are stored in UTC and shown in the business's time zone (South Africa Standard Time for Make Up by Glory).
+All times are stored in UTC and shown in the business's time zone (South Africa Standard Time for the example business).
 
 ---
 
@@ -188,7 +189,7 @@ Phone:
 082 XXX XXXX
 
 Service:
-Soft Glam Makeup
+Standard House Clean
 
 Date:
 17 October 2026
@@ -206,7 +207,7 @@ Status:
 Confirmed
 
 Notes:
-Birthday makeup
+Please keep the door closed: two cats at home.
 ```
 
 ---
@@ -224,7 +225,7 @@ Every booking event sends an email to the client, the service provider, or both.
 
 Example:
 
-> Thank you for booking Soft Glam Makeup on 17 October at 10:00. To secure your appointment, please pay the deposit by EFT using reference BK-000123 before 15 October at 10:00, then upload your proof of payment using your booking link. Your booking is confirmed once the payment reflects in our account.
+> Thank you for booking Standard House Clean on 17 October at 10:00. To secure your appointment, please pay the deposit by EFT using reference BK-000123 before 15 October at 10:00, then upload your proof of payment using your booking link. Your booking is confirmed once the payment reflects in our account.
 
 ## 💼 Service Provider
 
@@ -234,7 +235,7 @@ Example:
 
 Example:
 
-> New booking BK-000123 from Sarah Mokoena for Soft Glam Makeup on 17 October at 10:00. Deposit due by 15 October at 10:00.
+> New booking BK-000123 from Sarah Mokoena for Standard House Clean on 17 October at 10:00. Deposit due by 15 October at 10:00.
 
 The notification system is designed so that email and SMS providers can be integrated without tightly coupling them to the booking logic. A failed email is logged and never blocks or loses a booking.
 
@@ -249,7 +250,7 @@ The administrator dashboard provides an overview of the business's bookings.
 Example:
 
 ```text
-Good morning, Glory 👋
+Good morning, Sam 👋
 
 Today's Bookings          3
 Upcoming Bookings         12
@@ -260,9 +261,9 @@ Refunds Due               1
 
 Upcoming Appointments
 --------------------------------
-Sarah Mokoena    Soft Glam    09:00
-Jane Dlamini     Bridal       12:00
-Lerato M.        Full Glam    15:00
+Sarah Mokoena    Standard Clean    09:00
+Jane Dlamini     Deep Clean       12:00
+Lerato M.        Laundry Wash    15:00
 ```
 
 The administrator can also switch to a calendar view to manage appointments and availability.
@@ -626,7 +627,7 @@ It demonstrates experience with:
 
 The project also demonstrates how a real business process can be translated into software with clear business rules, data relationships, validation, and administrative workflows.
 
-Although **Make Up by Glory** is used as the primary example, the underlying system is intentionally designed as a reusable service-booking platform that can be adapted to many different appointment-based businesses.
+Although a home cleaning business is used as the primary example, the underlying system is intentionally designed as a reusable service-booking platform that can be adapted to many different appointment-based businesses.
 
 ---
 
@@ -713,7 +714,7 @@ Notify Clients
 Track Business Activity
 ```
 
-The makeup artist implementation provides the initial real-world scenario while keeping the underlying architecture flexible enough to support other appointment-based businesses.
+The home cleaning implementation provides the initial real-world scenario while keeping the underlying architecture flexible enough to support other appointment-based businesses.
 
 ---
 

@@ -47,6 +47,6 @@ The wireframes are plain HTML pages using Bootstrap from a CDN, so they need a b
 
 ## Conventions
 
-- **Sample data:** today is Saturday 10 October 2026 at 14:00; Sarah Mokoena books Soft Glam (1h 30m, R650, 50% deposit R325) for Tuesday 13 October at 09:00. Times are South African Standard Time.
+- **Sample data:** today is Saturday 10 October 2026 at 14:00; Sarah Mokoena books Standard Clean (1h 30m, R650, 50% deposit R325) for Tuesday 13 October at 09:00. Times are South African Standard Time.
 - **Status without colour:** statuses are written out and drawn with solid or dashed outlines, so the wireframes don't rely on colour; the real design must keep them distinguishable without colour too.
 - **Not final:** wording and layout are a starting point for the frontend issues (M1–M6). The approved email wording lives in `docs/emails.md` (#13).

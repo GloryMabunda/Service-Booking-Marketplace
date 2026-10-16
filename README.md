@@ -4,7 +4,7 @@
 
 > **An appointment booking and management system designed for service-based businesses, allowing clients to discover services, view availability, book appointments online and secure them with a deposit.**
 
-For this portfolio project the system is built around a **makeup artist business**, but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code, including its own name and logo, set in the portal ([BRANDING.md](BRANDING.md)).
+For this portfolio project the system is built around an example **home cleaning and laundry business**, but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code, including its own name and logo, set in the portal ([BRANDING.md](BRANDING.md)).
 
 <p align="center">
   <img src="docs/images/services.jpg" alt="The services page: each service is a card with its picture, duration, price and deposit" width="49%">

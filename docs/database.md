@@ -399,7 +399,7 @@ One row per message sent or attempted (section 7 of the spec). A failed send is 
 
 ### 3.8 `settings`
 
-A single row (`id = 1`, enforced by a check constraint) read by the other modules (#28). The default values are the reference business's (Make Up by Glory).
+A single row (`id = 1`, enforced by a check constraint) read by the other modules (#28). The default values are the reference business's (Fresh Start Home Services).
 
 | Column | Type | Default | Rule |
 | --- | --- | --- | --- |
@@ -430,7 +430,7 @@ A single row (`id = 1`, enforced by a check constraint) read by the other module
 
 Changing a setting affects new bookings only: each booking already stores its own price, deposit, deadline and occupied time.
 
-The row is created by the `seed_settings` migration (#28) with the defaults above, `business_name` "Make Up by Glory", and **placeholders** for the banking details ("Not set yet") and `business_email` (`bookings@example.com`): real banking and contact details are never committed to Git. The owner sets them with `PATCH /api/admin/settings`, and creating a booking that needs a deposit is refused while the banking details are still placeholders (#45).
+The row is created by the `seed_settings` migration (#28) with the defaults above, `business_name` "Your Business", and **placeholders** for the banking details ("Not set yet") and `business_email` (`bookings@example.com`): real banking and contact details are never committed to Git. The owner sets them with `PATCH /api/admin/settings`, and creating a booking that needs a deposit is refused while the banking details are still placeholders (#45).
 
 ### 3.9 `site_content`
 
