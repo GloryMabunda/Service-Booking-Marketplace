@@ -66,7 +66,7 @@ git --version
    npm run db:migrate
    ```
 
-   The business settings start with the Make Up by Glory rules (24 hours notice, 50% deposit, hourly slots and so on) and **placeholder banking details**. Once you can sign in, set your real banking and contact details on the **Settings** page in the admin portal (<http://localhost:3000/admin/settings.html>); they live only in the database, never in Git. Until they are set, clients can't book a service that needs a deposit.
+   The business settings start with the default rules (24 hours notice, 50% deposit, hourly slots and so on) and **placeholder banking details**. Once you can sign in, set your real banking and contact details on the **Settings** page in the admin portal (<http://localhost:3000/admin/settings.html>); they live only in the database, never in Git. Until they are set, clients can't book a service that needs a deposit.
 
 6. **Create your administrator account.** In `.env`, set `ADMIN_EMAIL` to your email and `ADMIN_PASSWORD` to a password of at least 12 characters, then run:
 
@@ -77,7 +77,7 @@ git --version
    It prints "Created the administrator account". Forgot the password? Change `ADMIN_PASSWORD` and run it again: there is no password-reset screen. The password is stored only as an Argon2id hash.
 
 
-   **Email (optional while you build).** Clients get their payment instructions by email. In `.env`, fill in `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` (for example `Make Up by Glory <bookings@your-domain.com>`) and `PUBLIC_URL` (the web address of your site) with the details from your email provider. Leave `SMTP_HOST` empty to send no email: bookings still work and the confirmation page says the email couldn't be sent. Never commit these values; `.env` is git-ignored.
+   **Email (optional while you build).** Clients get their payment instructions by email. In `.env`, fill in `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` (for example `Fresh Start Home Services <bookings@your-domain.com>`) and `PUBLIC_URL` (the web address of your site) with the details from your email provider. Leave `SMTP_HOST` empty to send no email: bookings still work and the confirmation page says the email couldn't be sent. Never commit these values; `.env` is git-ignored.
 
    **Booking links and uploads.** The email's private link opens `/booking/<link>`, where the client can see their booking, upload a proof of payment and cancel. Uploaded proofs are kept in the `uploads/` folder (change it with `UPLOAD_DIR` in `.env`), which is git-ignored and never served directly: only you can open a proof, from the admin portal. Open a booking in the portal to view, accept or reject its proofs; a rejection emails the client your reason. Proof files are deleted automatically 90 days after a booking is finished, keeping only the record. The **Calendar** shows all appointments by month, week or list.
 

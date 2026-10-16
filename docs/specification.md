@@ -4,7 +4,7 @@
 
 ## 1. Purpose
 
-The Service Booking System lets appointment-based businesses publish services, expose availability, and take bookings online, while giving the owner a secure portal to manage the schedule. The reference implementation is for a makeup artist business, **Make Up by Glory**. The core is business-agnostic: another provider (hair stylist, barber, tutor, trainer) can use it by changing configuration, not booking logic.
+The Service Booking System lets appointment-based businesses publish services, expose availability, and take bookings online, while giving the owner a secure portal to manage the schedule. The reference implementation is for a home cleaning and laundry business, **Fresh Start Home Services** (an imaginary business). The core is business-agnostic: another provider (hair stylist, barber, tutor, trainer) can use it by changing configuration, not booking logic.
 
 **Portfolio goals.** Demonstrate real-world full-stack delivery: relational design, availability calculation, double-booking prevention, authentication and authorization, secure file upload, notifications behind an abstraction, automated testing and CI/CD.
 

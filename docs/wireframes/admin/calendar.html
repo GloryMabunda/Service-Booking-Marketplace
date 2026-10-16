@@ -12,13 +12,13 @@
   <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Admin · 8 Calendar (A-7)</span><a class="ms-auto" href="../index.html">All screens</a></div>
 
   <div class="d-md-none border-bottom p-2 d-flex justify-content-between align-items-center">
-    <strong>Make Up by Glory</strong>
+    <strong>Fresh Start Home Services</strong>
     <button class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-label="Menu"><i class="bi bi-list"></i></button>
   </div>
   <div class="container-fluid">
     <div class="row">
       <nav class="col-md-3 col-lg-2 wf-sidebar p-3 collapse d-md-block" id="sidebar">
-        <div class="fw-semibold mb-3 d-none d-md-block">Make Up by Glory</div>
+        <div class="fw-semibold mb-3 d-none d-md-block">Fresh Start Home Services</div>
         <ul class="nav flex-column gap-1">
           <li><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
           <li><a class="nav-link" href="bookings.html"><i class="bi bi-journal-text"></i> Bookings</a></li>
@@ -65,10 +65,10 @@
     // Draws the static sample week (wireframe only).
     const days = ['Mon 12', 'Tue 13', 'Wed 14', 'Thu 15', 'Fri 16', 'Sat 17', 'Sun 18'];
     const events = {
-      'Mon 12|13': { cls: 'is-confirmed', text: '13:00–15:00 Full Glam · Lerato M.' },
-      'Tue 13|9': { cls: 'is-pending', text: '09:00–10:30 Soft Glam · Sarah Mokoena' },
-      'Wed 14|11': { cls: 'is-pending', text: '11:00–12:30 Soft Glam · Thandi N.' },
-      'Sat 17|8': { cls: 'is-confirmed', text: '08:00–10:30 Bridal · Naledi K.' },
+      'Mon 12|13': { cls: 'is-confirmed', text: '13:00–15:00 Laundry Wash · Lerato M.' },
+      'Tue 13|9': { cls: 'is-pending', text: '09:00–10:30 Standard Clean · Sarah Mokoena' },
+      'Wed 14|11': { cls: 'is-pending', text: '11:00–12:30 Standard Clean · Thandi N.' },
+      'Sat 17|8': { cls: 'is-confirmed', text: '08:00–10:30 Deep Clean · Naledi K.' },
     };
     const week = document.getElementById('week');
     const cell = (html, cls = '') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; week.appendChild(d); };
@@ -78,7 +78,7 @@
       cell(String(h).padStart(2, '0') + ':00', 'text-secondary');
       days.forEach((d) => {
         const ev = events[d + '|' + h];
-        if (d === 'Fri 16') cell(h === 8 ? 'Blocked · Wedding trial' : '', 'wf-blocked');
+        if (d === 'Fri 16') cell(h === 8 ? 'Blocked · Key collection' : '', 'wf-blocked');
         else if (d === 'Sun 18') cell('', 'bg-light');
         else cell(ev ? `<a class="wf-event ${ev.cls} d-block text-decoration-none" href="booking.html">${ev.text}</a>` : '');
       });

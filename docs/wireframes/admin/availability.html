@@ -12,13 +12,13 @@
   <div class="wf-bar"><span class="wf-tag">Wireframe</span><span>Admin · 6 Availability and blocked times (A-6)</span><a class="ms-auto" href="../index.html">All screens</a></div>
 
   <div class="d-md-none border-bottom p-2 d-flex justify-content-between align-items-center">
-    <strong>Make Up by Glory</strong>
+    <strong>Fresh Start Home Services</strong>
     <button class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-label="Menu"><i class="bi bi-list"></i></button>
   </div>
   <div class="container-fluid">
     <div class="row">
       <nav class="col-md-3 col-lg-2 wf-sidebar p-3 collapse d-md-block" id="sidebar">
-        <div class="fw-semibold mb-3 d-none d-md-block">Make Up by Glory</div>
+        <div class="fw-semibold mb-3 d-none d-md-block">Fresh Start Home Services</div>
         <ul class="nav flex-column gap-1">
           <li><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
           <li><a class="nav-link" href="bookings.html"><i class="bi bi-journal-text"></i> Bookings</a></li>
@@ -64,7 +64,7 @@
                 <div class="col-6"><label class="form-label" for="bf">From</label><input class="form-control form-control-sm" id="bf" type="date" value="2026-10-16"></div>
                 <div class="col-6"><label class="form-label" for="bto">To</label><input class="form-control form-control-sm" id="bto" type="date" value="2026-10-16"></div>
               </div>
-              <div class="mb-2"><label class="form-label" for="br">Reason <span class="text-secondary">(only you see this)</span></label><input class="form-control form-control-sm" id="br" value="Wedding trial"></div>
+              <div class="mb-2"><label class="form-label" for="br">Reason <span class="text-secondary">(only you see this)</span></label><input class="form-control form-control-sm" id="br" value="Key collection"></div>
               <button class="btn btn-dark btn-sm" type="button">Block</button>
             </form>
 
@@ -72,7 +72,7 @@
             <div class="alert alert-secondary small"><i class="bi bi-exclamation-triangle"></i> Blocked. These bookings fall in this time and were <strong>not</strong> cancelled: <a href="booking.html">BK-000126</a>. Contact the client or cancel the booking if needed.</div>
 
             <ul class="list-group small">
-              <li class="list-group-item d-flex justify-content-between align-items-center"><span><strong>Fri 16 Oct</strong> · whole day · Wedding trial</span><button class="btn btn-link btn-sm p-0">Remove</button></li>
+              <li class="list-group-item d-flex justify-content-between align-items-center"><span><strong>Fri 16 Oct</strong> · whole day · Key collection</span><button class="btn btn-link btn-sm p-0">Remove</button></li>
               <li class="list-group-item d-flex justify-content-between align-items-center"><span><strong>Wed 21 Oct, 12:00–14:00</strong> · Dentist</span><button class="btn btn-link btn-sm p-0">Remove</button></li>
             </ul>
             <div class="wf-note">Upcoming blocks only (<code>GET /api/admin/blocked-times</code>). "Whole day" sends midnight to midnight in the business time zone. Removing asks "Remove this block? The time becomes bookable again."</div>

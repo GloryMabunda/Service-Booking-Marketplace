@@ -1,6 +1,6 @@
 # Email Content
 
-*Make Up by Glory · approved wording for every email in [Specification v1.0](specification.md), section 7 (#13)*
+*Fresh Start Home Services · approved wording for every email in [Specification v1.0](specification.md), section 7 (#13)*
 
 The subject, preview text and body of each email the system sends. The notifications module (#54 to #61, #71, #72, #73) renders these templates; the `type` names match `notification_type` in [`database.md`](database.md).
 
@@ -19,7 +19,7 @@ The subject, preview text and body of each email the system sends. The notificat
 
 | Topic | Rule |
 | --- | --- |
-| Voice | Warm, clear and personal, in the first person as Glory ("I'll see you on Tuesday"). Short sentences, no jargon. Owner emails are brief and factual. |
+| Voice | Warm, clear and personal, in the first person, as the owner ("I'll see you on Tuesday"). Short sentences, no jargon. Owner emails are brief and factual. |
 | Sender | From: `{{business.name}} <bookings address>`. Reply-To: `{{business.email}}`, so a client's reply reaches the owner. |
 | Format | HTML following the [style guide](style-guide.md) (logo, white background, magenta links, orange button for the main action), with a plain-text version of the same words. Width at most 600 px; readable on a phone. |
 | Dates and times | Business time zone, written out: "Tuesday 13 October 2026 at 09:00". Times as `HH:mm`. Money as "R325" or "R1,200" (no cents unless there are cents). |
@@ -34,23 +34,23 @@ Placeholders use `{{double braces}}`; the templating library is chosen in #55.
 
 | Variable | Example | Source |
 | --- | --- | --- |
-| `{{business.name}}` | Make Up by Glory | Settings |
+| `{{business.name}}` | Fresh Start Home Services | Settings |
 | `{{business.email}}` | bookings@example.com | Settings |
 | `{{business.phone}}` | 082 123 4567 | Settings (optional; lines using it are left out when empty) |
 | `{{client.firstName}}` | Sarah | First word of the client's name |
 | `{{client.name}}`, `{{client.email}}`, `{{client.phone}}` | Sarah Mokoena · sarah@example.com · 082 123 4567 | Booking |
 | `{{booking.reference}}` | BK-000123 | Booking |
-| `{{booking.service}}` | Soft Glam | Service name at booking time |
+| `{{booking.service}}` | Standard Clean | Service name at booking time |
 | `{{booking.when}}` | Tuesday 13 October 2026 at 09:00 | Booking start, business time zone |
 | `{{booking.endTime}}` | 10:30 | Booking end |
 | `{{booking.price}}` | R650 | Price at booking |
 | `{{booking.deposit}}` | R325 | Deposit amount |
 | `{{booking.balance}}` | R325 | Price minus deposit, paid on the day |
 | `{{booking.deadline}}` | Sunday 11 October 2026 at 14:00 | Deposit deadline |
-| `{{booking.notes}}` | Birthday makeup | Client's notes (owner emails only) |
+| `{{booking.notes}}` | Please keep the door closed: two cats at home. | Client's notes (owner emails only) |
 | `{{booking.previousStatus}}` | Confirmed | Status just before a cancellation (owner emails only) |
 | `{{booking.link}}` | https://…/booking/… | The booking link, only where allowed (section 1) |
-| `{{bank.accountName}}`, `{{bank.bank}}`, `{{bank.accountNumber}}`, `{{bank.branchCode}}`, `{{bank.accountType}}` | Make Up by Glory · Example Bank · 1234567890 · 250655 · Cheque | Settings |
+| `{{bank.accountName}}`, `{{bank.bank}}`, `{{bank.accountNumber}}`, `{{bank.branchCode}}`, `{{bank.accountType}}` | Fresh Start Home Services · Example Bank · 1234567890 · 250655 · Cheque | Settings |
 | `{{refund.cutoff}}` | Monday 12 October 2026 at 09:00 | Booking start minus the refund cut-off |
 | `{{refund.cutoffHours}}` | 24 | Settings: refund cut-off in hours |
 | `{{refund.amount}}` | R325 | Amount received |
@@ -139,7 +139,7 @@ Can't use the upload button? Email your proof of payment to
 {{business.email}} with your reference {{booking.reference}}.
 
 See you soon,
-Glory
+{{business.name}}
 
 [Client footer]
 ```
@@ -181,7 +181,7 @@ instructions email, which no longer works. Please keep this email and don't
 share the link.
 
 I'm looking forward to seeing you!
-Glory
+{{business.name}}
 
 [Client footer]
 ```
@@ -211,7 +211,7 @@ change:
 Please keep this email and don't share the link.
 
 See you soon,
-Glory
+{{business.name}}
 
 [Client footer]
 ```
@@ -244,7 +244,7 @@ If it isn't received by then, the booking expires.
 If you think this is a mistake, just reply to this email.
 
 Thank you,
-Glory
+{{business.name}}
 
 [Client footer]
 ```
@@ -271,7 +271,7 @@ Cancelled booking:
 
 You're welcome to book again any time: {{site.bookUrl}}
 
-Glory
+{{business.name}}
 
 [Client footer]
 ```
@@ -313,7 +313,7 @@ and I'll sort it out.
 
 You're welcome to book again: {{site.bookUrl}}
 
-Glory
+{{business.name}}
 
 [Client footer]
 ```
