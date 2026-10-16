@@ -195,7 +195,7 @@ Every error has the same shape:
 | 415 | `UNSUPPORTED_FILE_TYPE` | The file's content isn't an accepted type, whatever its name says: PDF, JPEG or PNG for proofs; JPEG, PNG or WebP for photos | Proof upload, photo uploads |
 | 429 | `RATE_LIMITED` | Too many requests; see `Retry-After` | Rate-limited endpoints |
 | 503 | `TRAVEL_UNAVAILABLE` | The travel fee can't be worked out: no home address, no maps service set up, or the maps service is down or refusing requests. The client is told to try again or choose the owner's place; nothing is saved | Travel quote, create booking |
-| 503 | `BOOKING_NOT_READY` | The owner hasn't entered her banking details yet (they are still the "Not set yet" placeholders), so a booking that needs a deposit can't give the client anywhere to pay. Bookings with no deposit still work | Create booking |
+| 503 | `BOOKING_NOT_READY` | The owner hasn't entered the banking details yet (they are still the "Not set yet" placeholders), so a booking that needs a deposit can't give the client anywhere to pay. Bookings with no deposit still work | Create booking |
 | 500 | `INTERNAL_ERROR` | Unexpected failure. Logged with a request ID; the message is generic | Any |
 
 ### Upload errors (BR-14)
@@ -308,7 +308,7 @@ Business details, active services with their deposit amounts, and the bookable d
 
 The response is sent with `Cache-Control: public, max-age=60`, so the window can be up to a minute old; `POST /api/bookings` re-checks it. The deposit and the window are worked out in whole cents, never with floating-point numbers.
 
-**Inactive services (BR-5, #33).** A service the owner has deactivated is missing from this list at once, and comes back when she reactivates it. Its existing bookings are untouched: they keep their service, price and duration. Booking an inactive service is refused by `POST /api/bookings` (#45).
+**Inactive services (BR-5, #33).** A service the owner has deactivated is missing from this list at once, and comes back when they reactivate it. Its existing bookings are untouched: they keep their service, price and duration. Booking an inactive service is refused by `POST /api/bookings` (#45).
 
 The public page [`/services.html`](../public/services.html) shows this list; until online booking opens (#51) its Book button reads "Booking opens soon".
 
@@ -650,10 +650,10 @@ The business's own brand, which every page shows in its header and footer: its n
 
 ```json
 {
-  "name": "Glow Studio",
-  "tagline": "Beauty, booked.",
+  "name": "Fresh Start",
+  "tagline": "A fresher home, without lifting a finger",
   "logo": {
-    "alt": "Glow Studio",
+    "alt": "Fresh Start",
     "large": { "url": "/media/9f2c….webp", "width": 1600, "height": 533 },
     "thumb": { "url": "/media/41ab….webp", "width": 480, "height": 160 }
   }
@@ -949,7 +949,7 @@ One booking with its proofs (A-3).
 
 ### 7.4 `POST /api/admin/bookings/:id/confirm-payment`
 
-Record the amount received and confirm the booking, after the owner has seen the money in her bank account (A-4, BR-8). Records who confirmed and when. Goes through the `PaymentProvider` interface (manual EFT in v1). A fresh booking link is issued (the previous one stops working) and sent in the client's confirmation email, with the refund deadline (BR-15).
+Record the amount received and confirm the booking, after the owner has seen the money in the business's bank account (A-4, BR-8). Records who confirmed and when. Goes through the `PaymentProvider` interface (manual EFT in v1). A fresh booking link is issued (the previous one stops working) and sent in the client's confirmation email, with the refund deadline (BR-15).
 
 **Request**
 
@@ -991,7 +991,7 @@ Cancel, complete or mark a no-show (A-4, BR-3).
 
 | `status` | Allowed from | Notes |
 | --- | --- | --- |
-| `cancelled` | Pending, Confirmed | Frees the slot; the client is emailed. `refundDue` is required when the booking is Confirmed (the owner decides whether she owes a refund when she cancels) and not allowed otherwise |
+| `cancelled` | Pending, Confirmed | Frees the slot; the client is emailed. `refundDue` is required when the booking is Confirmed (the owner decides whether a refund is owed when they cancels) and not allowed otherwise |
 | `completed` | Confirmed, once the appointment has started | |
 | `no_show` | Confirmed, once the appointment has started | |
 
@@ -1082,7 +1082,7 @@ Appointments for the FullCalendar view (A-7).
     }
   ],
   "blockedTimes": [
-    { "id": "2a7e1c3b-4d5f-4a6b-8c9d-0e1f2a3b4c5d", "start": "2026-11-05T22:00:00Z", "end": "2026-11-06T22:00:00Z", "reason": "Wedding trial" }
+    { "id": "2a7e1c3b-4d5f-4a6b-8c9d-0e1f2a3b4c5d", "start": "2026-11-05T22:00:00Z", "end": "2026-11-06T22:00:00Z", "reason": "Team training day" }
   ]
 }
 ```
@@ -1367,7 +1367,7 @@ Writing this document settled some details that spec section 8 left open. Sectio
 | Paths with IDs spelled out: `PATCH`/`DELETE /api/admin/services/:id`, `DELETE /api/admin/blocked-times/:id` | Section 8 grouped them without the `:id`. |
 | Added `GET /api/admin/services` | The portal must list inactive services too; `GET /api/services` only returns active ones. |
 | Added `POST /api/auth/logout` | The portal needs a way to sign out. |
-| Admin cancellation of a Confirmed booking takes `refundDue` | BR-12 only defines the refund rule for client cancellations. When the owner cancels, she decides whether a refund is owed. |
+| Admin cancellation of a Confirmed booking takes `refundDue` | BR-12 only defines the refund rule for client cancellations. When the owner cancels, the owner decides whether a refund is owed. |
 | `GET /api/services` returns `business` and `bookingWindow`; the booking page returns `business` | The date picker must disable dates outside the window (C-2, #40), and the pages must show the business details and the fallback email for proof (C-1, C-5) without hard-coding them. |
 | New settings `minPaymentWindowHours`, `businessName`, `businessEmail`, `businessPhone` | See BR-9 and A-8, updated in the spec. |
 | Added `410 FILE_DELETED` for proof downloads | Proof files are deleted after 90 days (BR-14) while their records remain. |

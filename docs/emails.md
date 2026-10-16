@@ -88,7 +88,7 @@ You're receiving this because you made a booking with {{business.name}}.
 
 ## 4. Client emails
 
-> **Where the appointment is (#115).** Every email that summarises a booking gets two extra rows after *When* (and the owner's new-booking email too), only when they apply: **Where** and **Travel fee**. At the owner's place the client's emails say `Where: At my place: <owner's home address>` (this is the only place besides the private booking page where her address appears) and have no travel fee row. At the client's place they say `Where: At your place: <address>` and `Travel fee: R149`, and the deposit includes the fee. The owner's new-booking email says `Where: At the client's place: <address> (10.0 km one way)` and shows the travel fee. The balance quoted to the client is always the price less the service's part of the deposit, so the travel fee never reduces it.
+> **Where the appointment is (#115).** Every email that summarises a booking gets two extra rows after *When* (and the owner's new-booking email too), only when they apply: **Where** and **Travel fee**. At the owner's place the client's emails say `Where: At my place: <owner's home address>` (this is the only place besides the private booking page where the owner's address appears) and have no travel fee row. At the client's place they say `Where: At your place: <address>` and `Travel fee: R149`, and the deposit includes the fee. The owner's new-booking email says `Where: At the client's place: <address> (10.0 km one way)` and shows the travel fee. The balance quoted to the client is always the price less the service's part of the deposit, so the travel fee never reduces it.
 
 ### 4.1 Payment instructions · `payment_instructions`
 
@@ -287,7 +287,7 @@ You're welcome to book again any time: {{site.bookUrl}}
 
 | Situation | Refund line |
 | --- | --- |
-| Refund due (Confirmed, cancelled within the refund rule, or the owner marked a refund due) | "Your deposit of {{refund.amount}} will be refunded. I'll be in touch to arrange it." The owner then asks for the client's bank details herself; the system never collects or stores them (#116). |
+| Refund due (Confirmed, cancelled within the refund rule, or the owner marked a refund due) | "Your deposit of {{refund.amount}} will be refunded. I'll be in touch to arrange it." The owner then asks for the client's bank details themselves; the system never collects or stores them (#116). |
 | Confirmed, outside the refund rule | "As this was within {{refund.cutoffHours}} hours of your appointment, your deposit isn't refundable." |
 | Confirmed, owner cancelled with no refund due | Left out; the owner explains personally. |
 | Pending (no deposit confirmed) | "No deposit had been confirmed for this booking. If you've already paid, please reply to this email and I'll sort it out." |

@@ -1,10 +1,10 @@
-# Service Booking System 💄
+# Service Booking System 🫧
 
 [![CI](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml)
 
 > **An appointment booking and management system designed for service-based businesses, allowing clients to discover services, view availability, book appointments online and secure them with a deposit.**
 
-For this portfolio project the system is built around an example **home cleaning and laundry business**, but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code, including its own name and logo, set in the portal ([BRANDING.md](BRANDING.md)).
+For this portfolio project the system is built around an example **home cleaning and laundry business, Fresh Start** (house cleans, laundry washing and ironing, at the client's home or the owner's place), but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code, including its own name and logo, set in the portal ([BRANDING.md](BRANDING.md)).
 
 <p align="center">
   <img src="docs/images/services.jpg" alt="The services page: each service is a card with its picture, duration, price and deposit" width="49%">
@@ -45,7 +45,7 @@ Then open <http://localhost:3000>. It starts the app and PostgreSQL, creates the
 | ![The owner's dashboard](docs/images/admin-dashboard.jpg) | ![The services page on a phone](docs/images/mobile-services.jpg) |
 | *The owner's dashboard* | *Built mobile first* |
 
-**Your brand, not ours.** The project ships with a neutral name and no logo. The owner sets the business name in Settings and uploads a logo under Website, and the header, footer, home page and every email follow, with no code to change. See [BRANDING.md](BRANDING.md).
+**Your brand, not ours.** The project ships with a neutral name ("Your Business") and no logo; only the demo data loads the sample Fresh Start name and logo. The owner sets the business name in Settings and uploads a logo under Website, and the header, footer, home page and every email follow, with no code to change. See [BRANDING.md](BRANDING.md).
 
 ![The home page of the example business, Fresh Start, with its sample logo, which the demo loads for you](docs/images/home.jpg)
 
@@ -105,4 +105,4 @@ Every change goes through an issue, a branch and a pull request that passes CI. 
 
 ## 📜 Licence
 
-MIT for the code. See [`LICENSE`](LICENSE). The project ships with a neutral brand: your business name and logo are set in the portal, never in the code. The name and logo of the example business, Make Up by Glory, are not covered by the licence. See [`BRANDING.md`](BRANDING.md).
+MIT for the code. See [`LICENSE`](LICENSE). The project ships with a neutral brand: your business name and logo are set in the portal, never in the code. The sample logo of the example business, Fresh Start, is part of the project and under the same licence; the photos used by the demo are credited in [`demo-photos/CREDITS.md`](demo-photos/CREDITS.md). Anyone's real name and logo are not covered by the licence. See [`BRANDING.md`](BRANDING.md).
