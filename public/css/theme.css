@@ -20,6 +20,7 @@
   --mbg-action: #123A66;         /* action: Book now only (deep navy, the strongest thing on the page) */
   --mbg-action-dark: #0A2646;    /* action hover */
   --mbg-on-action: #FFFFFF;      /* text on the action colour */
+  --mbg-accent-rgb: 59, 143, 224;
   --mbg-accent: #3B8FE0;         /* large headings, flourishes, decoration; never small text */
   --mbg-accent-text: #1E63A8;    /* small accent text: prices, labels */
   --mbg-gold: #F2C94C;           /* stars, highlights */
