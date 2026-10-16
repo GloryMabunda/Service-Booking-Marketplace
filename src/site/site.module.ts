@@ -11,6 +11,7 @@ import {
   AdminGalleryController,
   AdminSiteContentController,
   AdminTestimonialsController,
+  PublicBrandController,
   PublicSiteController,
 } from './site.controller.js';
 import { FaqsService, TestimonialsService } from './site-lists.service.js';
@@ -21,6 +22,7 @@ import { FaqsService, TestimonialsService } from './site-lists.service.js';
   imports: [AvailabilityModule, ImagesModule, SettingsModule],
   controllers: [
     PublicSiteController,
+    PublicBrandController,
     MediaController,
     AdminSiteContentController,
     AdminGalleryController,

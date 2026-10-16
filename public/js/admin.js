@@ -96,7 +96,7 @@ class AdminHeader extends HTMLElement {
       <header class="mbg-site-header">
         <div class="mbg-container d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
           <a class="d-flex align-items-center gap-3 text-decoration-none" href="/admin/">
-            <img class="mbg-header-logo" src="/images/logo/logo-horizontal.png" alt="Make Up by Glory" width="138" height="48">
+            <span data-brand-mark></span>
             <span class="mbg-label d-none d-sm-inline">Admin portal</span>
           </a>
           <nav aria-label="Admin portal">
@@ -110,6 +110,7 @@ class AdminHeader extends HTMLElement {
           </div>
         </div>
       </header>`;
+    window.mbgApplyBrand?.();
     this.querySelector('[data-sign-out]').addEventListener('click', signOut);
     showDemoBanner(this);
     currentUser.then((user) => {

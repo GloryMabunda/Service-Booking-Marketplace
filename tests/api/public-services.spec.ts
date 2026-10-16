@@ -124,7 +124,7 @@ describe('Public services API', () => {
     const before = Date.now();
     const { body } = await get();
     expect(body.business).toEqual({
-      name: 'Make Up by Glory',
+      name: 'Your Business',
       email: 'bookings@example.com',
       phone: null,
     });

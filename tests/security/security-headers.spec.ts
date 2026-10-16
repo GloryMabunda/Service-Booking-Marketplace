@@ -43,7 +43,7 @@ describe('Security headers', () => {
       ['/admin/login.html', 200],
       ['/js/home-page.js', 200],
       ['/css/site.css', 200],
-      ['/images/logo/favicon-64.png', 200],
+      ['/images/brand/favicon-64.png', 200],
       ['/this-page-does-not-exist.html', 404],
       ['/api/services', 200],
       ['/api/site', 200],

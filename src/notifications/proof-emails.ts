@@ -36,7 +36,7 @@ export function renderProofRejected(d: ProofRejectedData): RenderedEmail {
         p: `Your deposit of ${d.deposit} is still due by ${d.deadline}. If it isn't received by then, the booking expires.`,
       },
       { p: 'If you think this is a mistake, just reply to this email.' },
-      { p: 'Thank you,\nGlory' },
+      { p: `Thank you,\n${d.business.name}` },
     ],
     clientFooter(d.business),
   );

@@ -55,8 +55,8 @@ class SiteHeader extends HTMLElement {
       <header class="mbg-site-header sticky-top">
         <nav class="navbar navbar-expand-lg" aria-label="Main">
           <div class="mbg-container w-100 d-flex flex-wrap align-items-center justify-content-between">
-            <a class="navbar-brand py-0" href="/">
-              <img class="mbg-header-logo" src="/images/logo/logo-horizontal.png" alt="Make Up by Glory" width="138" height="48">
+            <a class="navbar-brand py-0" href="/" aria-label="Home">
+              <span data-brand-mark></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-nav" aria-controls="site-nav" aria-expanded="false" aria-label="Open the menu">
               <span class="navbar-toggler-icon"></span>
@@ -72,6 +72,7 @@ class SiteHeader extends HTMLElement {
           </div>
         </nav>
       </header>`;
+    window.mbgApplyBrand?.();
     showDemoBanner(this);
   }
 }
@@ -83,8 +84,8 @@ class SiteFooter extends HTMLElement {
       <footer class="mbg-site-footer">
         <div class="mbg-container d-flex flex-column flex-md-row flex-wrap justify-content-between gap-3">
           <div>
-            <p class="mbg-footer-name mb-1">Make Up by Glory</p>
-            <p class="mb-0 small">Makeup for every occasion.</p>
+            <p class="mbg-footer-name mb-1" data-brand-name></p>
+            <p class="mb-0 small" data-brand-tagline hidden></p>
           </div>
           <nav aria-label="Footer">
             <ul class="list-unstyled d-flex flex-wrap gap-3 mb-0 small">
@@ -95,9 +96,10 @@ class SiteFooter extends HTMLElement {
           </nav>
         </div>
         <div class="mbg-container mt-3">
-          <p class="mb-0 small mbg-footer-legal">© ${year} Make Up by Glory. All rights reserved.</p>
+          <p class="mb-0 small mbg-footer-legal">© ${year} <span data-brand-name></span>. All rights reserved.</p>
         </div>
       </footer>`;
+    window.mbgApplyBrand?.();
   }
 }
 

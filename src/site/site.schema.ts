@@ -60,6 +60,7 @@ export const siteContentPatchSchema = z
     tiktokUrl: social('tiktok', 'tiktok.com'),
     heroImageAlt: nullableText('alt text', 250),
     aboutImageAlt: nullableText('alt text', 250),
+    logoImageAlt: nullableText('alt text', 250),
   })
   .partial()
   .superRefine((value, context) => {
@@ -87,7 +88,7 @@ export const siteContentPatchSchema = z
 export type SiteContentPatch = z.infer<typeof siteContentPatchSchema>;
 
 // The photo slots of the home page
-export const imageSlotSchema = z.enum(['hero', 'about']);
+export const imageSlotSchema = z.enum(['hero', 'about', 'logo']);
 
 // PATCH /api/admin/gallery/:id
 export const galleryPatchSchema = z.strictObject({

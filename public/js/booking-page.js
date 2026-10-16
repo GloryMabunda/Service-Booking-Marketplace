@@ -48,7 +48,7 @@ function render() {
 
   $('#reference').textContent = booking.reference;
   $('#status').replaceChildren(statusBadge(booking.status));
-  document.title = `${booking.reference} · Make Up by Glory`;
+  window.mbgSetTitle?.(booking.reference);
 
   const summary = [
     ['Service', booking.service.name],

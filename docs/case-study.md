@@ -653,7 +653,7 @@ Service-Booking-Marketplace/
 │   ├── index.html
 │   ├── css/            (tokens.css from the style guide, site.css for the page frame)
 │   ├── js/layout.js    (shared <site-header> and <site-footer>)
-│   └── images/logo/
+│   └── images/brand/ (a neutral favicon only; the logo is uploaded in the portal)
 │
 ├── tests/
 │   ├── integration/  (real test database)

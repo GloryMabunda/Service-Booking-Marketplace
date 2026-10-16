@@ -71,7 +71,7 @@ export function renderConfirmedNoDeposit(d: NoDepositData): RenderedEmail {
       },
       { button: { label: 'View my booking', url: d.link } },
       { p: "Please keep this email and don't share the link." },
-      { p: 'See you soon,\nGlory' },
+      { p: `See you soon,\n${d.business.name}` },
     ],
     clientFooter(d.business),
   );
@@ -100,7 +100,7 @@ export function renderBookingExpired(d: ExpiredData): RenderedEmail {
         p: "If you've already paid, please reply to this email with your proof of payment and I'll sort it out.",
       },
       { p: `You're welcome to book again: ${d.bookUrl}` },
-      { p: 'Glory' },
+      { p: d.business.name },
     ],
     clientFooter(d.business),
   );

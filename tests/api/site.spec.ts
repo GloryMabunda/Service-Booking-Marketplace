@@ -63,6 +63,7 @@ interface Content {
   aboutText: string;
   heroImage: Image | null;
   aboutImage: Image | null;
+  logoImage: Image | null;
   locationType: string | null;
   locationText: string | null;
   whatsappNumber: string | null;
@@ -226,6 +227,7 @@ describe('Home page content API', () => {
         about: [],
         heroImage: null,
         aboutImage: null,
+        logoImage: null,
         location: null,
         social: {
           whatsapp: null,

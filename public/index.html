@@ -3,12 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Make Up by Glory</title>
-    <meta
-      name="description"
-      content="Book makeup appointments with Make Up by Glory online."
-    />
-    <link rel="icon" type="image/png" href="/images/logo/favicon-64.png" />
+    <title>Home</title>
+    <meta name="description" content="Book appointments online." />
+    <link rel="icon" type="image/png" href="/images/brand/favicon-64.png" />
 
     <!-- Every page loads these in this order: Bootstrap, its icons, the brand tokens, the site layout (#23). -->
     <link
@@ -25,6 +22,7 @@
     />
     <link rel="stylesheet" href="/css/tokens.css" />
     <link rel="stylesheet" href="/css/site.css" />
+    <script src="/js/brand.js" defer></script>
     <script src="/js/layout.js" defer></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -45,15 +43,14 @@
       <header class="mbg-hero" id="hero">
         <div class="mbg-hero-photo-wrap" id="hero-photo" hidden></div>
         <div class="mbg-container text-center mbg-section" id="hero-text">
-          <img
-            class="mbg-hero-logo mb-4"
+          <div
+            class="mb-4"
             id="hero-logo"
-            src="/images/logo/logo-600.png"
-            alt="Make Up by Glory"
-            width="320"
-            height="320"
-          />
-          <h1 class="mbg-hero-title" id="hero-title">Make Up by Glory</h1>
+            data-brand-mark
+            data-size="hero"
+            hidden
+          ></div>
+          <h1 class="mbg-hero-title" id="hero-title">Book an appointment</h1>
           <p class="mbg-readable mx-auto mb-4" id="hero-tagline">
             Choose a service, pick a time that suits you and secure it with a
             deposit.

@@ -88,7 +88,7 @@ export async function seedDemo(
 
   await app.get(SettingsService, { strict: false }).update(
     {
-      businessName: 'Make Up by Glory (demo)',
+      businessName: 'Glow Studio (demo)',
       businessEmail: 'demo@example.com',
       bankingDetails: {
         accountName: 'Demo Account',
