@@ -40,7 +40,7 @@ describe('createEmailProvider', () => {
       config({
         SMTP_HOST: 'smtp.example.com',
         SMTP_PORT: 587,
-        MAIL_FROM: 'Make Up by Glory <bookings@example.com>',
+        MAIL_FROM: 'Fresh Start Home Services <bookings@example.com>',
       }),
       new DemoMailbox(),
     );

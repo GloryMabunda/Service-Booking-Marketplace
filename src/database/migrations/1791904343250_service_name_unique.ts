@@ -1,7 +1,7 @@
 import { type Kysely, sql } from 'kysely';
 
 // Service rules from docs/api.md 7.12 that the first migration didn't enforce
-// (#29): names are unique ignoring case ("Soft Glam" and "soft glam" are the
+// (#29): names are unique ignoring case ("Standard Clean" and "standard clean" are the
 // same service), and descriptions are at most 2,000 characters.
 export async function up(db: Kysely<any>): Promise<void> {
   await sql

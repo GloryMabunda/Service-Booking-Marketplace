@@ -26,13 +26,13 @@ describe('settingsPatchSchema', () => {
       minPaymentWindowHours: 3,
       timeZone: 'Africa/Johannesburg',
       bankingDetails: {
-        accountName: ' Make Up by Glory ',
+        accountName: ' Fresh Start Home Services ',
         bank: 'Example Bank',
         accountNumber: '1234567890',
         branchCode: '250655',
         accountType: 'Cheque',
       },
-      businessName: 'Make Up by Glory',
+      businessName: 'Fresh Start Home Services',
       businessEmail: ' Bookings@Example.com ',
       businessPhone: '082 123 4567',
     });
@@ -41,7 +41,7 @@ describe('settingsPatchSchema', () => {
       depositPercent: '40.00',
       businessEmail: 'bookings@example.com',
       businessPhone: '+27821234567',
-      bankingDetails: { accountName: 'Make Up by Glory' },
+      bankingDetails: { accountName: 'Fresh Start Home Services' },
     });
   });
 

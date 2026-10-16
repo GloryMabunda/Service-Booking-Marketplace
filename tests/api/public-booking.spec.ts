@@ -42,7 +42,7 @@ class FakeEmailProvider implements EmailProvider {
 
 const PREFIX = 'Public booking test ';
 const BANKING = {
-  accountName: 'Make Up by Glory',
+  accountName: 'Fresh Start Home Services',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',
@@ -100,7 +100,7 @@ describe('Booking link API', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -340,7 +340,7 @@ describe('Booking link API', () => {
         reference: booking.reference,
         status: 'pending',
         paymentStatus: 'awaiting_payment',
-        service: { name: `${PREFIX}Soft Glam`, durationMinutes: 90 },
+        service: { name: `${PREFIX}Standard Clean`, durationMinutes: 90 },
         price: '650.00',
         depositAmount: '325.00',
       });

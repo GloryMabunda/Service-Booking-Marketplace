@@ -44,7 +44,7 @@ describe('Booking lookup', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -141,7 +141,7 @@ describe('Booking lookup', () => {
         reference: booking.reference,
         status: 'pending',
         paymentStatus: 'awaiting_payment',
-        service: { name: `${PREFIX}Soft Glam`, durationMinutes: 90 },
+        service: { name: `${PREFIX}Standard Clean`, durationMinutes: 90 },
         startAt: localAt(TUESDAY, '09:00').toISOString().replace('.000Z', 'Z'),
         endAt: localAt(TUESDAY, '10:30').toISOString().replace('.000Z', 'Z'),
         timeZone: 'Africa/Johannesburg',

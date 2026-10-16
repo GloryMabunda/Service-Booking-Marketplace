@@ -7,12 +7,12 @@ import {
 const data: PaymentInstructionsData = {
   clientFirstName: 'Sarah',
   business: {
-    name: 'Make Up by Glory',
+    name: 'Fresh Start Home Services',
     email: 'bookings@example.com',
     phone: '082 000 0000',
   },
   reference: 'BK-000123',
-  service: 'Soft Glam',
+  service: 'Standard Clean',
   when: 'Tuesday 13 October 2026 at 09:00',
   endTime: '10:30',
   price: 'R650',
@@ -20,7 +20,7 @@ const data: PaymentInstructionsData = {
   balance: 'R325',
   deadline: 'Monday 12 October 2026 at 14:00',
   bank: {
-    accountName: 'Make Up by Glory',
+    accountName: 'Fresh Start Home Services',
     bank: 'Example Bank',
     accountNumber: '1234567890',
     branchCode: '250655',
@@ -58,7 +58,7 @@ describe('renderPaymentInstructions', () => {
   it('shows every banking detail, the deposit, the deadline and the balance', () => {
     for (const body of [email.text, email.html]) {
       for (const value of [
-        'Make Up by Glory',
+        'Fresh Start Home Services',
         'Example Bank',
         '1234567890',
         '250655',

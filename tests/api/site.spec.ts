@@ -100,7 +100,7 @@ describe('Home page content API', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Bridal`,
+        name: `${PREFIX}Laundry`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -290,14 +290,13 @@ describe('Home page content API', () => {
 
     it('returns the About text as plain paragraphs, never as markup', async () => {
       await patchContent({
-        aboutText:
-          "Hi, I'm Glory.\n\n<script>alert(1)</script>\n\n  Book now!  ",
+        aboutText: "Hi, I'm Sam.\n\n<script>alert(1)</script>\n\n  Book now!  ",
       });
       const { content } = bodyOf<{ content: { about: string[] } }>(
         await site(),
       );
       expect(content.about).toEqual([
-        "Hi, I'm Glory.",
+        "Hi, I'm Sam.",
         '<script>alert(1)</script>',
         'Book now!',
       ]);
@@ -309,7 +308,7 @@ describe('Home page content API', () => {
         locationType: 'travel',
         locationText: 'Pretoria East and Centurion',
         whatsappNumber: '082 123 4567',
-        instagramUrl: 'https://instagram.com/makeupbyglory',
+        instagramUrl: 'https://instagram.com/freshstarthome',
       });
       const { content } = bodyOf<{ content: Record<string, unknown> }>(
         await site(),
@@ -322,7 +321,7 @@ describe('Home page content API', () => {
             number: '+27821234567',
             url: 'https://wa.me/27821234567',
           },
-          instagram: 'https://instagram.com/makeupbyglory',
+          instagram: 'https://instagram.com/freshstarthome',
           facebook: null,
           tiktok: null,
         },
@@ -386,35 +385,35 @@ describe('Home page content API', () => {
         (r) => r.item as GalleryItem,
       );
       await as(http().patch(`/api/admin/gallery/${item.id}`)).send({
-        caption: 'Bridal, September',
+        caption: 'Laundry, September',
       });
       const first = bodyOf<{ gallery: { alt: string; caption: string }[] }>(
         await site(),
       ).gallery[0];
       expect(first).toMatchObject({
-        alt: 'Bridal, September',
-        caption: 'Bridal, September',
+        alt: 'Laundry, September',
+        caption: 'Laundry, September',
       });
       await as(http().patch(`/api/admin/gallery/${item.id}`)).send({
-        altText: 'A bride in soft glam',
+        altText: 'A bright kitchen',
       });
       expect(
         bodyOf<{ gallery: { alt: string }[] }>(await site()).gallery[0].alt,
-      ).toBe('A bride in soft glam');
+      ).toBe('A bright kitchen');
     });
   });
 
   describe('About, contact and area (#104, A-10)', () => {
     it('saves any subset of the fields and returns everything', async () => {
-      const res = await patchContent({ tagline: '  Soft glam, bridal  ' });
+      const res = await patchContent({ tagline: '  Clean, fresh  ' });
       expect(res.status).toBe(200);
       const { content } = bodyOf<{ content: Content }>(res);
       expect(content).toMatchObject({
-        tagline: 'Soft glam, bridal',
+        tagline: 'Clean, fresh',
         aboutText: '',
       });
       await patchContent({ aboutText: 'Hello' });
-      expect((await getContent()).tagline).toBe('Soft glam, bridal'); // untouched
+      expect((await getContent()).tagline).toBe('Clean, fresh'); // untouched
     });
 
     it('turns an empty box into nothing', async () => {
@@ -463,9 +462,9 @@ describe('Home page content API', () => {
 
     it('takes https links on each network', async () => {
       const res = await patchContent({
-        instagramUrl: 'https://www.instagram.com/makeupbyglory',
-        facebookUrl: 'https://facebook.com/makeupbyglory',
-        tiktokUrl: 'https://www.tiktok.com/@makeupbyglory',
+        instagramUrl: 'https://www.instagram.com/freshstarthome',
+        facebookUrl: 'https://facebook.com/freshstarthome',
+        tiktokUrl: 'https://www.tiktok.com/@freshstarthome',
       });
       expect(res.status).toBe(200);
     });
@@ -514,7 +513,7 @@ describe('Home page content API', () => {
     });
 
     it('will not describe a photo that is not there yet', async () => {
-      const res = await patchContent({ heroImageAlt: 'A bride' });
+      const res = await patchContent({ heroImageAlt: 'A clean room' });
       expect(res.status).toBe(400);
       expect(errorBody(res).details?.[0].field).toBe('heroImageAlt');
     });
@@ -526,12 +525,12 @@ describe('Home page content API', () => {
         'hero',
         await jpeg(3000, 2000),
         'hero.jpg',
-        'A bride',
+        'A clean room',
       );
       expect(res.status).toBe(200);
       const { heroImage } = bodyOf<{ content: Content }>(res).content;
       expect(heroImage).toMatchObject({
-        altText: 'A bride',
+        altText: 'A clean room',
         width: 1600,
         height: 1067,
         duplicateOf: [],
@@ -552,7 +551,7 @@ describe('Home page content API', () => {
       const pub = bodyOf<{ content: { heroImage: Record<string, unknown> } }>(
         await site(),
       ).content.heroImage;
-      expect(pub.alt).toBe('A bride');
+      expect(pub.alt).toBe('A clean room');
       expect(pub.thumb).toMatchObject({ width: 480, height: 320 });
     });
 
@@ -602,9 +601,9 @@ describe('Home page content API', () => {
 
     it('describes a photo through the content', async () => {
       await putImage('hero', await jpeg());
-      const res = await patchContent({ heroImageAlt: 'Soft glam bride' });
+      const res = await patchContent({ heroImageAlt: 'Bright kitchen' });
       expect(bodyOf<{ content: Content }>(res).content.heroImage?.altText).toBe(
-        'Soft glam bride',
+        'Bright kitchen',
       );
     });
 
@@ -782,7 +781,7 @@ describe('Home page content API', () => {
       expect(items[0]).toMatchObject({
         isVisible: true,
         caption: null,
-        service: { id: service.id, name: `${PREFIX}Bridal` },
+        service: { id: service.id, name: `${PREFIX}Laundry` },
         consentConfirmedBy: { email: admin.email },
       });
       expect(items[1].image).toMatchObject({ width: 60, height: 80 });
@@ -933,17 +932,17 @@ describe('Home page content API', () => {
         (r) => r.item as GalleryItem,
       );
       const res = await as(http().patch(`/api/admin/gallery/${item.id}`)).send({
-        caption: '  Bridal, September  ',
-        altText: 'A bride',
+        caption: '  Laundry, September  ',
+        altText: 'A clean room',
         serviceId: service.id,
         isVisible: false,
       });
       expect(res.status).toBe(200);
       expect(bodyOf<{ item: GalleryItem }>(res).item).toMatchObject({
-        caption: 'Bridal, September',
+        caption: 'Laundry, September',
         isVisible: false,
         service: { id: service.id },
-        image: { altText: 'A bride' },
+        image: { altText: 'A clean room' },
       });
       const cleared = await as(
         http().patch(`/api/admin/gallery/${item.id}`),
@@ -1061,7 +1060,7 @@ describe('Home page content API', () => {
       }>(await post('Naledi', { serviceId: service.id })).item;
       expect([a.position, b.position]).toEqual([0, 1]);
       expect(a).toMatchObject({ isVisible: true, service: null });
-      expect(b.service.name).toBe(`${PREFIX}Bridal`);
+      expect(b.service.name).toBe(`${PREFIX}Laundry`);
 
       const edit = await as(
         http().patch(`/api/admin/testimonials/${a.id}`),

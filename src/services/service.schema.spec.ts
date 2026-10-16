@@ -20,12 +20,12 @@ describe('createServiceSchema', () => {
   it('accepts a service and fills in the optional fields', () => {
     expect(
       createServiceSchema.parse({
-        name: '  Soft Glam ',
+        name: '  Standard Clean ',
         price: '650',
         durationMinutes: 90,
       }),
     ).toEqual({
-      name: 'Soft Glam',
+      name: 'Standard Clean',
       description: '',
       price: '650.00',
       durationMinutes: 90,
@@ -38,7 +38,7 @@ describe('createServiceSchema', () => {
   it('keeps a description and an inactive flag', () => {
     expect(
       createServiceSchema.parse({
-        name: 'Bridal',
+        name: 'Laundry',
         description: ' Trial included. ',
         price: '2500.5',
         durationMinutes: 120,
@@ -87,7 +87,11 @@ describe('createServiceSchema', () => {
     ],
     [{ isActive: 'yes' }, 'isActive: Must be true or false.'],
   ])('rejects %j', (change, message) => {
-    const base = { name: 'Soft Glam', price: '650.00', durationMinutes: 90 };
+    const base = {
+      name: 'Standard Clean',
+      price: '650.00',
+      durationMinutes: 90,
+    };
     expect(problems(createServiceSchema, { ...base, ...change })).toEqual([
       message,
     ]);
@@ -106,7 +110,7 @@ describe('createServiceSchema', () => {
   it('rejects unknown fields', () => {
     expect(
       createServiceSchema.safeParse({
-        name: 'Soft Glam',
+        name: 'Standard Clean',
         price: '650.00',
         durationMinutes: 90,
         colour: 'pink',
@@ -138,7 +142,7 @@ describe('toService', () => {
       toService(
         {
           id: '5b0d3c1e-0000-4000-8000-000000000001',
-          name: 'Soft Glam',
+          name: 'Standard Clean',
           description: '',
           price: '650.00',
           duration_minutes: 90,
@@ -153,7 +157,7 @@ describe('toService', () => {
       ),
     ).toEqual({
       id: '5b0d3c1e-0000-4000-8000-000000000001',
-      name: 'Soft Glam',
+      name: 'Standard Clean',
       description: '',
       price: '650.00',
       durationMinutes: 90,

@@ -74,7 +74,7 @@ describe('Admin bookings API', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -330,7 +330,7 @@ describe('Admin bookings API', () => {
         reference: row.reference,
         status: 'pending',
         paymentStatus: 'awaiting_payment',
-        service: { id: service.id, name: `${PREFIX}Soft Glam` },
+        service: { id: service.id, name: `${PREFIX}Standard Clean` },
         client: {
           name: row.client_name,
           email: row.client_email,
@@ -561,7 +561,7 @@ describe('Admin bookings API', () => {
       // The confirmation email carries a new link and the old one is dead
       expect(toClient(row)).toHaveLength(1);
       const email = toClient(row)[0];
-      expect(email.subject).toMatch(/^You're booked! .*Soft Glam on /);
+      expect(email.subject).toMatch(/^You're booked! .*Standard Clean on /);
       expect(email.text).toContain('your deposit of R325 has been received');
       expect(email.text).toContain('Cancel by ');
       const newToken = TOKEN_IN_LINK.exec(email.text)?.[1] ?? '';

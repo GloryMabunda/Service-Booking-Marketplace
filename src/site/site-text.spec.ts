@@ -73,8 +73,8 @@ describe('policyText', () => {
 describe('aboutParagraphs', () => {
   it('splits at blank lines and trims', () => {
     expect(
-      aboutParagraphs("Hi, I'm Glory.\n\nI travel to you.\n\n\n  Book now!  "),
-    ).toEqual(["Hi, I'm Glory.", 'I travel to you.', 'Book now!']);
+      aboutParagraphs("Hi, I'm Sam.\n\nI travel to you.\n\n\n  Book now!  "),
+    ).toEqual(["Hi, I'm Sam.", 'I travel to you.', 'Book now!']);
   });
 
   it('keeps single line breaks inside a paragraph and handles Windows line endings', () => {
@@ -104,11 +104,11 @@ describe('whatsappUrl', () => {
 
 describe('isSocialUrl', () => {
   it.each([
-    ['instagram', 'https://instagram.com/makeupbyglory'],
-    ['instagram', 'https://www.instagram.com/makeupbyglory/'],
-    ['facebook', 'https://facebook.com/makeupbyglory'],
-    ['facebook', 'https://m.facebook.com/makeupbyglory'],
-    ['tiktok', 'https://www.tiktok.com/@makeupbyglory'],
+    ['instagram', 'https://instagram.com/freshstarthome'],
+    ['instagram', 'https://www.instagram.com/freshstarthome/'],
+    ['facebook', 'https://facebook.com/freshstarthome'],
+    ['facebook', 'https://m.facebook.com/freshstarthome'],
+    ['tiktok', 'https://www.tiktok.com/@freshstarthome'],
   ] as const)('accepts %s %s', (network, url) => {
     expect(isSocialUrl(network, url)).toBe(true);
   });

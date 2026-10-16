@@ -61,7 +61,7 @@ class RecordingNotifier implements BookingNotifier {
 const PREFIX = 'Booking test ';
 const TUESDAY = upcoming(2);
 const REAL_BANKING = {
-  accountName: 'Make Up by Glory',
+  accountName: 'Fresh Start Home Services',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',
@@ -108,7 +108,7 @@ describe('Bookings API', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -193,7 +193,7 @@ describe('Bookings API', () => {
       const { booking, emailSentTo } = bodyOf<CreatedBooking>(res);
       expect(booking).toMatchObject({
         status: 'pending',
-        service: { name: `${PREFIX}Soft Glam`, durationMinutes: 90 },
+        service: { name: `${PREFIX}Standard Clean`, durationMinutes: 90 },
         startAt: localAt(TUESDAY, '09:00').toISOString().replace('.000Z', 'Z'),
         endAt: localAt(TUESDAY, '10:30').toISOString().replace('.000Z', 'Z'),
         timeZone: 'Africa/Johannesburg',

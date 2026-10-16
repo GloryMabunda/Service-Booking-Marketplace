@@ -126,7 +126,7 @@ describe('Gallery upload security', () => {
             Make: 'SecretCameraMaker',
             Model: 'PrivateModel 9',
             Copyright: 'Someone Private',
-            Artist: 'Glory Real Name',
+            Artist: 'Sam Real Name',
           },
           IFD3: {
             GPSLatitudeRef: 'S',
@@ -141,7 +141,7 @@ describe('Gallery upload security', () => {
       for (const secret of [
         'SecretCameraMaker',
         'PrivateModel',
-        'Glory Real Name',
+        'Sam Real Name',
       ]) {
         expect(tagged.includes(Buffer.from(secret))).toBe(true);
       }
@@ -154,7 +154,7 @@ describe('Gallery upload security', () => {
         for (const secret of [
           'SecretCameraMaker',
           'PrivateModel',
-          'Glory Real Name',
+          'Sam Real Name',
           'Someone Private',
           'GPS',
           'Exif',

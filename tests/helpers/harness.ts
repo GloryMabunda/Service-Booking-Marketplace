@@ -70,7 +70,7 @@ export const sha256 = (data: string | Buffer) =>
   createHash('sha256').update(data).digest();
 
 export const BANKING = {
-  accountName: 'Make Up by Glory',
+  accountName: 'Fresh Start Home Services',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',
@@ -137,7 +137,7 @@ export async function startHarness(prefix: string): Promise<Harness> {
   const service = await db
     .insertInto('services')
     .values({
-      name: `${prefix} Soft Glam`,
+      name: `${prefix} Standard Clean`,
       price: '650.00',
       duration_minutes: 90,
     })

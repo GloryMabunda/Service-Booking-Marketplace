@@ -65,7 +65,7 @@ describe('BookingsRepository', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -155,7 +155,7 @@ describe('BookingsRepository', () => {
       await db
         .updateTable('services')
         .set({
-          name: `${PREFIX}Soft Glam`,
+          name: `${PREFIX}Standard Clean`,
           price: '650.00',
           duration_minutes: 90,
           is_active: true,

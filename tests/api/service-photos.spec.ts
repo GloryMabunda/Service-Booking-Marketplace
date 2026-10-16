@@ -56,11 +56,11 @@ describe('Service pictures', () => {
 
   describe('uploading', () => {
     it('saves a processed picture and shows it to the owner and to clients', async () => {
-      const res = await upload(await png(), { altText: 'A soft glam look' });
+      const res = await upload(await png(), { altText: 'A tidy kitchen' });
       expect(res.status, JSON.stringify(res.body)).toBe(200);
       expect(res.headers['cache-control']).toBe('no-store');
       expect(res.body.service.image).toMatchObject({
-        altText: 'A soft glam look',
+        altText: 'A tidy kitchen',
         width: 1200,
         height: 800,
       });
@@ -70,7 +70,7 @@ describe('Service pictures', () => {
 
       const publicService = await mine();
       expect(publicService.image).toMatchObject({
-        alt: 'A soft glam look',
+        alt: 'A tidy kitchen',
         thumb: {
           url: res.body.service.image.thumb.url,
           width: 480,
@@ -86,7 +86,7 @@ describe('Service pictures', () => {
 
     it('describes the picture by the service name when no description is given', async () => {
       await upload(await png());
-      expect((await mine()).image.alt).toBe('svcphoto Soft Glam');
+      expect((await mine()).image.alt).toBe('svcphoto Standard Clean');
     });
 
     it('replaces the old picture and deletes its files', async () => {

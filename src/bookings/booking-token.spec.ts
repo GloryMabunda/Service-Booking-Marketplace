@@ -53,8 +53,8 @@ describe('booking link token (BR-15, #47)', () => {
 
   describe('bookingLink', () => {
     it('builds /booking/<token> on the site address', () => {
-      expect(bookingLink('https://makeupbyglory.example', 'abc')).toBe(
-        'https://makeupbyglory.example/booking/abc',
+      expect(bookingLink('https://freshstarthome.example', 'abc')).toBe(
+        'https://freshstarthome.example/booking/abc',
       );
     });
 

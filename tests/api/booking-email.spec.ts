@@ -42,7 +42,7 @@ class FakeEmailProvider implements EmailProvider {
 
 const PREFIX = 'Booking email test ';
 const BANKING = {
-  accountName: 'Make Up by Glory',
+  accountName: 'Fresh Start Home Services',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',
@@ -89,7 +89,7 @@ describe('Booking emails', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -181,7 +181,7 @@ describe('Booking emails', () => {
         expect(body).toContain('250655');
         expect(body).toContain(ref);
         expect(body).toContain('R325');
-        expect(body).toContain('Soft Glam');
+        expect(body).toContain('Standard Clean');
         expect(body).toContain('not confirmed yet');
         expect(body).toContain('only once your deposit reflects');
       }
@@ -233,7 +233,7 @@ describe('Booking emails', () => {
 
       expect(toClient()).toHaveLength(1);
       const email = toClient()[0];
-      expect(email.subject).toMatch(/^You're booked! .*Soft Glam on /);
+      expect(email.subject).toMatch(/^You're booked! .*Standard Clean on /);
       expect(email.text).toContain('Your booking is confirmed.');
       expect(email.text).not.toMatch(/deposit/i);
       const token = TOKEN_IN_LINK.exec(email.text)?.[1] ?? '';
@@ -253,14 +253,14 @@ describe('Booking emails', () => {
       expect(toOwner()).toHaveLength(1);
       const email = toOwner()[0];
       expect(email.subject).toMatch(
-        /^New booking: Sarah Mokoena, .*Soft Glam, /,
+        /^New booking: Sarah Mokoena, .*Standard Clean, /,
       );
       for (const part of [
         reference(res),
         'Sarah Mokoena',
         person.clientEmail,
         '+27825551234',
-        'Soft Glam',
+        'Standard Clean',
         'R325',
         'Pending (awaiting deposit)',
       ]) {
@@ -346,7 +346,7 @@ describe('Booking emails', () => {
       const email = toClient()[0];
       expect(email.subject).toBe(`Your booking request ${ref} has expired`);
       expect(email.text).toContain('the booking has expired');
-      expect(email.text).toContain('Soft Glam');
+      expect(email.text).toContain('Standard Clean');
       // The expiry email carries no booking link (BR-15)
       expect(email.text).not.toMatch(/\/booking\/[\w-]{43}/);
       const row = await db

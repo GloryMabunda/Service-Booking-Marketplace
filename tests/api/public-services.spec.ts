@@ -73,16 +73,16 @@ describe('Public services API', () => {
   });
 
   it('lists active services with the deposit worked out from the settings (BR-7)', async () => {
-    await addService('Soft Glam', '650.00');
-    await addService('Bridal', '1200.50');
+    await addService('Standard Clean', '650.00');
+    await addService('Laundry', '1200.50');
     const { body } = await get();
 
     expect(body.depositPercent).toBe('50.00');
     expect(mine(body)).toEqual([
       {
         id: expect.any(String) as string,
-        name: `${PREFIX}Bridal`,
-        description: 'About Bridal',
+        name: `${PREFIX}Laundry`,
+        description: 'About Laundry',
         price: '1200.50',
         durationMinutes: 90,
         depositAmount: '600.25',
@@ -92,8 +92,8 @@ describe('Public services API', () => {
       },
       {
         id: expect.any(String) as string,
-        name: `${PREFIX}Soft Glam`,
-        description: 'About Soft Glam',
+        name: `${PREFIX}Standard Clean`,
+        description: 'About Standard Clean',
         price: '650.00',
         durationMinutes: 90,
         depositAmount: '325.00',

@@ -91,7 +91,7 @@ describe('Admin proofs and calendar API', () => {
     service = await db
       .insertInto('services')
       .values({
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         price: '650.00',
         duration_minutes: 90,
       })
@@ -572,7 +572,7 @@ describe('Admin proofs and calendar API', () => {
         {
           id: pending.id,
           reference: pending.reference,
-          title: `${PREFIX}Soft Glam · ${pending.client_name}`,
+          title: `${PREFIX}Standard Clean · ${pending.client_name}`,
           start: pending.start_at.toISOString().replace('.000Z', 'Z'),
           end: pending.end_at.toISOString().replace('.000Z', 'Z'),
           status: 'pending',
