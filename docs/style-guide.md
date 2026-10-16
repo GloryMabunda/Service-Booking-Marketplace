@@ -96,7 +96,7 @@ All components are Bootstrap 5.3, themed by `tokens.css` and `theme.css`. See th
 
 | Class | Use | Look |
 | --- | --- | --- |
-| `.btn-book` | Book now and the booking steps | Deep navy, white text |
+| `.btn-book` | Book now and the booking steps | Deep navy, white text, rounded corners; the hero one has a sparkle and an arrow |
 | `.btn-primary` | The main action of a page or dialog (Confirm payment, Save) | Primary blue, white text |
 | `.btn-outline-primary` | Secondary actions (See gallery, Cancel) | Primary outline |
 | Text link | Inline navigation | Primary colour, underlined on hover |

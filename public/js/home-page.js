@@ -114,7 +114,7 @@ function serviceCard(service, depositApplies) {
   if (service.availableForTravel) {
     const where = el('p', 'small text-secondary mb-2');
     where.append(
-      icon('bi-geo-alt'),
+      icon('bi-house-check'),
       document.createTextNode(
         service.availableAtOurPlace
           ? 'At our place or yours'
@@ -360,7 +360,7 @@ function renderContact({ business, content, workingHours }) {
 
   if (content.location) {
     $('#where-text').replaceChildren(
-      icon('bi-geo-alt'),
+      icon('bi-house-check'),
       document.createTextNode(
         content.location.type === 'travel'
           ? `I travel to you in ${content.location.text}.`

@@ -71,6 +71,7 @@ h3, .h3 { font-size: var(--mbg-size-h3); font-weight: 700; }
 .btn-primary { --bs-btn-bg: var(--mbg-primary); --bs-btn-border-color: var(--mbg-primary); --bs-btn-hover-bg: var(--mbg-primary-dark); --bs-btn-hover-border-color: var(--mbg-primary-dark); --bs-btn-active-bg: var(--mbg-primary-dark); --bs-btn-active-border-color: var(--mbg-primary-dark); --bs-btn-disabled-bg: var(--mbg-disabled); --bs-btn-disabled-border-color: var(--mbg-disabled); --bs-btn-disabled-color: #FFFFFF; }
 .btn-outline-primary { --bs-btn-color: var(--mbg-primary); --bs-btn-border-color: var(--mbg-primary); --bs-btn-hover-bg: var(--mbg-primary); --bs-btn-hover-border-color: var(--mbg-primary); --bs-btn-hover-color: #FFFFFF; --bs-btn-active-bg: var(--mbg-primary-dark); --bs-btn-border-width: 2px; }
 .btn-book { --bs-btn-color: var(--mbg-on-action); --bs-btn-bg: var(--mbg-action); --bs-btn-border-color: var(--mbg-action); --bs-btn-hover-color: var(--mbg-on-action); --bs-btn-hover-bg: var(--mbg-action-dark); --bs-btn-hover-border-color: var(--mbg-action-dark); --bs-btn-active-color: var(--mbg-on-action); --bs-btn-active-bg: var(--mbg-action-dark); --bs-btn-disabled-bg: var(--mbg-action-disabled); --bs-btn-disabled-border-color: var(--mbg-action-disabled); --bs-btn-disabled-color: var(--mbg-action-disabled-text); }
+.btn-book { --bs-btn-border-radius: 10px; --bs-btn-font-weight: 600; letter-spacing: .01em; }
 
 /* Forms */
 .form-control, .form-select { border-color: var(--mbg-field-border); border-radius: var(--mbg-radius-input); }
