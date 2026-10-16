@@ -29,7 +29,7 @@ function servicePicture(service) {
   }
   const empty = el('div', 'mbg-service-picture mbg-service-picture-empty');
   empty.setAttribute('aria-hidden', 'true');
-  empty.append(el('i', 'bi bi-stars'));
+  empty.append(el('i', 'bi bi-droplet'));
   return empty;
 }
 
@@ -37,7 +37,7 @@ function servicePicture(service) {
 function placeLine(service) {
   if (!service.availableForTravel) return null;
   const line = el('p', 'small text-secondary mb-2');
-  const icon = el('i', 'bi bi-geo-alt me-1');
+  const icon = el('i', 'bi bi-house-check me-1');
   icon.setAttribute('aria-hidden', 'true');
   line.append(
     icon,
