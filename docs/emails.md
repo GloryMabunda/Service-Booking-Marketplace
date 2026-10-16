@@ -1,6 +1,6 @@
 # Email Content
 
-*Fresh Start Home Services · approved wording for every email in [Specification v1.0](specification.md), section 7 (#13)*
+*Fresh Start · approved wording for every email in [Specification v1.0](specification.md), section 7 (#13)*
 
 The subject, preview text and body of each email the system sends. The notifications module (#54 to #61, #71, #72, #73) renders these templates; the `type` names match `notification_type` in [`database.md`](database.md).
 
@@ -21,7 +21,7 @@ The subject, preview text and body of each email the system sends. The notificat
 | --- | --- |
 | Voice | Warm, clear and personal, in the first person, as the owner ("I'll see you on Tuesday"). Short sentences, no jargon. Owner emails are brief and factual. |
 | Sender | From: `{{business.name}} <bookings address>`. Reply-To: `{{business.email}}`, so a client's reply reaches the owner. |
-| Format | HTML following the [style guide](style-guide.md) (logo, white background, magenta links, orange button for the main action), with a plain-text version of the same words. Width at most 600 px; readable on a phone. |
+| Format | HTML following the [style guide](style-guide.md) (logo, white background, blue links, navy button for the main action), with a plain-text version of the same words. Width at most 600 px; readable on a phone. |
 | Dates and times | Business time zone, written out: "Tuesday 13 October 2026 at 09:00". Times as `HH:mm`. Money as "R325" or "R1,200" (no cents unless there are cents). |
 | Booking link | Appears **only** in an email sent at the moment the link is created: payment instructions, both booking confirmations (a fresh link is issued when payment is confirmed), and a resent link (BR-15). Only the link's hash is stored, so other emails can't include it; they point to the booking details page instead. The link is never shown in owner emails, logs or the notification history. |
 | Personal data | Only what the recipient needs (POPIA). Client emails never show other clients' details; owner emails show the client's name, email and phone. |
@@ -34,7 +34,7 @@ Placeholders use `{{double braces}}`; the templating library is chosen in #55.
 
 | Variable | Example | Source |
 | --- | --- | --- |
-| `{{business.name}}` | Fresh Start Home Services | Settings |
+| `{{business.name}}` | Fresh Start | Settings |
 | `{{business.email}}` | bookings@example.com | Settings |
 | `{{business.phone}}` | 082 123 4567 | Settings (optional; lines using it are left out when empty) |
 | `{{client.firstName}}` | Sarah | First word of the client's name |
@@ -50,7 +50,7 @@ Placeholders use `{{double braces}}`; the templating library is chosen in #55.
 | `{{booking.notes}}` | Please keep the door closed: two cats at home. | Client's notes (owner emails only) |
 | `{{booking.previousStatus}}` | Confirmed | Status just before a cancellation (owner emails only) |
 | `{{booking.link}}` | https://…/booking/… | The booking link, only where allowed (section 1) |
-| `{{bank.accountName}}`, `{{bank.bank}}`, `{{bank.accountNumber}}`, `{{bank.branchCode}}`, `{{bank.accountType}}` | Fresh Start Home Services · Example Bank · 1234567890 · 250655 · Cheque | Settings |
+| `{{bank.accountName}}`, `{{bank.bank}}`, `{{bank.accountNumber}}`, `{{bank.branchCode}}`, `{{bank.accountType}}` | Fresh Start · Example Bank · 1234567890 · 250655 · Cheque | Settings |
 | `{{refund.cutoff}}` | Monday 12 October 2026 at 09:00 | Booking start minus the refund cut-off |
 | `{{refund.cutoffHours}}` | 24 | Settings: refund cut-off in hours |
 | `{{refund.amount}}` | R325 | Amount received |

@@ -17,12 +17,12 @@
   --mbg-primary-rgb: 26, 91, 181;
   --mbg-primary-dark: #134689;   /* primary hover */
   --mbg-primary-dark-rgb: 19, 70, 137;
-  --mbg-action: #FFA040;         /* action: Book now only */
-  --mbg-action-dark: #F08A1C;    /* action hover */
-  --mbg-on-action: #3A1A00;      /* text on the action colour */
+  --mbg-action: #123A66;         /* action: Book now only (deep navy, the strongest thing on the page) */
+  --mbg-action-dark: #0A2646;    /* action hover */
+  --mbg-on-action: #FFFFFF;      /* text on the action colour */
   --mbg-accent: #3B8FE0;         /* large headings, flourishes, decoration; never small text */
   --mbg-accent-text: #1E63A8;    /* small accent text: prices, labels */
-  --mbg-gold: #FFC060;           /* stars, highlights */
+  --mbg-gold: #F2C94C;           /* stars, highlights */
   --mbg-green: #2E7D3E;          /* success, Confirmed */
   --mbg-brand-ink: #123A66;      /* the logo's ink colour */
 
@@ -36,12 +36,12 @@
   /* Controls */
   --mbg-field-border: #A9BEDB;
   --mbg-disabled: #B7C6DA;             /* a disabled primary button */
-  --mbg-action-disabled: #FFD9AE;      /* a disabled Book button */
-  --mbg-action-disabled-text: #7A5A3E;
+  --mbg-action-disabled: #C4D0E2;      /* a disabled Book button */
+  --mbg-action-disabled-text: #3F5169;
 
   /* Section tints */
   --mbg-tint-accent: #E3F0FC;
-  --mbg-tint-cream: #FFF1D6;
+  --mbg-tint-cream: #EEF4FB;
   --mbg-tint-primary: #E8EEFB;
   --mbg-tint-mint: #E9F6EC;
   --mbg-tint-soft: #F5F9FE;
@@ -49,11 +49,11 @@
   /* Feedback */
   --mbg-info-bg: #E3F0FC;    --mbg-info-fg: #123A66;    --mbg-info-line: #1A5BB5;
   --mbg-success-bg: #E9F6EC; --mbg-success-fg: #1F5A2A; --mbg-success-line: #2E7D3E;
-  --mbg-warning-bg: #FFF1D6; --mbg-warning-fg: #6E3B00; --mbg-warning-line: #F08A1C;
+  --mbg-warning-bg: #FFF7D6; --mbg-warning-fg: #5C4700; --mbg-warning-line: #B8920A;
   --mbg-error-bg: #FDE8EC;   --mbg-error-fg: #8E1E3B;   --mbg-error-line: #C42B52;
 
   /* Booking statuses and the demo banner */
-  --mbg-pending-line: #B26A00;
+  --mbg-pending-line: #8A6D00;
   --mbg-completed-line: #9DB6E0;
-  --mbg-cream-line: #E6D3A8;
+  --mbg-cream-line: #C3D3EA;
 }

@@ -17,7 +17,7 @@ const $ = (selector) => document.querySelector(selector);
 const LOOK = {
   pending: {
     bg: '#FFF3E0',
-    border: '#B26A00',
+    border: '#8A6D00',
     text: '#6E3B00',
     mark: '⏳',
     style: 'dashed',

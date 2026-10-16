@@ -3,7 +3,7 @@ import { renderProofRejected } from './proof-emails.js';
 const email = renderProofRejected({
   clientFirstName: 'Sarah',
   business: {
-    name: 'Fresh Start Home Services',
+    name: 'Fresh Start',
     email: 'bookings@example.com',
     phone: null,
   },

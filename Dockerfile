@@ -18,6 +18,8 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
 COPY public ./public
+# The demo data's photos and sample logo (docs/demo.md)
+COPY demo-photos ./demo-photos
 # The uploads folder is a volume owned by the unprivileged user the app runs as
 RUN mkdir -p /data/uploads && chown -R node:node /data
 USER node

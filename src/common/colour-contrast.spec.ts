@@ -71,9 +71,9 @@ describe('text on buttons and badges', () => {
   it.each([
     ['white on a magenta button', '#FFFFFF', 'mbg-primary'],
     ['white on a magenta button, pressed', '#FFFFFF', 'mbg-primary-dark'],
-    ['dark text on the orange Book button', 'mbg-on-action', 'mbg-action'],
+    ['white text on the navy Book button', 'mbg-on-action', 'mbg-action'],
     [
-      'dark text on the orange Book button, pressed',
+      'white text on the navy Book button, pressed',
       'mbg-on-action',
       'mbg-action-dark',
     ],

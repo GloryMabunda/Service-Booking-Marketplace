@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import type { INestApplicationContext } from '@nestjs/common';
 import type { Kysely } from 'kysely';
 import sharp from 'sharp';
@@ -15,7 +18,7 @@ import {
 
 // Fills an empty database with made-up data for the demo (docs/demo.md): a demo
 // administrator, a fake bank account, five services of an imaginary home
-// cleaning and laundry business with pictures, working hours, the travel
+// cleaning and laundry business, Fresh Start, with photos and a logo, working hours, the travel
 // rules, and the home page text, testimonials and questions. Nothing here is
 // real. It only runs on an empty database (no services yet), so restarting
 // never overwrites what someone changed.
@@ -25,15 +28,27 @@ export const DEFAULT_DEMO_ADMIN_PASSWORD = 'demo-admin-1234';
 
 type Place = 'client' | 'both';
 
+// The demo's pictures (free stock photos, credited in demo-photos/CREDITS.md)
+// and its sample logo live in demo-photos/ at the top of the project. If a file
+// is missing, a drawn picture is used instead, so the demo never fails over it.
+export const DEMO_PHOTO_DIR = join(
+  import.meta.dirname,
+  '..',
+  '..',
+  'demo-photos',
+);
+export const DEMO_LOGO = 'logo-fresh-start.png';
+
 // Two blues per service, drawn here as a soft gradient with bubbles, so the
 // demo needs no photo files
-const SERVICES: {
+export const DEMO_SERVICES: {
   name: string;
   description: string;
   price: string;
   durationMinutes: number;
   place: Place;
-  colours: [string, string];
+  photo: string; // a file in demo-photos/
+  colours: [string, string]; // the drawn picture, if the photo is missing
   alt: string;
 }[] = [
   {
@@ -43,8 +58,9 @@ const SERVICES: {
     price: '480.00',
     durationMinutes: 180,
     place: 'client',
+    photo: 'standard-house-clean.jpg',
     colours: ['#D6EBFF', '#1E6FD9'],
-    alt: 'Light and bright blue bubbles for the Standard House Clean',
+    alt: 'A mop cleaning a polished wooden floor',
   },
   {
     name: 'Deep Clean',
@@ -53,8 +69,9 @@ const SERVICES: {
     price: '950.00',
     durationMinutes: 300,
     place: 'client',
+    photo: 'deep-clean.jpg',
     colours: ['#C7D8F7', '#17356E'],
-    alt: 'Deep navy bubbles for the Deep Clean',
+    alt: 'A bright, freshly cleaned bedroom with white linen',
   },
   {
     name: 'Laundry Wash',
@@ -63,8 +80,9 @@ const SERVICES: {
     price: '140.00',
     durationMinutes: 60,
     place: 'both',
+    photo: 'laundry-wash.jpg',
     colours: ['#D4F1F7', '#1B8FA6'],
-    alt: 'Fresh aqua bubbles for the Laundry Wash',
+    alt: 'The control panel of a washing machine',
   },
   {
     name: 'Ironing',
@@ -73,8 +91,9 @@ const SERVICES: {
     price: '160.00',
     durationMinutes: 90,
     place: 'both',
+    photo: 'ironing.jpg',
     colours: ['#E0E6FB', '#4A5FC1'],
-    alt: 'Soft periwinkle bubbles for the Ironing',
+    alt: 'A freshly ironed shirt on an ironing board',
   },
   {
     name: 'Wash & Iron',
@@ -83,10 +102,19 @@ const SERVICES: {
     price: '260.00',
     durationMinutes: 120,
     place: 'both',
+    photo: 'wash-and-iron.jpg',
     colours: ['#CFEFF1', '#1E7F8C'],
-    alt: 'Cool teal bubbles for the Wash & Iron',
+    alt: 'Clean shirts drying on a washing line',
   },
 ];
+
+// The service's photo, or a drawn picture if the file isn't there
+async function pictureFor(
+  service: (typeof DEMO_SERVICES)[number],
+): Promise<Buffer> {
+  const file = join(DEMO_PHOTO_DIR, service.photo);
+  return existsSync(file) ? readFile(file) : picture(service.colours);
+}
 
 function picture([from, to]: string[]): Promise<Buffer> {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
@@ -125,7 +153,7 @@ export async function seedDemo(
   // The demo makes up the distances (docs/demo.md), so travel works anywhere.
   await app.get(SettingsService, { strict: false }).update(
     {
-      businessName: 'Fresh Start Home Services (demo)',
+      businessName: 'Fresh Start',
       businessEmail: 'demo@example.com',
       bankingDetails: {
         accountName: 'Demo Account',
@@ -157,7 +185,7 @@ export async function seedDemo(
   );
 
   const created: { id: string; name: string }[] = [];
-  for (const service of SERVICES) {
+  for (const service of DEMO_SERVICES) {
     const { id } = await services.create({
       name: service.name,
       description: service.description,
@@ -169,7 +197,7 @@ export async function seedDemo(
     });
     await services.setImage(
       id,
-      await picture(service.colours),
+      await pictureFor(service),
       admin.id,
       service.alt,
     );
@@ -186,6 +214,14 @@ export async function seedDemo(
     },
     admin.id,
   );
+
+  // The sample logo: bubbles and an iron
+  const logoFile = join(DEMO_PHOTO_DIR, DEMO_LOGO);
+  if (existsSync(logoFile)) {
+    await app
+      .get(SiteContentService, { strict: false })
+      .setImage('logo', await readFile(logoFile), admin.id, 'Fresh Start');
+  }
 
   const testimonials = app.get(TestimonialsService, { strict: false });
   for (const [clientName, quote, service] of [

@@ -70,7 +70,7 @@ export const sha256 = (data: string | Buffer) =>
   createHash('sha256').update(data).digest();
 
 export const BANKING = {
-  accountName: 'Fresh Start Home Services',
+  accountName: 'Fresh Start',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',

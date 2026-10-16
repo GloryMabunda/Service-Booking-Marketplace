@@ -281,7 +281,7 @@ Business details, active services with their deposit amounts, and the bookable d
     "chargeReturn": true
   },
   "business": {
-    "name": "Fresh Start Home Services",
+    "name": "Fresh Start",
     "email": "bookings@example.com",
     "phone": "+27821234567"
   },
@@ -479,7 +479,7 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
 
 ```json
 {
-  "business": { "name": "Fresh Start Home Services", "email": "bookings@example.com", "phone": "+27821234567" },
+  "business": { "name": "Fresh Start", "email": "bookings@example.com", "phone": "+27821234567" },
   "content": {
     "tagline": "Cleaning and laundry, done at your place.",
     "about": [
@@ -684,13 +684,13 @@ Data for the booking page (C-7). Opening it never changes the booking.
 {
   "booking": { "...": "BookingSummary" },
   "bankingDetails": {
-    "accountName": "Fresh Start Home Services",
+    "accountName": "Fresh Start",
     "bank": "Example Bank",
     "accountNumber": "1234567890",
     "branchCode": "250655",
     "accountType": "Cheque"
   },
-  "business": { "name": "Fresh Start Home Services", "email": "bookings@example.com", "phone": "+27821234567" },
+  "business": { "name": "Fresh Start", "email": "bookings@example.com", "phone": "+27821234567" },
   "ownerAddress": "1 Jacaranda Avenue, Brooklyn, Pretoria",
   "canUploadProof": true,
   "proofsRemaining": 2,
@@ -1188,13 +1188,13 @@ All settings in A-8.
     "minPaymentWindowHours": 2,
     "timeZone": "Africa/Johannesburg",
     "bankingDetails": {
-      "accountName": "Fresh Start Home Services",
+      "accountName": "Fresh Start",
       "bank": "Example Bank",
       "accountNumber": "1234567890",
       "branchCode": "250655",
       "accountType": "Cheque"
     },
-    "businessName": "Fresh Start Home Services",
+    "businessName": "Fresh Start",
     "businessEmail": "bookings@example.com",
     "businessPhone": "+27821234567",
     "homeAddress": "1 Jacaranda Avenue, Brooklyn, Pretoria",

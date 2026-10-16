@@ -40,7 +40,7 @@ The service provider can securely log in and:
 
 # 🌍 Real-World Use Case
 
-The portfolio implementation uses **Fresh Start Home Services**, an imaginary home cleaning and laundry business, as the example.
+The portfolio implementation uses **Fresh Start**, an imaginary home cleaning and laundry business, as the example.
 
 A client visiting the website could:
 

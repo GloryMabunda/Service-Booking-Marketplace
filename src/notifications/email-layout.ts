@@ -18,7 +18,7 @@ export interface Business {
 
 const INK = '#2A1A26';
 const MAGENTA = '#A02080';
-const ORANGE = '#FFA040';
+const ACTION = '#123A66';
 
 function textOf(block: Block): string {
   if ('p' in block) return block.p;
@@ -38,7 +38,7 @@ function htmlOf(block: Block): string {
     return `<p style="border-left:4px solid ${MAGENTA};padding:8px 12px;background:#faf2f8"><strong>${escapeHtml(block.callout)}</strong></p>`;
   }
   if ('button' in block) {
-    return `<p><a href="${escapeHtml(block.button.url)}" style="display:inline-block;background:${ORANGE};color:${INK};text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">${escapeHtml(block.button.label)}</a></p>`;
+    return `<p><a href="${escapeHtml(block.button.url)}" style="display:inline-block;background:${ACTION};color:#FFFFFF;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">${escapeHtml(block.button.label)}</a></p>`;
   }
   const rows = block.rows
     .map(

@@ -126,7 +126,7 @@ describe('production settings (#89)', () => {
     NODE_ENV: 'production',
     DATABASE_URL: 'postgres://booking:booking@db:5432/booking',
     SMTP_HOST: 'smtp.example.co.za',
-    MAIL_FROM: 'Fresh Start Home Services <bookings@example.co.za>',
+    MAIL_FROM: 'Fresh Start <bookings@example.co.za>',
     PUBLIC_URL: 'https://bookings.example.co.za',
   };
 

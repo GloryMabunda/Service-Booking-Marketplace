@@ -29,7 +29,7 @@
 <body>
   <header class="sg-top">
     <div class="mbg-container d-flex align-items-center justify-content-between py-2 gap-3">
-      <a href="#top" class="d-flex align-items-center gap-2 text-decoration-none"><span class="mbg-brand-text">Your Business</span><span class="mbg-label d-none d-md-inline ms-2">Style guide</span></a>
+      <a href="#top" class="d-flex align-items-center gap-2 text-decoration-none"><img src="../../demo-photos/logo-fresh-start.png" alt="Fresh Start" height="44"><span class="mbg-label d-none d-md-inline ms-2">Style guide</span></a>
       <nav class="sg-nav d-none d-lg-flex gap-3" aria-label="Sections">
         <a href="#colours">Colours</a><a href="#type">Type</a><a href="#buttons">Buttons</a><a href="#forms">Forms</a><a href="#cards">Cards</a><a href="#feedback">Feedback</a><a href="#logo">Logo</a><a href="#photos">Photos</a><a href="#example">Example</a>
       </nav>
@@ -52,13 +52,13 @@
       <div class="mbg-container">
         <p class="mbg-label mb-1">1</p>
         <h2>Colours</h2>
-        <p class="mbg-readable">A calm blue with an orange action colour. Change any value in <code>public/css/theme.css</code> to re-colour the whole site. One bright colour leads each section; photos sit on white or a light tint; orange means "book"; statuses never rely on colour alone. Contrast is against white unless noted; WCAG AA needs 4.5:1 for normal text.</p>
+        <p class="mbg-readable">A calm blue with a deep navy action colour. Change any value in <code>public/css/theme.css</code> to re-colour the whole site. One bright colour leads each section; photos sit on white or a light tint; deep navy means "book"; statuses never rely on colour alone. Contrast is against white unless noted; WCAG AA needs 4.5:1 for normal text.</p>
         <div class="row g-3">
           <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#1A5BB5;color:#fff">Primary</div><div class="info"><code>#1A5BB5</code> · primary<br>Buttons, links, headings<br>White text on it 6.6:1</div></div></div>
-          <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#FFA040;color:#3A1A00">Action</div><div class="info"><code>#FFA040</code> · action<br>Book now only<br>Text <code>#3A1A00</code> on it 7.8:1</div></div></div>
+          <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#123A66;color:#FFFFFF">Action</div><div class="info"><code>#123A66</code> · action<br>Book now only<br>White text on it 11.5:1</div></div></div>
           <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#3B8FE0;color:#fff;font-size:1.25rem">Accent</div><div class="info"><code>#3B8FE0</code> · bright<br>Large headings, flourishes, decoration<br><strong>Never small text</strong> (3.4:1)</div></div></div>
           <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#1E63A8;color:#fff">Accent text</div><div class="info"><code>#1E63A8</code><br>Small accent text: prices, labels<br>6.2:1</div></div></div>
-          <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#FFC060;color:#3A1A00">Gold</div><div class="info"><code>#FFC060</code><br>Stars, highlights<br>Decoration only</div></div></div>
+          <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#F2C94C;color:#12233A">Gold</div><div class="info"><code>#F2C94C</code><br>Stars, highlights<br>Decoration only</div></div></div>
           <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#2E7D3E;color:#fff">Green</div><div class="info"><code>#2E7D3E</code> · success<br>Confirmed, payment received<br>White text on it 5.1:1</div></div></div>
           <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#123A66;color:#fff">Brand ink</div><div class="info"><code>#123A66</code><br>The logo's ink colour, footer details<br>11.5:1</div></div></div>
           <div class="col-6 col-md-4 col-lg-3"><div class="sg-swatch"><div class="chip" style="background:#12233A;color:#fff">Ink</div><div class="info"><code>#12233A</code> body text · <code>#4D6178</code> muted (6.4:1)</div></div></div>
@@ -66,7 +66,7 @@
         <h3 class="mt-4">Section tints</h3>
         <div class="row g-2">
           <div class="col-6 col-md-3"><div class="sg-swatch"><div class="chip" style="background:#E3F0FC">Accent tint</div><div class="info"><code>#E3F0FC</code></div></div></div>
-          <div class="col-6 col-md-3"><div class="sg-swatch"><div class="chip" style="background:#FFF1D6">Cream</div><div class="info"><code>#FFF1D6</code></div></div></div>
+          <div class="col-6 col-md-3"><div class="sg-swatch"><div class="chip" style="background:#EEF4FB">Cream</div><div class="info"><code>#EEF4FB</code></div></div></div>
           <div class="col-6 col-md-3"><div class="sg-swatch"><div class="chip" style="background:#E8EEFB">Primary tint</div><div class="info"><code>#E8EEFB</code></div></div></div>
           <div class="col-6 col-md-3"><div class="sg-swatch"><div class="chip" style="background:#E9F6EC">Mint</div><div class="info"><code>#E9F6EC</code></div></div></div>
         </div>
@@ -118,7 +118,7 @@
         <table class="table table-sm small mt-3 mb-0">
           <thead><tr><th>Button</th><th>Use</th><th>Colours</th></tr></thead>
           <tbody>
-            <tr><td><code>.btn-book</code></td><td>Book now and the booking steps</td><td>Orange, dark-brown text</td></tr>
+            <tr><td><code>.btn-book</code></td><td>Book now and the booking steps</td><td>Deep navy, white text</td></tr>
             <tr><td><code>.btn-primary</code></td><td>The main action of a page or dialog</td><td>Primary blue, white text</td></tr>
             <tr><td><code>.btn-outline-primary</code></td><td>Secondary actions</td><td>Primary outline</td></tr>
           </tbody>
@@ -226,7 +226,9 @@
         <p class="mbg-label mb-1">7</p>
         <h2>Logo</h2>
         <p class="mbg-readable">The repository ships with <strong>no logo</strong>. Each business uploads its own in the portal (Website, About tab, Logo). Until it does, the business name is shown as text in the header, like this:</p>
+        <p class="mbg-readable">This guide shows the demo's example business, <strong>Fresh Start</strong>, with its sample logo (bubbles and an iron, drawn for this project).</p>
         <div class="row g-3 align-items-stretch">
+          <div class="col-12"><div class="sg-demo text-center"><img src="../../demo-photos/logo-fresh-start.png" alt="Fresh Start: bubbles and an iron" class="img-fluid" style="max-height: 6rem;"><p class="small mt-2 mb-0"><strong>With a logo</strong> · the header on every page (48 px tall)</p></div></div>
           <div class="col-md-6"><div class="sg-demo text-center h-100"><span class="mbg-brand-text">Your Business</span><p class="small mt-2 mb-0"><strong>Without a logo</strong> · the name as text, in the header and the footer</p></div></div>
           <div class="col-md-6"><div class="sg-demo text-center h-100"><img src="../../public/images/brand/favicon-64.png" alt="The neutral browser tab icon" style="width: 3rem;"><p class="small mt-2 mb-0"><strong>Favicon</strong> · the neutral browser tab icon; replace <code>public/images/brand/favicon-64.png</code> with your own</p></div></div>
         </div>
@@ -292,7 +294,7 @@
         <p class="mbg-label mb-1">10 · Putting it together: top of the home page</p>
         <div class="row g-4 align-items-center">
           <div class="col-md-6 text-center text-md-start">
-            <p class="mbg-brand-text mb-2">Your Business</p>
+            <img src="../../demo-photos/logo-fresh-start.png" alt="Fresh Start" class="mb-3" style="height: 5.5rem;">
             <p class="mbg-label mb-1">Home cleaning · Johannesburg</p>
             <h2 class="mbg-hero-title mb-3">A fresher home, without lifting a finger</h2>
             <p class="mbg-readable">House cleaning, deep cleans and laundry, done at your place. We come to you across the city.</p>
