@@ -21,7 +21,7 @@ The subject, preview text and body of each email the system sends. The notificat
 | --- | --- |
 | Voice | Warm, clear and personal, in the first person, as the owner ("I'll see you on Tuesday"). Short sentences, no jargon. Owner emails are brief and factual. |
 | Sender | From: `{{business.name}} <bookings address>`. Reply-To: `{{business.email}}`, so a client's reply reaches the owner. |
-| Format | HTML following the [style guide](style-guide.md) (logo, white background, blue links, bright blue button for the main action), with a plain-text version of the same words. Width at most 600 px; readable on a phone. |
+| Format | HTML following the [style guide](style-guide.md) (logo, white background, blue links, navy button for the main action), with a plain-text version of the same words. Width at most 600 px; readable on a phone. |
 | Dates and times | Business time zone, written out: "Tuesday 13 October 2026 at 09:00". Times as `HH:mm`. Money as "R325" or "R1,200" (no cents unless there are cents). |
 | Booking link | Appears **only** in an email sent at the moment the link is created: payment instructions, both booking confirmations (a fresh link is issued when payment is confirmed), and a resent link (BR-15). Only the link's hash is stored, so other emails can't include it; they point to the booking details page instead. The link is never shown in owner emails, logs or the notification history. |
 | Personal data | Only what the recipient needs (POPIA). Client emails never show other clients' details; owner emails show the client's name, email and phone. |
