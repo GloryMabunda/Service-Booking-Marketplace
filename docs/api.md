@@ -167,6 +167,7 @@ Every error has the same shape:
 | --- | --- | --- | --- |
 | 400 | `VALIDATION_FAILED` | Missing, malformed or out-of-range input | Any endpoint with input |
 | 400 | `SERVICE_UNAVAILABLE` | The service doesn't exist or is inactive (BR-5) | Availability, create booking |
+| 400 | `PLACE_NOT_OFFERED` | The service is only done at the client's place, but the owner's place was chosen (or left out) (BR-17) | Availability, create booking |
 | 400 | `TRAVEL_NOT_OFFERED` | The service isn't offered at the client's place, or the owner has no home address set (BR-17) | Availability, travel quote, create booking |
 | 400 | `ADDRESS_NOT_FOUND` | The maps service can't find the client's address | Travel quote, create booking |
 | 400 | `TOO_FAR` | The address is further than the maximum travel distance | Travel quote, create booking |
@@ -262,6 +263,7 @@ Business details, active services with their deposit amounts, and the bookable d
       "price": "650.00",
       "durationMinutes": 90,
       "depositAmount": "325.00",
+      "availableAtOurPlace": true,
       "availableForTravel": true,
       "image": {
         "alt": "Soft Glam",
@@ -297,7 +299,7 @@ Business details, active services with their deposit amounts, and the bookable d
 | --- | --- |
 | `services` | Sorted by name. `depositAmount` is `depositPercent × price`, rounded half-up to cents |
 | `image` | The picture the owner uploaded for the service's card, in the same shape as the photos in [4.6](#46-get-apisite), or `null`. `alt` is the owner's description, or the service name |
-| `availableForTravel` | Whether the service can be done at the client's place (BR-17). Only meaningful when `travel` is not `null` |
+| `availableAtOurPlace`, `availableForTravel` | Where the service is done (BR-17): at the owner's place, at the client's place, or both. A service is never neither. A service with `availableAtOurPlace: false` is done only at the client's place, so it needs `travel` to be set up (the home address in Settings) and the client always gives an address. For `availableForTravel` this is whether the service can be done at the client's place. Only meaningful when `travel` is not `null` |
 | `travel` | The travel fee rules (C-10), or `null` while the owner hasn't entered a home address. **Never includes the home address** |
 | `business` | From settings. `phone` can be `null`. `email` is also the fallback address for sending proof of payment (C-5) |
 | `bookingWindow.earliestStartAt` | Now plus `minNoticeHours`, plus `minPaymentWindowHours` when a deposit applies (BR-9, BR-10) |
@@ -348,7 +350,7 @@ The response is sent with `Cache-Control: no-store`, because slots change as boo
 
 **Re-checking at booking time.** `POST /api/bookings` (#45) re-checks the chosen start time with the same code (`AvailabilityService.isSlotOpen`), so a slot that was offered a minute ago but has since been booked, blocked or become too soon is refused.
 
-**Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE` (unknown or inactive service), `400 TRAVEL_NOT_OFFERED` (`location=client` for a service that isn't offered there, or while travel is off), `429`.
+**Errors:** `400 VALIDATION_FAILED` (bad or missing parameter), `400 SERVICE_UNAVAILABLE` (unknown or inactive service), `400 PLACE_NOT_OFFERED` (`location=studio` for a service done only at the client's place), `400 TRAVEL_NOT_OFFERED` (`location=client` for a service that isn't offered there, or while travel is off), `429`.
 
 ### 4.3 `POST /api/bookings`
 
@@ -1094,13 +1096,13 @@ Manage services (A-5).
 | Endpoint | Request | Response |
 | --- | --- | --- |
 | `GET /api/admin/services` | Query `includeInactive` (default `true`) | `200 { "services": [Service] }`, sorted by name |
-| `POST /api/admin/services` | `{ "name", "description", "price", "durationMinutes", "isActive", "availableForTravel" }` | `201 { "service": Service }` |
+| `POST /api/admin/services` | `{ "name", "description", "price", "durationMinutes", "isActive", "availableAtOurPlace", "availableForTravel" }` | `201 { "service": Service }` |
 | `PATCH /api/admin/services/:id` | Any of the same fields | `200 { "service": Service }` |
 | `PUT /api/admin/services/:id/image` | `multipart/form-data`: field `file` (one photo) and optional text field `altText` (up to 250 characters) | `200 { "service": Service }`. Replaces the current picture and deletes its files |
 | `DELETE /api/admin/services/:id/image` | — | `204`, whether or not there was a picture. Deletes the files |
 | `DELETE /api/admin/services/:id` | — | `204` if the service had no bookings and was deleted; `200 { "service": Service, "deactivated": true }` if it has bookings and was deactivated instead |
 
-**`Service`**: `{ "id", "name", "description", "price", "durationMinutes", "isActive", "availableForTravel", "image", "bookingCount", "createdAt", "updatedAt" }`. `image` is an `AdminImage` (as in [7.16](#716-site-content)) or `null`.
+**`Service`**: `{ "id", "name", "description", "price", "durationMinutes", "isActive", "availableAtOurPlace", "availableForTravel", "image", "bookingCount", "createdAt", "updatedAt" }`. `image` is an `AdminImage` (as in [7.16](#716-site-content)) or `null`.
 
 | Field | Rule |
 | --- | --- |
@@ -1109,7 +1111,8 @@ Manage services (A-5).
 | `price` | Required on create. `"0.00"` or more |
 | `durationMinutes` | Required on create. 1 to 720 |
 | `isActive` | Optional. Default `true` |
-| `availableForTravel` | Optional. Default `false`. Whether clients can ask for this service at their own place (BR-17) |
+| `availableAtOurPlace` | Optional. Default `true`. Whether it can be done at the owner's place |
+| `availableForTravel` | Optional. Default `false`. Whether it can be done at the client's place (BR-17). At least one of the two must be on: otherwise `400 VALIDATION_FAILED` on `availableAtOurPlace`, also when a `PATCH` would leave neither on |
 
 Editing a service never changes existing bookings, which keep their own price and duration (BR-4). `PATCH` with an empty body changes nothing and returns the service. `bookingCount` counts every booking of the service, whatever its status.
 

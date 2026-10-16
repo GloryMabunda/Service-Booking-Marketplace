@@ -236,20 +236,21 @@
                 >Active (clients can book it)</label
               >
             </div>
-            <div class="form-check form-switch mt-2">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                role="switch"
-                id="svc-travel"
-              />
-              <label class="form-check-label" for="svc-travel"
-                >Can be done at the client's place</label
-              >
+            <div class="mt-3">
+              <label class="form-label" for="svc-where">Where it is done</label>
+              <select class="form-select" id="svc-where">
+                <option value="our">At my place only</option>
+                <option value="client">
+                  At the client's place only (I travel to them)
+                </option>
+                <option value="both">At my place or the client's place</option>
+              </select>
               <div class="form-text">
-                Clients can then ask you to come to them, and pay a travel fee.
-                Set the fee under Settings.
+                At the client's place they pay a travel fee, which you set under
+                Settings (your home address and the fees). A cleaner, for
+                example, always goes to the client.
               </div>
+              <div class="invalid-feedback" id="svc-where-error"></div>
             </div>
           </div>
           <div class="modal-footer">

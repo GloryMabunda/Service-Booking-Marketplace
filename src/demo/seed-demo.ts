@@ -109,6 +109,7 @@ export async function seedDemo(
       price: service.price,
       durationMinutes: service.durationMinutes,
       isActive: true,
+      availableAtOurPlace: true,
       availableForTravel: false,
     });
     await services.setImage(

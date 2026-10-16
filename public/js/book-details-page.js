@@ -76,9 +76,9 @@ async function load() {
 
   // At the client's place (#115): only if the owner travels and this service can
   if (
-    params.get('location') === 'client' &&
     travelTerms &&
-    service.availableForTravel
+    service.availableForTravel &&
+    (params.get('location') === 'client' || !service.availableAtOurPlace)
   ) {
     place = 'client';
   }
@@ -364,7 +364,11 @@ function showFailure(status, body) {
       'Please choose another.',
       [link('Choose a service', '/services.html')],
     );
-  } else if (code === 'TRAVEL_UNAVAILABLE' || code === 'TRAVEL_NOT_OFFERED') {
+  } else if (
+    code === 'TRAVEL_UNAVAILABLE' ||
+    code === 'TRAVEL_NOT_OFFERED' ||
+    code === 'PLACE_NOT_OFFERED'
+  ) {
     showAlert(
       'warning',
       'Travel bookings are not available right now.',

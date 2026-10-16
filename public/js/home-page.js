@@ -111,6 +111,18 @@ function serviceCard(service, depositApplies) {
   if (service.description) {
     body.append(el('p', 'text-secondary mb-3', service.description));
   }
+  if (service.availableForTravel) {
+    const where = el('p', 'small text-secondary mb-2');
+    where.append(
+      icon('bi-geo-alt'),
+      document.createTextNode(
+        service.availableAtOurPlace
+          ? 'At our place or yours'
+          : 'We come to you',
+      ),
+    );
+    body.append(where);
+  }
   const facts = el('p', 'mb-3 mt-auto');
   facts.append(
     icon('bi-clock'),

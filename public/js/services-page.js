@@ -33,6 +33,21 @@ function servicePicture(service) {
   return empty;
 }
 
+// Where the service is done, when that is worth saying
+function placeLine(service) {
+  if (!service.availableForTravel) return null;
+  const line = el('p', 'small text-secondary mb-2');
+  const icon = el('i', 'bi bi-geo-alt me-1');
+  icon.setAttribute('aria-hidden', 'true');
+  line.append(
+    icon,
+    document.createTextNode(
+      service.availableAtOurPlace ? 'At our place or yours' : 'We come to you',
+    ),
+  );
+  return line;
+}
+
 function serviceCard(service, depositApplies) {
   const column = el('div', 'col-12 col-md-6');
   const card = el('article', 'card mbg-card-raised h-100 overflow-hidden');
@@ -43,6 +58,9 @@ function serviceCard(service, depositApplies) {
   if (service.description) {
     body.append(el('p', 'text-secondary mb-3', service.description));
   }
+
+  const where = placeLine(service);
+  if (where) body.append(where);
 
   const facts = el('p', 'mb-3 mt-auto');
   facts.append(

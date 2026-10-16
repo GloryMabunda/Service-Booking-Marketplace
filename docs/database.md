@@ -242,6 +242,7 @@ The administrator account, created by the seed script (#26): `npm run seed:admin
 | `duration_minutes` | `integer` | `> 0` and at most 720 (12 hours) |
 | `is_active` | `boolean` | Default `true`. Inactive services are hidden from clients and can't be newly booked (BR-5) |
 | `image_id` | `uuid` | Nullable. Foreign key to `images`, `ON DELETE SET NULL`. The picture on the service's card (A-5). The application deletes the old photo and its files when it is replaced or removed, and when the service is deleted |
+| `available_at_our_place` | `boolean` | Default `true`. Whether the service can be done at the owner's place. With `available_for_travel` it makes three choices: owner's place only, client's place only, or both. The check `services_some_place` makes sure it is never neither (BR-17) |
 | `available_for_travel` | `boolean` | Default `false`. When `true` (and the owner has set a home address) clients can ask for the appointment at their own place (BR-17, #115) |
 | `created_at`, `updated_at` | `timestamptz` | |
 

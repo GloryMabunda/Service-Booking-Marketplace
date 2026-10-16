@@ -74,6 +74,15 @@ export class BookingsService {
       );
     }
 
+    // A service done only at the client's place can't be booked at the owner's
+    if (input.location === 'studio' && !service.availableAtOurPlace) {
+      throw new ApiException(
+        400,
+        'PLACE_NOT_OFFERED',
+        "That service is only done at the client's place.",
+      );
+    }
+
     const settings = await this.settings.get();
 
     // 1b. An appointment at the client's place (#115): the service must offer

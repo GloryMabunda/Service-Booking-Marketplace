@@ -172,6 +172,7 @@ export interface PaymentProofs {
 }
 
 export interface Services {
+  available_at_our_place: Generated<boolean>;
   available_for_travel: Generated<boolean>;
   created_at: Generated<Timestamp>;
   description: Generated<string>;
