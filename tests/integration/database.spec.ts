@@ -31,7 +31,11 @@ describe('Database schema', () => {
     await inRolledBackTransaction(db, async (trx) => {
       const service = await trx
         .insertInto('services')
-        .values({ name: 'Soft Glam', price: '650.00', duration_minutes: 90 })
+        .values({
+          name: 'Standard Clean',
+          price: '650.00',
+          duration_minutes: 90,
+        })
         .returning('id')
         .executeTakeFirstOrThrow();
 

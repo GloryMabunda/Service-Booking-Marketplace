@@ -8,7 +8,7 @@ describe('renderAdminProofUploaded (5.2)', () => {
   const email = renderAdminProofUploaded({
     clientName: 'Sarah Mokoena',
     reference: 'BK-000123',
-    service: 'Soft Glam',
+    service: 'Standard Clean',
     when: 'Tuesday 13 October 2026 at 09:00',
     deposit: 'R325',
     deadline: 'Monday 12 October 2026 at 14:00',
@@ -26,7 +26,7 @@ describe('renderAdminProofUploaded (5.2)', () => {
   it('gives the reference, client, deposit, deadline and a link to the booking', () => {
     for (const part of [
       'Sarah Mokoena uploaded a proof of payment for BK-000123.',
-      'Soft Glam, Tuesday 13 October 2026 at 09:00',
+      'Standard Clean, Tuesday 13 October 2026 at 09:00',
       'R325',
       'Monday 12 October 2026 at 14:00',
       'Saturday 10 October 2026 at 15:40 (2 of 3)',
@@ -54,7 +54,7 @@ describe('renderAdminClientCancelled (5.3)', () => {
     clientEmail: 'sarah@example.com',
     clientPhone: '+27821234567',
     reference: 'BK-000123',
-    service: 'Soft Glam',
+    service: 'Standard Clean',
     when: 'Tuesday 13 October 2026 at 09:00',
     previousStatus: 'Confirmed',
     refund: { kind: 'due', amount: 'R325' },

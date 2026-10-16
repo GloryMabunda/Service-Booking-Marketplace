@@ -3,12 +3,12 @@ import { renderProofRejected } from './proof-emails.js';
 const email = renderProofRejected({
   clientFirstName: 'Sarah',
   business: {
-    name: 'Make Up by Glory',
+    name: 'Fresh Start Home Services',
     email: 'bookings@example.com',
     phone: null,
   },
   reference: 'BK-000123',
-  service: 'Soft Glam',
+  service: 'Standard Clean',
   when: 'Tuesday 13 October 2026 at 09:00',
   reason: 'The amount does not match the deposit.',
   deposit: 'R325',

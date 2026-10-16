@@ -109,8 +109,8 @@ jobs:
       - name: Check the demo data and make a booking
         run: |
           services="$(curl -fs http://localhost:3000/api/services)"
-          test "$(echo "$services" | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(d.services.filter(s=>s.image).length)")" = "4"
-          id="$(echo "$services" | node -e "console.log(JSON.parse(require('fs').readFileSync(0,'utf8')).services[0].id)")"
+          test "$(echo "$services" | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(d.services.filter(s=>s.image).length)")" = "5"
+          id="$(echo "$services" | node -e "console.log(JSON.parse(require('fs').readFileSync(0,'utf8')).services.find(s=>s.availableAtOurPlace).id)")"
           day="$(node -e "const d=new Date(Date.now()+10*864e5);while([0,6].includes(d.getUTCDay()))d.setUTCDate(d.getUTCDate()+1);console.log(d.toISOString().slice(0,10))")"
           slot="$(curl -fs "http://localhost:3000/api/availability?serviceId=$id&date=$day" | node -e "console.log(JSON.parse(require('fs').readFileSync(0,'utf8')).slots[0].startAt)")"
           curl -fs -X POST http://localhost:3000/api/bookings -H 'Content-Type: application/json' \

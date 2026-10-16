@@ -49,7 +49,7 @@ describe('Public website', () => {
     expect(res.text).toContain('<site-header current="services">');
     expect(res.text).toContain('/js/services-page.js');
     // The page holds no service data itself.
-    expect(res.text).not.toContain('Soft Glam');
+    expect(res.text).not.toContain('Standard Clean');
   });
 
   it.each([

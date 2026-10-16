@@ -5,13 +5,13 @@ import {
 } from './booking-emails.js';
 
 const business = {
-  name: 'Make Up by Glory',
+  name: 'Fresh Start Home Services',
   email: 'bookings@example.com',
   phone: null,
 };
 const summary = {
   reference: 'BK-000123',
-  service: 'Soft Glam',
+  service: 'Standard Clean',
   when: 'Tuesday 13 October 2026 at 09:00',
   endTime: '10:30',
   price: 'R650',
@@ -29,10 +29,10 @@ describe('renderConfirmedNoDeposit (4.2b)', () => {
   it('confirms the booking and holds the link', () => {
     const email = renderConfirmedNoDeposit(data);
     expect(email.subject).toBe(
-      "You're booked! Soft Glam on Tuesday 13 October 2026 at 09:00",
+      "You're booked! Standard Clean on Tuesday 13 October 2026 at 09:00",
     );
     expect(email.text).toContain(
-      'Thank you for booking with Make Up by Glory! Your booking is confirmed.',
+      'Thank you for booking with Fresh Start Home Services! Your booking is confirmed.',
     );
     expect(email.text).toContain('https://example.com/booking/TOKEN');
     expect(email.html).toContain('href="https://example.com/booking/TOKEN"');
@@ -54,7 +54,7 @@ describe('renderBookingExpired (4.5)', () => {
     clientFirstName: 'Sarah',
     business,
     reference: 'BK-000123',
-    service: 'Soft Glam',
+    service: 'Standard Clean',
     when: 'Tuesday 13 October 2026 at 09:00',
     deadline: 'Monday 12 October 2026 at 14:00',
     bookUrl: 'https://example.com/services.html',
@@ -63,7 +63,7 @@ describe('renderBookingExpired (4.5)', () => {
   it('says the time was released and offers to book again', () => {
     expect(email.subject).toBe('Your booking request BK-000123 has expired');
     expect(email.text).toContain(
-      "I didn't receive your deposit for Soft Glam on Tuesday 13 October 2026 at 09:00 by Monday 12 October 2026 at 14:00, so the booking has expired and the time has been released.",
+      "I didn't receive your deposit for Standard Clean on Tuesday 13 October 2026 at 09:00 by Monday 12 October 2026 at 14:00, so the booking has expired and the time has been released.",
     );
     expect(email.text).toContain('https://example.com/services.html');
   });
@@ -91,14 +91,14 @@ describe('renderAdminNewBooking (5.1)', () => {
   it('lists the client, the booking and the deposit', () => {
     const email = renderAdminNewBooking(data);
     expect(email.subject).toBe(
-      'New booking: Sarah Mokoena, Soft Glam, Tuesday 13 October 2026 at 09:00',
+      'New booking: Sarah Mokoena, Standard Clean, Tuesday 13 October 2026 at 09:00',
     );
     for (const part of [
       'New booking BK-000123',
       'Sarah Mokoena',
       'sarah@example.com',
       '+27821234567',
-      'Soft Glam',
+      'Standard Clean',
       'R325, due by Monday 12 October 2026 at 14:00',
       'Pending (awaiting deposit)',
       'Birthday makeup',

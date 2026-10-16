@@ -94,12 +94,12 @@ describe('Admin services API', () => {
   describe('POST', () => {
     it('creates a service, tidied, with the defaults', async () => {
       const res = await create({
-        ...valid('Soft Glam'),
-        name: `  ${PREFIX}Soft Glam  `,
+        ...valid('Standard Clean'),
+        name: `  ${PREFIX}Standard Clean  `,
       }).expect(201);
       expect(serviceOf(res)).toEqual({
         id: expect.stringMatching(/^[0-9a-f-]{36}$/) as string,
-        name: `${PREFIX}Soft Glam`,
+        name: `${PREFIX}Standard Clean`,
         description: '',
         price: '650.00',
         durationMinutes: 90,
@@ -135,10 +135,10 @@ describe('Admin services API', () => {
     });
 
     it('returns 409 SERVICE_NAME_TAKEN for a name in use, ignoring capitals', async () => {
-      await create(valid('Bridal')).expect(201);
+      await create(valid('Laundry')).expect(201);
       const res = await create({
-        ...valid('Bridal'),
-        name: `${PREFIX}BRIDAL`,
+        ...valid('Laundry'),
+        name: `${PREFIX}LAUNDRY`,
       }).expect(409);
       expect(errorBody(res)).toEqual({
         statusCode: 409,

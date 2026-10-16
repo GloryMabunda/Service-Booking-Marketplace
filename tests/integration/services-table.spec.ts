@@ -20,7 +20,7 @@ describe('services table constraints', () => {
   });
 
   const valid = {
-    name: 'Soft Glam',
+    name: 'Standard Clean',
     description: 'Natural, glowing makeup.',
     price: '650.00',
     duration_minutes: 90,
@@ -50,7 +50,7 @@ describe('services table constraints', () => {
         .returningAll()
         .executeTakeFirstOrThrow();
       expect(row).toMatchObject({
-        name: 'Soft Glam',
+        name: 'Standard Clean',
         price: '650.00',
         duration_minutes: 90,
         is_active: true,
@@ -87,7 +87,10 @@ describe('services table constraints', () => {
   it('rejects a second service with the same name, ignoring capitals', async () => {
     await inRolledBackTransaction(db, async (trx) => {
       await trx.insertInto('services').values(valid).execute();
-      const error = await insertError(trx, { ...valid, name: 'SOFT glam' });
+      const error = await insertError(trx, {
+        ...valid,
+        name: 'STANDARD clean',
+      });
       expect(error).toMatchObject({
         code: '23505', // unique_violation
         constraint: 'services_name_key',

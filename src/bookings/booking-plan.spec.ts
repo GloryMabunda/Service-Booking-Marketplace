@@ -6,18 +6,18 @@ const settings = {
   minNoticeHours: 24,
   bufferMinutes: 60,
 };
-const softGlam = { price: '650.00', durationMinutes: 90 };
+const standardClean = { price: '650.00', durationMinutes: 90 };
 
 const plan = (
   overrides: {
-    service?: Partial<typeof softGlam>;
+    service?: Partial<typeof standardClean>;
     settings?: Partial<typeof settings>;
     startAt?: string;
     now?: string;
   } = {},
 ) =>
   planBooking({
-    service: { ...softGlam, ...overrides.service },
+    service: { ...standardClean, ...overrides.service },
     settings: { ...settings, ...overrides.settings },
     startAt: new Date(overrides.startAt ?? '2026-11-03T07:00:00Z'),
     now: new Date(overrides.now ?? '2026-10-20T10:00:00Z'),
@@ -173,7 +173,7 @@ describe('planBooking at the client’s place (#115)', () => {
   };
   const atClient = () =>
     planBooking({
-      service: softGlam,
+      service: standardClean,
       settings,
       startAt: new Date('2026-11-03T07:00:00Z'),
       now: new Date('2026-10-20T10:00:00Z'),
@@ -206,7 +206,7 @@ describe('planBooking at the client’s place (#115)', () => {
 
   it('is Pending even when the service itself needs no deposit, because the travel fee is due', () => {
     const result = planBooking({
-      service: softGlam,
+      service: standardClean,
       settings: { ...settings, depositPercent: '0.00' },
       startAt: new Date('2026-11-03T07:00:00Z'),
       now: new Date('2026-10-20T10:00:00Z'),

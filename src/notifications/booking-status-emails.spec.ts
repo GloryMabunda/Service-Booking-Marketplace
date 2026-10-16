@@ -6,13 +6,13 @@ import {
 } from './booking-status-emails.js';
 
 const business = {
-  name: 'Make Up by Glory',
+  name: 'Fresh Start Home Services',
   email: 'bookings@example.com',
   phone: null,
 };
 const summary = {
   reference: 'BK-000123',
-  service: 'Soft Glam',
+  service: 'Standard Clean',
   when: 'Tuesday 13 October 2026 at 09:00',
   endTime: '10:30',
   price: 'R650',
@@ -36,7 +36,7 @@ describe('renderPaymentConfirmed (4.2a)', () => {
   it('confirms the booking and says the new link replaces the old one', () => {
     const email = renderPaymentConfirmed(data);
     expect(email.subject).toBe(
-      "You're booked! Soft Glam on Tuesday 13 October 2026 at 09:00",
+      "You're booked! Standard Clean on Tuesday 13 October 2026 at 09:00",
     );
     expect(email.text).toContain(
       'Good news: your deposit of R325 has been received and your booking is confirmed.',
