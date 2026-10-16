@@ -22,7 +22,7 @@ Pages: home, services, book, your details, look-up, the private booking page, an
 
 | Finding | Status |
 | --- | --- |
-| Pink text on lilac was 4.49 to 1 (needs 4.5) | Fixed: `--mbg-pink-text` is now `#C0284F` |
+| The accent text colour was 4.49 to 1 on a light tint in an earlier theme (needs 4.5) | Fixed. The default blue theme passes every pairing, and `src/common/colour-contrast.spec.ts` fails if a colour change makes one too faint |
 | "Change" link on the booking page was 22 px tall | Fixed: now 38 px |
 | Filter checkboxes on admin Bookings are 16 px | Accepted: their labels are the tap target, and this page is the owner's |
 | Pages were checked before scripts run, so content added by scripts is covered by hand only | Logged here; re-check after large page changes |

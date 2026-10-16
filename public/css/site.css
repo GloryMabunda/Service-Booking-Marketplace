@@ -28,7 +28,7 @@ site-footer {
   z-index: 1100;
   padding: var(--mbg-space-2) var(--mbg-space-3);
   background: var(--mbg-white);
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
   border-radius: var(--mbg-radius-input);
   box-shadow: var(--mbg-shadow);
 }
@@ -57,10 +57,10 @@ site-footer {
 }
 .mbg-site-header .nav-link:hover,
 .mbg-site-header .nav-link:focus-visible {
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
 }
 .mbg-site-header .nav-link.active {
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
   text-decoration: underline;
   text-underline-offset: 0.4em;
   text-decoration-thickness: 2px;
@@ -83,8 +83,8 @@ site-footer {
 
 /* Footer: plum, the logo's ink colour */
 .mbg-site-footer {
-  background: var(--mbg-plum);
-  color: var(--mbg-tint-blush);
+  background: var(--mbg-brand-ink);
+  color: var(--mbg-tint-soft);
   padding-block: var(--mbg-space-5);
   margin-top: auto;
 }
@@ -92,7 +92,7 @@ site-footer {
   color: var(--mbg-white);
 }
 .mbg-site-footer a:hover {
-  color: var(--mbg-tint-pink);
+  color: var(--mbg-tint-accent);
 }
 .mbg-footer-name {
   font-family: var(--mbg-font-heading);
@@ -181,7 +181,7 @@ admin-header {
   font-size: var(--mbg-size-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--mbg-pink-text);
+  color: var(--mbg-accent-text);
 }
 
 /* The admin menu links, matching the public header */
@@ -193,7 +193,7 @@ admin-header .nav-link {
 admin-header .nav-link:hover,
 admin-header .nav-link:focus-visible,
 admin-header .nav-link.active {
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
 }
 admin-header .nav-link.active {
   text-decoration: underline;
@@ -206,7 +206,7 @@ admin-header .nav-link.active {
 .btn-outline-primary:disabled,
 .btn-outline-primary.disabled {
   --bs-btn-disabled-color: var(--mbg-muted);
-  --bs-btn-disabled-border-color: #cdb8c6;
+  --bs-btn-disabled-border-color: var(--mbg-disabled);
   --bs-btn-disabled-bg: transparent;
 }
 
@@ -239,12 +239,12 @@ admin-header .nav-link.active {
   font-weight: 700;
 }
 .mbg-day:hover:not(:disabled) {
-  border-color: var(--mbg-magenta);
-  color: var(--mbg-magenta);
+  border-color: var(--mbg-primary);
+  color: var(--mbg-primary);
 }
 .mbg-day.is-selected {
-  background: var(--mbg-magenta);
-  border-color: var(--mbg-magenta);
+  background: var(--mbg-primary);
+  border-color: var(--mbg-primary);
   color: var(--mbg-white);
 }
 .mbg-day:disabled {
@@ -262,8 +262,8 @@ admin-header .nav-link.active {
   margin-bottom: 0.5rem;
 }
 .mbg-slot.active {
-  background: var(--mbg-magenta);
-  border-color: var(--mbg-magenta);
+  background: var(--mbg-primary);
+  border-color: var(--mbg-primary);
   color: var(--mbg-white);
 }
 
@@ -290,7 +290,7 @@ admin-header .nav-link.active {
   font-size: 1.25rem;
 }
 .mbg-done-icon {
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
 }
 
 /* Home page photos (#105) */
@@ -338,7 +338,7 @@ admin-header .nav-link.active {
   font-family: var(--mbg-font-heading);
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
   line-height: 1.1;
   letter-spacing: 0.01em;
 }
@@ -347,10 +347,10 @@ admin-header .nav-link.active {
 .mbg-demo-banner {
   background: var(--mbg-tint-cream);
   color: var(--mbg-ink);
-  border-bottom: 1px solid #e6d3a8;
+  border-bottom: 1px solid var(--mbg-cream-line);
 }
 .mbg-demo-banner a {
-  color: var(--mbg-magenta);
+  color: var(--mbg-primary);
   font-weight: 600;
 }
 
@@ -366,8 +366,8 @@ admin-header .nav-link.active {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--mbg-tint-lilac);
-  color: var(--mbg-magenta);
+  background: var(--mbg-tint-primary);
+  color: var(--mbg-primary);
   font-size: 2.5rem;
 }
 
@@ -379,7 +379,7 @@ admin-header .nav-link.active {
   border: 0;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: var(--mbg-tint-lilac);
+  background: var(--mbg-tint-primary);
   aspect-ratio: 4 / 5;
   cursor: zoom-in;
 }
@@ -411,12 +411,12 @@ admin-header .nav-link.active {
 .mbg-admin-calendar {
   --fc-border-color: var(--mbg-line);
   --fc-today-bg-color: var(--mbg-tint-cream);
-  --fc-button-bg-color: var(--mbg-magenta);
-  --fc-button-border-color: var(--mbg-magenta);
-  --fc-button-hover-bg-color: var(--mbg-magenta-dark);
-  --fc-button-hover-border-color: var(--mbg-magenta-dark);
-  --fc-button-active-bg-color: var(--mbg-magenta-dark);
-  --fc-button-active-border-color: var(--mbg-magenta-dark);
+  --fc-button-bg-color: var(--mbg-primary);
+  --fc-button-border-color: var(--mbg-primary);
+  --fc-button-hover-bg-color: var(--mbg-primary-dark);
+  --fc-button-hover-border-color: var(--mbg-primary-dark);
+  --fc-button-active-bg-color: var(--mbg-primary-dark);
+  --fc-button-active-border-color: var(--mbg-primary-dark);
 }
 .mbg-hero-with-photo #hero-text {
   width: calc(100% - 2rem);

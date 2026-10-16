@@ -2,8 +2,9 @@
 docs/
 *.md
 
-# Copied unchanged from docs/style-guide/ (the reference); keep them identical
+# Hand-formatted: aligned comments and one-line rules
 public/css/tokens.css
+public/css/theme.css
 
 # Generated files
 dist/
