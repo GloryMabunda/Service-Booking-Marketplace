@@ -8,7 +8,6 @@ The pictures the demo uses for its example business, Fresh Start. All of them ar
 | `deep-clean.jpg` | [Bedroom Clean](https://stocksnap.io/photo/bedroom-clean-OE0F9BHXJQ) | Burst | CC0 (public domain) |
 | `laundry-wash.jpg` | [Washingmachine Laundry](https://stocksnap.io/photo/washingmachine-laundry-CH3TPVQGU3) | Freestocks.org | CC0 (public domain) |
 | `ironing.jpg` | ["Ironed shirt"](https://www.flickr.com/photos/79418529@N02/7109991345) | peapod labs | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
-| `hero-cleaning.jpg` | [Cleaning Kitchen Counter](https://www.flickr.com/photos/184594136@N08/51486539352) | Alabama Extension | CC0 (public domain) |
 | `wash-and-iron.jpg` | [Clothes Shirts](https://stocksnap.io/photo/clothes-shirts-BD2F94946C) | Jay Mantri | CC0 (public domain) |
 
 Found through [Openverse](https://openverse.org), which lists the licence of each image. The files were resized and recompressed; nothing else was changed. `ironing.jpg` needs the credit above under its licence (CC BY): keep this file with it.

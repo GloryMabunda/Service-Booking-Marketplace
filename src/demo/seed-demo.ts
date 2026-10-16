@@ -38,7 +38,6 @@ export const DEMO_PHOTO_DIR = join(
   'demo-photos',
 );
 export const DEMO_LOGO = 'logo-fresh-start.png';
-export const DEMO_HERO = 'hero-cleaning.jpg';
 
 // Two blues per service, drawn here as a soft gradient with bubbles, so the
 // demo needs no photo files
@@ -222,19 +221,6 @@ export async function seedDemo(
     await app
       .get(SiteContentService, { strict: false })
       .setImage('logo', await readFile(logoFile), admin.id, 'Fresh Start');
-  }
-
-  // The home page's hero photo
-  const heroFile = join(DEMO_PHOTO_DIR, DEMO_HERO);
-  if (existsSync(heroFile)) {
-    await app
-      .get(SiteContentService, { strict: false })
-      .setImage(
-        'hero',
-        await readFile(heroFile),
-        admin.id,
-        'A gloved hand wiping a kitchen counter with a sponge',
-      );
   }
 
   const testimonials = app.get(TestimonialsService, { strict: false });
