@@ -47,10 +47,9 @@ Then open <http://localhost:3000>. It starts the app and PostgreSQL, creates the
 
 **Your brand, not ours.** The project ships with a neutral name and no logo. The owner sets the business name in Settings and uploads a logo under Website, and the header, footer, home page and every email follow, with no code to change. See [BRANDING.md](BRANDING.md).
 
-| | |
-| --- | --- |
-| ![Without a logo, the business name is shown as text](docs/images/home.jpg) | ![With a logo uploaded in the portal](docs/images/home-logo.jpg) |
-| *Out of the box: the name as text* | *After uploading a logo (a sample one here)* |
+![The home page of the example business, Fresh Start, with its sample logo, which the demo loads for you](docs/images/home.jpg)
+
+*The example business, Fresh Start, with its sample logo (bubbles and an iron). A real business uploads its own.*
 
 More screens: the [demo mailbox](docs/images/demo-mailbox.jpg), [bookings](docs/images/admin-bookings.jpg), [one booking](docs/images/admin-booking.jpg), [services](docs/images/admin-services.jpg), [website editor](docs/images/admin-website.jpg).
 
