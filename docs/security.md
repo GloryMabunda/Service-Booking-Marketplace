@@ -128,7 +128,7 @@ Errors are logged with the booking reference and the reason, never the details a
 These are duties the software can't do for you. Get advice on each.
 
 1. **Write a privacy notice** and link it from the site: who you are, what you collect (section 2), why, how long, who else receives it (your email and hosting providers), and how to contact you. The site doesn't have one yet.
-2. **Register an information officer** with the Information Regulator. A sole trader is usually her own information officer, but registration is still required.
+2. **Register an information officer** with the Information Regulator. A sole trader is usually their own information officer, but registration is still required.
 3. **Sign data-processing terms** with your email and hosting providers (and read the OpenRouteService terms, `docs/travel.md`), and choose where the data is stored.
 4. **Deal with requests.** A client may ask to see, correct or delete their data. Search the Bookings page by their email to see everything held. There is no delete button in v1; ask your developer to remove a client (a short database command) until D1 is decided.
 5. **Know what to do after a breach.** If personal data may have been seen by someone it shouldn't, POPIA requires you to tell the Information Regulator and the people affected as soon as reasonably possible. Keep this document and the log retention in mind: they tell you what could have been exposed.

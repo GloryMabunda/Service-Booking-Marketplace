@@ -443,7 +443,7 @@ The home page's text and links (C-9, A-10). A single row (`id = 1`), like `setti
 | `about_text` | `text` | Default empty. At most 5,000 characters of plain text; blank lines separate paragraphs |
 | `hero_image_id` | `uuid` | Nullable. Foreign key to `images`, `SET NULL` |
 | `about_image_id` | `uuid` | Nullable. Foreign key to `images`, `SET NULL` |
-| `location_type` | `location_type` | Nullable enum: `travel` (the owner travels to clients) or `studio` (clients come to her). Set together with `location_text` |
+| `location_type` | `location_type` | Nullable enum: `travel` (the owner travels to clients) or `studio` (clients come to the business). Set together with `location_text` |
 | `location_text` | `text` | Nullable. The travel area or studio address, at most 200 characters |
 | `whatsapp_number` | `text` | Nullable. E.164 (`+27821234567`); the site builds the `https://wa.me/` link |
 | `instagram_url`, `facebook_url`, `tiktok_url` | `text` | Nullable. Must start with `https://`; the application also checks the host matches the network |
@@ -461,7 +461,7 @@ One processed website photo (BR-16). The uploaded original is never stored: only
 | `thumb_key` | `text` | Unique. Random key of the thumbnail (480 px on the long edge) |
 | `width`, `height` | `integer` | Size of the large version in pixels, `> 0`. Lets pages reserve space before the photo loads |
 | `large_bytes`, `thumb_bytes` | `integer` | File sizes, `> 0` |
-| `sha256` | `bytea` | 32 bytes, of the uploaded file. Warns the owner when she uploads the same photo twice |
+| `sha256` | `bytea` | 32 bytes, of the uploaded file. Warns the owner when they upload the same photo twice |
 | `alt_text` | `text` | Nullable. At most 250 characters. When empty, pages fall back to the caption |
 | `uploaded_at` | `timestamptz` | |
 | `uploaded_by` | `uuid` | Foreign key to `users` |
@@ -478,7 +478,7 @@ An image is used by exactly one place: a gallery item, or the hero or About slot
 | `service_id` | `uuid` | Nullable. Foreign key to `services`, `SET NULL`. Drives the gallery filter and each service card's photo |
 | `is_visible` | `boolean` | Default `true` |
 | `position` | `integer` | Display order, lowest first; ties are broken by `created_at` |
-| `consent_confirmed_at` | `timestamptz` | When the owner confirmed she has permission from the people in the photo (BR-16). Required |
+| `consent_confirmed_at` | `timestamptz` | When the owner confirmed they have permission from the people in the photo (BR-16). Required |
 | `consent_confirmed_by` | `uuid` | Foreign key to `users`: who confirmed. Required |
 | `created_at`, `updated_at` | `timestamptz` | |
 
@@ -551,7 +551,7 @@ How it works:
 
 **Why `occupied_until` is stored.** The buffer is a setting that can change. If the constraint calculated `end_at + buffer` from the current setting, changing the buffer would silently change which existing bookings clash. Storing `occupied_until` when the booking is made fixes each booking's footprint, in the same way BR-4 fixes its price and duration. (A generated column isn't possible here either: adding an interval to a `timestamptz` isn't an immutable expression in PostgreSQL.)
 
-**What it doesn't cover.** Blocked times live in another table, so the constraint can't see them. They are checked in the slot calculation and re-checked at submission (#45); the remaining risk is the owner blocking time at the same moment a client books, which she can resolve by cancelling.
+**What it doesn't cover.** Blocked times live in another table, so the constraint can't see them. They are checked in the slot calculation and re-checked at submission (#45); the remaining risk is the owner blocking time at the same moment a client books, which the owner can resolve by cancelling.
 
 ## 5. Indexes
 

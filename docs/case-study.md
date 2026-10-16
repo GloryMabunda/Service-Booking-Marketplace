@@ -72,7 +72,7 @@ The same system could then be configured for another service provider without ch
 
 # ✨ Key Features
 
-## 💄 Service Management
+## 🧽 Service Management
 
 Administrators can create and manage services.
 
@@ -160,9 +160,9 @@ Version 1 uses manual EFT payments rather than an online payment gateway:
 2. The client receives an email with the deposit amount, banking details, the booking reference to use as the payment reference, and the deadline.
 3. The client pays by EFT and uploads proof of payment (PDF, JPEG or PNG, up to 5 MB) through their booking link.
 4. The owner is notified of every upload.
-5. The owner confirms the booking **only after the money reflects in her bank account**, never from the proof alone.
+5. The owner confirms the booking **only after the money reflects in the business's bank account**, never from the proof alone.
 
-If the deadline passes before payment is confirmed, the booking expires and the slot reopens. The owner can extend the deadline while she checks.
+If the deadline passes before payment is confirmed, the booking expires and the slot reopens. The owner can extend the deadline while they check.
 
 Clients can cancel through the booking link before the appointment. Deposits are refundable when the client cancels at least 24 hours before the appointment, and the owner is told when a refund is due.
 
@@ -718,7 +718,7 @@ The home cleaning implementation provides the initial real-world scenario while 
 
 ---
 
-## 💄 Project
+## 🫧 Project
 
 **Service Booking System**
 
