@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env.js';
+import { DemoDistanceProvider } from '../demo/demo-distance-provider.js';
 
 // How the road distance between two addresses is found. The travel service only
 // knows this interface, so tests use a fake and production uses OpenRouteService
@@ -183,6 +184,10 @@ function normalise(address: string): string {
 export function createDistanceProvider(
   config: ConfigService<Env, true>,
 ): DistanceProvider {
+  // The demo has no maps service: it makes the distance up from the address
+  if (config.get('DEMO_MODE', { infer: true })) {
+    return new DemoDistanceProvider();
+  }
   const key = config.get('OPENROUTESERVICE_API_KEY', { infer: true });
   const base = config.get('OPENROUTESERVICE_URL', { infer: true });
   return key

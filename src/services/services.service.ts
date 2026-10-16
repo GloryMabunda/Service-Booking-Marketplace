@@ -17,6 +17,7 @@ import {
 } from '../site/images.service.js';
 import { type TravelTerms, travelTerms } from '../travel/travel-terms.js';
 import {
+  NO_PLACE_MESSAGE,
   type CreateServiceInput,
   type Service,
   toService,
@@ -32,6 +33,7 @@ export interface PublicServices {
     price: string;
     durationMinutes: number;
     depositAmount: string;
+    availableAtOurPlace: boolean;
     availableForTravel: boolean;
     // The owner's picture for the service, or null
     image: PublicImage | null;
@@ -42,6 +44,14 @@ export interface PublicServices {
   // The travel fee rules, or null while the owner hasn't set up travel
   travel: TravelTerms | null;
 }
+
+const noPlace = () =>
+  new ApiException(
+    400,
+    'VALIDATION_FAILED',
+    'Some details are missing or invalid.',
+    [{ field: 'availableAtOurPlace', message: NO_PLACE_MESSAGE }],
+  );
 
 const NOT_FOUND = () =>
   new ApiException(404, 'NOT_FOUND', "That service doesn't exist.");
@@ -97,6 +107,7 @@ export class ServicesService {
           price: row.price,
           durationMinutes: row.duration_minutes,
           depositAmount: percentOf(settings.depositPercent, row.price),
+          availableAtOurPlace: row.available_at_our_place,
           availableForTravel: row.available_for_travel,
           image: photo ? this.images.publicView(photo, row.name) : null,
         };
@@ -122,6 +133,7 @@ export class ServicesService {
           price: input.price,
           duration_minutes: input.durationMinutes,
           is_active: input.isActive,
+          available_at_our_place: input.availableAtOurPlace,
           available_for_travel: input.availableForTravel,
         })
         .returningAll()
@@ -139,9 +151,21 @@ export class ServicesService {
       price: patch.price,
       duration_minutes: patch.durationMinutes,
       is_active: patch.isActive,
+      available_at_our_place: patch.availableAtOurPlace,
       available_for_travel: patch.availableForTravel,
     };
     const changes = Object.values(set).some((value) => value !== undefined);
+
+    // A service must be done somewhere: look at the result, not just the change
+    if (
+      patch.availableAtOurPlace !== undefined ||
+      patch.availableForTravel !== undefined
+    ) {
+      const current = await this.get(id);
+      const ourPlace = patch.availableAtOurPlace ?? current.availableAtOurPlace;
+      const travel = patch.availableForTravel ?? current.availableForTravel;
+      if (!ourPlace && !travel) throw noPlace();
+    }
 
     if (changes) {
       try {
@@ -188,11 +212,18 @@ export class ServicesService {
     id: string;
     name: string;
     durationMinutes: number;
+    availableAtOurPlace: boolean;
     availableForTravel: boolean;
   } | null> {
     const row = await this.db
       .selectFrom('services')
-      .select(['id', 'name', 'duration_minutes', 'available_for_travel'])
+      .select([
+        'id',
+        'name',
+        'duration_minutes',
+        'available_at_our_place',
+        'available_for_travel',
+      ])
       .where('id', '=', id)
       .where('is_active', '=', true)
       .executeTakeFirst();
@@ -201,6 +232,7 @@ export class ServicesService {
           id: row.id,
           name: row.name,
           durationMinutes: row.duration_minutes,
+          availableAtOurPlace: row.available_at_our_place,
           availableForTravel: row.available_for_travel,
         }
       : null;

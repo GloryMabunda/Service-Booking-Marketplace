@@ -104,6 +104,7 @@ describe('Admin services API', () => {
         price: '650.00',
         durationMinutes: 90,
         isActive: true,
+        availableAtOurPlace: true,
         availableForTravel: false,
         image: null,
         bookingCount: 0,

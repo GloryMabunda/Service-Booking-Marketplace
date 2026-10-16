@@ -68,6 +68,16 @@ async function load() {
     facts.push(`Deposit ${formatRand(service.depositAmount)}`);
   $('#service-facts').textContent = facts.join(' · ');
 
+  // A service done only at the client's place needs the owner's travel set up
+  if (
+    !service.availableAtOurPlace &&
+    (!travel || !service.availableForTravel)
+  ) {
+    showPageError(
+      "This service is done at your place, and booking it online isn't set up yet. Please contact us to book.",
+    );
+    return;
+  }
   setupLocationChoice();
 
   const [year, month] = bookingWindow.firstDate.split('-').map(Number);
@@ -94,6 +104,19 @@ function setupLocationChoice() {
   $('#travel-explanation').textContent =
     `If we come to you, a travel fee applies: ${parts.join(' plus ')}. It is paid with your deposit. We travel up to ${travel.maxKm} km, and you'll see the exact fee before you book.`;
   $('#location-choice').hidden = false;
+  if (!service.availableAtOurPlace) {
+    // Only the client's place: nothing to choose, just say how it works
+    place = 'client';
+    for (const box of document.querySelectorAll(
+      '#location-choice .form-check',
+    )) {
+      box.hidden = true;
+    }
+    $('#location-choice legend').textContent = 'We come to you';
+    $('#travel-explanation').textContent =
+      `This service is done at your place. A travel fee applies: ${parts.join(' plus ')}. It is paid with your deposit. We travel up to ${travel.maxKm} km, and you'll see the exact fee before you book.`;
+    return;
+  }
   for (const radio of document.querySelectorAll('input[name="location"]')) {
     radio.addEventListener('change', () => {
       place = radio.value;

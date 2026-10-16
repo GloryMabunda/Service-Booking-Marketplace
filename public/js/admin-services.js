@@ -20,6 +20,7 @@ const FIELDS = {
   description: 'svc-description',
   price: 'svc-price',
   durationMinutes: 'svc-duration',
+  availableAtOurPlace: 'svc-where',
 };
 
 let services = [];
@@ -162,9 +163,13 @@ function openForm(service) {
     ? service.isActive
     : true;
   showCurrentPhoto(service?.image ?? null);
-  document.querySelector('#svc-travel').checked = service
-    ? service.availableForTravel
-    : false;
+  document.querySelector('#svc-where').value = !service
+    ? 'our'
+    : service.availableAtOurPlace
+      ? service.availableForTravel
+        ? 'both'
+        : 'our'
+      : 'client';
   serviceModal.show();
 }
 
@@ -238,6 +243,14 @@ async function savePhoto(saved) {
   return { service: saved };
 }
 
+// "Where it is done" is one choice in the form, and two switches in the API
+function placesFor(choice) {
+  return {
+    availableAtOurPlace: choice !== 'client',
+    availableForTravel: choice !== 'our',
+  };
+}
+
 // The same rules as the API (docs/api.md 7.12), so mistakes show up before
 // anything is sent. The server checks everything again.
 function readForm() {
@@ -281,7 +294,7 @@ function readForm() {
     price,
     durationMinutes: duration,
     isActive: document.querySelector('#svc-active').checked,
-    availableForTravel: document.querySelector('#svc-travel').checked,
+    ...placesFor(document.querySelector('#svc-where').value),
   };
 }
 

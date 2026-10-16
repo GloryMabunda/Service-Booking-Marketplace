@@ -13,6 +13,8 @@ export interface Service {
   price: string;
   durationMinutes: number;
   isActive: boolean;
+  // Where it can be done: at the owner's place, at the client's place, or both
+  availableAtOurPlace: boolean;
   availableForTravel: boolean;
   // The picture the owner uploaded for it, or null
   image: AdminImage | null;
@@ -33,6 +35,7 @@ export function toService(
     price: row.price,
     durationMinutes: row.duration_minutes,
     isActive: row.is_active,
+    availableAtOurPlace: row.available_at_our_place,
     availableForTravel: row.available_for_travel,
     image,
     bookingCount,
@@ -67,18 +70,28 @@ const fields = {
     .min(1, 'The duration must be between 1 and 720 minutes.')
     .max(720, 'The duration must be between 1 and 720 minutes.'),
   isActive: z.boolean({ error: 'Must be true or false.' }),
+  availableAtOurPlace: z.boolean({ error: 'Must be true or false.' }),
   availableForTravel: z.boolean({ error: 'Must be true or false.' }),
 };
 
+export const NO_PLACE_MESSAGE =
+  "Choose where it's done: at your place, at the client's place, or both.";
+
 // POST /api/admin/services: name, price and duration are required.
-export const createServiceSchema = z.strictObject({
-  name: fields.name,
-  description: fields.description.default(''),
-  price: fields.price,
-  durationMinutes: fields.durationMinutes,
-  isActive: fields.isActive.default(true),
-  availableForTravel: fields.availableForTravel.default(false),
-});
+export const createServiceSchema = z
+  .strictObject({
+    name: fields.name,
+    description: fields.description.default(''),
+    price: fields.price,
+    durationMinutes: fields.durationMinutes,
+    isActive: fields.isActive.default(true),
+    availableAtOurPlace: fields.availableAtOurPlace.default(true),
+    availableForTravel: fields.availableForTravel.default(false),
+  })
+  .refine((value) => value.availableAtOurPlace || value.availableForTravel, {
+    path: ['availableAtOurPlace'],
+    message: NO_PLACE_MESSAGE,
+  });
 
 // PATCH /api/admin/services/:id: any of the same fields.
 export const updateServiceSchema = z.strictObject(fields).partial();

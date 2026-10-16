@@ -93,6 +93,13 @@ export class AvailabilityService {
         "That service isn't available.",
       );
     }
+    if (!atClientsPlace && !service.availableAtOurPlace) {
+      throw new ApiException(
+        400,
+        'PLACE_NOT_OFFERED',
+        "That service is only done at the client's place.",
+      );
+    }
     if (atClientsPlace && !service.availableForTravel) {
       throw new ApiException(
         400,
