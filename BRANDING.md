@@ -15,10 +15,9 @@ Sign in to the portal (`/admin/`) and:
 
 There is nothing to edit in the code. Changes show on the site within a minute.
 
-| Before | After |
+| The site, with the sample logo | Where the owner uploads it |
 | --- | --- |
-| ![The name as text](docs/images/home.jpg) | ![With a logo uploaded](docs/images/home-logo.jpg) |
-| ![The Website page with the logo uploader](docs/images/admin-website.jpg) | |
+| ![The home page with a logo](docs/images/home.jpg) | ![The Website page with the logo uploader](docs/images/admin-website.jpg) |
 
 ## A little more
 
