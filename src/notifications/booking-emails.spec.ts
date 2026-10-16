@@ -5,7 +5,7 @@ import {
 } from './booking-emails.js';
 
 const business = {
-  name: 'Fresh Start Home Services',
+  name: 'Fresh Start',
   email: 'bookings@example.com',
   phone: null,
 };
@@ -32,7 +32,7 @@ describe('renderConfirmedNoDeposit (4.2b)', () => {
       "You're booked! Standard Clean on Tuesday 13 October 2026 at 09:00",
     );
     expect(email.text).toContain(
-      'Thank you for booking with Fresh Start Home Services! Your booking is confirmed.',
+      'Thank you for booking with Fresh Start! Your booking is confirmed.',
     );
     expect(email.text).toContain('https://example.com/booking/TOKEN');
     expect(email.html).toContain('href="https://example.com/booking/TOKEN"');

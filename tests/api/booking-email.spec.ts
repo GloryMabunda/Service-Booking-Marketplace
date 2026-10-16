@@ -42,7 +42,7 @@ class FakeEmailProvider implements EmailProvider {
 
 const PREFIX = 'Booking email test ';
 const BANKING = {
-  accountName: 'Fresh Start Home Services',
+  accountName: 'Fresh Start',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',

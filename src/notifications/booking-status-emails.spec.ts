@@ -6,7 +6,7 @@ import {
 } from './booking-status-emails.js';
 
 const business = {
-  name: 'Fresh Start Home Services',
+  name: 'Fresh Start',
   email: 'bookings@example.com',
   phone: null,
 };

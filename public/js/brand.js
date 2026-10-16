@@ -55,9 +55,13 @@
   function applyTitle() {
     if (!current?.name) return;
     // The home page is called by the business's name alone
+    // The home page is called by the business's name alone (or, with a tagline,
+    // the name and the tagline); a title that already starts with the name is kept
     document.title =
-      baseTitle === 'Home'
-        ? current.name
+      baseTitle === 'Home' || baseTitle.startsWith(current.name)
+        ? baseTitle === 'Home'
+          ? current.name
+          : baseTitle
         : `${baseTitle} · ${current.name}${isAdmin ? ' admin' : ''}`;
   }
 

@@ -399,7 +399,7 @@ One row per message sent or attempted (section 7 of the spec). A failed send is 
 
 ### 3.8 `settings`
 
-A single row (`id = 1`, enforced by a check constraint) read by the other modules (#28). The default values are the reference business's (Fresh Start Home Services).
+A single row (`id = 1`, enforced by a check constraint) read by the other modules (#28). The default values are the reference business's (Fresh Start).
 
 | Column | Type | Default | Rule |
 | --- | --- | --- | --- |

@@ -61,7 +61,7 @@ class RecordingNotifier implements BookingNotifier {
 const PREFIX = 'Booking test ';
 const TUESDAY = upcoming(2);
 const REAL_BANKING = {
-  accountName: 'Fresh Start Home Services',
+  accountName: 'Fresh Start',
   bank: 'Example Bank',
   accountNumber: '1234567890',
   branchCode: '250655',

@@ -123,7 +123,7 @@ describe('createBookingSchema (C-3, C-4)', () => {
 
 describe('bankingDetailsAreSet (#28, #45)', () => {
   const real = {
-    accountName: 'Fresh Start Home Services',
+    accountName: 'Fresh Start',
     bank: 'Example Bank',
     accountNumber: '1234567890',
     branchCode: '250655',

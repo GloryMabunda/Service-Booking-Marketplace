@@ -112,7 +112,7 @@ describe('Admin settings API', () => {
       depositPercent: '30',
       businessPhone: '082 123 4567',
       bankingDetails: {
-        accountName: 'Fresh Start Home Services',
+        accountName: 'Fresh Start',
         bank: 'Example Bank',
         accountNumber: '1234567890',
         branchCode: '250655',

@@ -27,28 +27,28 @@ How every page of the booking site looks: colours, type, shapes, components, log
 
 - **The work is the star.** Service photos carry the most colour; the page supports them.
 - **One brand, one file.** Every colour comes from `theme.css`, so a business re-colours the site in one place and the logo it uploads fits.
-- **Booking is always obvious.** Orange means "book". There is at most one Book now per view.
+- **Booking is always obvious.** Deep navy means "book". There is at most one Book now per view.
 - **Readable for everyone.** All text meets WCAG 2.2 AA contrast; nothing relies on colour alone.
 
 ## 2. Colours
 
-The default theme is a calm blue with an orange action colour, for a home services business. Change any value in `theme.css`; the tests in `src/common/colour-contrast.spec.ts` check every pairing of text and background and fail if a new colour is too faint.
+The default theme is a calm blue with a deep navy action colour, for a home services business. Change any value in `theme.css`; the tests in `src/common/colour-contrast.spec.ts` check every pairing of text and background and fail if a new colour is too faint.
 
 | Role | Name | Hex | Used for | Contrast |
 | --- | --- | --- | --- | --- |
 | Primary | Primary | `#1A5BB5` | Primary buttons, links, headings | White on it 6.6:1 |
 | Primary hover | Primary dark | `#134689` | Hover and pressed states | |
-| Action | Action | `#FFA040` | **Book now** and the booking steps only | Text `#3A1A00` on it 7.8:1 |
+| Action | Action | `#123A66` | **Book now** and the booking steps only | White text on it 11.5:1 |
 | Bright | Accent | `#3B8FE0` | Large headings (24 px and up), decoration, backgrounds | 3.4:1 on white: **never small text** |
 | Accent text | Accent text | `#1E63A8` | Small accent text: prices, section labels | 6.2:1 on white, 5.3:1 on the light blue tint |
-| Highlight | Gold | `#FFC060` | Stars, highlights | Decoration only |
+| Highlight | Gold | `#F2C94C` | Stars, highlights | Decoration only |
 | Success | Green | `#2E7D3E` | Confirmed status, "payment received" | White on it 5.1:1 |
 | Logo ink | Brand ink | `#123A66` | The logo's ink colour, the footer | 11:1 on white |
 | Text | Ink | `#12233A` | Body text | 15.8:1 on white |
 | Text | Muted | `#4D6178` | Secondary text, hints | 6.4:1 on white |
 | Lines | Line | `#D6E3F3` | Borders, dividers | |
 
-**Section tints** for alternating section backgrounds and message boxes: accent `#E3F0FC`, cream `#FFF1D6`, primary `#E8EEFB`, mint `#E9F6EC`, soft `#F5F9FE`. The hero uses a soft gradient of accent, cream and primary. Errors keep their own red (`#8E1E3B` on `#FDE8EC`) whatever the theme, so an error never looks like a normal message.
+**Section tints** for alternating section backgrounds and message boxes: accent `#E3F0FC`, cream `#EEF4FB`, primary `#E8EEFB`, mint `#E9F6EC`, soft `#F5F9FE`. The hero uses a soft gradient of accent, pale blue and primary. Errors keep their own red (`#8E1E3B` on `#FDE8EC`) whatever the theme, so an error never looks like a normal message.
 
 **Rules that keep the palette from getting busy:**
 
@@ -96,7 +96,7 @@ All components are Bootstrap 5.3, themed by `tokens.css` and `theme.css`. See th
 
 | Class | Use | Look |
 | --- | --- | --- |
-| `.btn-book` | Book now and the booking steps | Orange, dark-brown text |
+| `.btn-book` | Book now and the booking steps | Deep navy, white text |
 | `.btn-primary` | The main action of a page or dialog (Confirm payment, Save) | Primary blue, white text |
 | `.btn-outline-primary` | Secondary actions (See gallery, Cancel) | Primary outline |
 | Text link | Inline navigation | Primary colour, underlined on hover |
@@ -143,7 +143,7 @@ Every status has a word, an icon and a distinct shape, so they're distinguishabl
 
 ### Date and time picker
 
-The client booking page uses a Monday-first month calendar (`.mbg-calendar`) of square day buttons (`.mbg-day`, at least 44 px): white with a pale line, primary colour when selected (`.is-selected`, with `aria-pressed`), and faded and not clickable when the date is outside the booking window. Open times are pill-outline buttons (`.mbg-slot`) that fill with the primary colour when chosen (`.active`). The Continue button is the orange booking button (`.btn-book`). A day with no times shows the info alert "No times are available on this day. Please choose another date."
+The client booking page uses a Monday-first month calendar (`.mbg-calendar`) of square day buttons (`.mbg-day`, at least 44 px): white with a pale line, primary colour when selected (`.is-selected`, with `aria-pressed`), and faded and not clickable when the date is outside the booking window. Open times are pill-outline buttons (`.mbg-slot`) that fill with the primary colour when chosen (`.active`). The Continue button is the navy booking button (`.btn-book`). A day with no times shows the info alert "No times are available on this day. Please choose another date."
 
 ### Service status
 
@@ -151,7 +151,7 @@ In the admin Services table, **Active** is a solid green badge with a check icon
 
 ## 6. Logo
 
-The repository ships with **no logo**: each business uploads its own in the portal (Website, About tab, Logo), and until it does the business name is shown as text in the header. A neutral favicon is in `public/images/brand/`; replace it with your own.
+The demo's example business, Fresh Start, has a sample logo of bubbles and an iron (`demo-photos/logo-fresh-start.png`, drawn for this project). Otherwise the repository ships with **no logo**: each business uploads its own in the portal (Website, About tab, Logo), and until it does the business name is shown as text in the header. A neutral favicon is in `public/images/brand/`; replace it with your own.
 
 | Where | What is shown |
 | --- | --- |
@@ -202,7 +202,7 @@ The repository ships with **no logo**: each business uploads its own in the port
 | Decision | Why |
 | --- | --- |
 | Colours in their own file (`theme.css`) | A business re-colours the site by editing one file, and a private copy of the project can keep its own colours without conflicts when it takes new releases (`BRANDING.md`). |
-| A calm blue with an orange action colour | Blue reads as clean and trustworthy for a home services business; orange stands out against it, so the Book button is always the easiest thing to find. Every pairing passes WCAG AA. |
+| A calm blue with a deep navy action colour | Blue reads as clean and trustworthy for a home services business; the darkest, strongest blue marks the Book button, so it is always the easiest thing to find. Every pairing passes WCAG AA. |
 | Josefin Sans, Nunito Sans, Alex Brush | Josefin gives headings a friendly geometric look, Nunito keeps details clear, Alex Brush is for rare decoration. |
 | Light mode only | The owner's preference for v1. |
 | Built on Bootstrap 5.3 | Matches the frontend stack in spec section 11; the tokens theme it instead of replacing it. |
