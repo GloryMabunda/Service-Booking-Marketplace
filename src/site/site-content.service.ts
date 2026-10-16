@@ -8,13 +8,15 @@ import { type AdminImage, ImagesService } from './images.service.js';
 import type { SiteContentPatch } from './site.schema.js';
 
 type ContentRow = Selectable<DB['site_content']>;
-export type ImageSlot = 'hero' | 'about';
+export type ImageSlot = 'hero' | 'about' | 'logo';
 
 export interface AdminSiteContent {
   tagline: string | null;
   aboutText: string;
   heroImage: AdminImage | null;
   aboutImage: AdminImage | null;
+  // The business logo, shown in the header, footer and pages
+  logoImage: AdminImage | null;
   locationType: 'travel' | 'studio' | null;
   locationText: string | null;
   whatsappNumber: string | null;
@@ -24,7 +26,11 @@ export interface AdminSiteContent {
   updatedAt: string;
 }
 
-const COLUMN = { hero: 'hero_image_id', about: 'about_image_id' } as const;
+const COLUMN = {
+  hero: 'hero_image_id',
+  about: 'about_image_id',
+  logo: 'logo_image_id',
+} as const;
 
 // The text, links and two photos of the home page (A-10, docs/api.md 7.16).
 @Injectable()
@@ -75,6 +81,7 @@ export class SiteContentService {
       for (const [slot, alt] of [
         ['hero', patch.heroImageAlt],
         ['about', patch.aboutImageAlt],
+        ['logo', patch.logoImageAlt],
       ] as const) {
         if (alt === undefined) continue;
         const imageId = current[COLUMN[slot]];
@@ -149,9 +156,10 @@ export class SiteContentService {
   }
 
   private async view(row: ContentRow): Promise<AdminSiteContent> {
-    const [hero, about] = await Promise.all([
+    const [hero, about, logo] = await Promise.all([
       this.images.find(row.hero_image_id),
       this.images.find(row.about_image_id),
+      this.images.find(row.logo_image_id),
     ]);
     return {
       tagline: row.tagline,
@@ -161,6 +169,9 @@ export class SiteContentService {
         : null,
       aboutImage: about
         ? this.images.adminView(about, await this.images.duplicatesOf(about))
+        : null,
+      logoImage: logo
+        ? this.images.adminView(logo, await this.images.duplicatesOf(logo))
         : null,
       locationType: row.location_type,
       locationText: row.location_text,

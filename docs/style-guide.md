@@ -191,7 +191,7 @@ The master logo is the white-background version supplied by the owner. The versi
 
 - `tokens.css` imports the three Google Fonts, defines every colour, size, space and shape as a `--mbg-*` variable, sets Bootstrap's theme variables, and adds the brand classes (`.btn-book`, `.mbg-status-*`, `.mbg-chip`, `.mbg-label`, `.mbg-script`, `.mbg-section-*`).
 - Use the variables, not raw hex codes, in any new CSS: `color: var(--mbg-pink-text);`.
-- The site uses copies: `public/css/tokens.css` (kept identical to this folder's, so Prettier skips it) and the logo files in `public/images/logo/` (#23). This folder stays the reference; change it here first, then copy.
+- The site uses copies: `public/css/tokens.css` (kept identical to this folder's, so Prettier skips it) and the neutral favicon in `public/images/brand/`. The business logo is not a file: the owner uploads it in the portal (Website, Logo). This folder stays the reference; change it here first, then copy.
 - Every page shares one header and footer: `<site-header>` and `<site-footer>`, defined in `public/js/layout.js`. Page frame styles (header, footer, skip link) are in `public/css/site.css`.
 
 ## 10. Decisions

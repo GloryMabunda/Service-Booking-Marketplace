@@ -23,15 +23,31 @@ export class PublicSiteService {
     private readonly images: ImagesService,
   ) {}
 
+  // The business's name, tagline and logo, for the header and footer of every
+  // page (docs/api.md 4.11). Small, so every page can ask for it.
+  async brand() {
+    const [settings, row] = await Promise.all([
+      this.settings.get(),
+      this.content.row(),
+    ]);
+    const logo = await this.images.find(row.logo_image_id);
+    return {
+      name: settings.businessName,
+      tagline: row.tagline,
+      logo: logo ? this.images.publicView(logo, settings.businessName) : null,
+    };
+  }
+
   async get() {
     const [settings, row, week] = await Promise.all([
       this.settings.get(),
       this.content.row(),
       this.availability.getWeek(),
     ]);
-    const [hero, about] = await Promise.all([
+    const [hero, about, logo] = await Promise.all([
       this.images.find(row.hero_image_id),
       this.images.find(row.about_image_id),
+      this.images.find(row.logo_image_id),
     ]);
     const alt = settings.businessName;
 
@@ -46,6 +62,7 @@ export class PublicSiteService {
         about: aboutParagraphs(row.about_text),
         heroImage: hero ? this.images.publicView(hero, alt) : null,
         aboutImage: about ? this.images.publicView(about, alt) : null,
+        logoImage: logo ? this.images.publicView(logo, alt) : null,
         location:
           row.location_type && row.location_text
             ? { type: row.location_type, text: row.location_text }

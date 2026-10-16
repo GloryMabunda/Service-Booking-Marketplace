@@ -172,6 +172,13 @@ function iconButton(
 // --- About: tagline, text and the two photos ----------------------------------
 
 const SLOTS = [
+  {
+    slot: 'logo',
+    label: 'Logo',
+    key: 'logoImage',
+    alt: 'logoImageAlt',
+    hint: 'Shown in the header, the footer and the home page. A PNG with a transparent background looks best. Without one, your business name is shown as text. The business name itself is set in Settings.',
+  },
   { slot: 'hero', label: 'Hero photo', key: 'heroImage', alt: 'heroImageAlt' },
   {
     slot: 'about',
@@ -182,7 +189,7 @@ const SLOTS = [
 ];
 
 function renderSlots() {
-  for (const { slot, label, key } of SLOTS) {
+  for (const { slot, label, key, hint } of SLOTS) {
     const image = content[key];
     const box = $(`#slot-${slot}`);
     const input = el('input', 'visually-hidden');
@@ -194,7 +201,7 @@ function renderSlots() {
     const chooser = el(
       'label',
       'btn btn-outline-primary btn-sm me-2',
-      image ? 'Replace photo' : 'Add photo',
+      image ? `Replace ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`,
     );
     chooser.htmlFor = input.id;
 
@@ -253,6 +260,7 @@ function renderSlots() {
         'JPEG, PNG or WebP, up to 15 MB. Location and camera details are removed automatically.',
       ),
     );
+    if (hint) parts.push(el('div', 'form-text mt-1', hint));
     box.replaceChildren(...parts);
   }
 }
@@ -328,6 +336,7 @@ $('#about-form').addEventListener('submit', async (event) => {
       aboutText: 'about-text',
       heroImageAlt: 'slot-hero-alt',
       aboutImageAlt: 'slot-about-alt',
+      logoImageAlt: 'slot-logo-alt',
     });
     return;
   }

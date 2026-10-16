@@ -46,10 +46,12 @@ function icon(name) {
 function renderHero({ business, content }) {
   $('#hero-title').textContent = business.name;
   if (content.tagline) $('#hero-tagline').textContent = content.tagline;
-  $('#hero-logo').alt = business.name;
-  document.title = content.tagline
-    ? `${business.name} · ${content.tagline}`
-    : business.name;
+  // The logo, when the owner has uploaded one (brand.js draws it); the
+  // business name is the heading either way
+  $('#hero-logo').hidden = !content.logoImage;
+  window.mbgSetTitle?.(
+    content.tagline ? `${business.name} · ${content.tagline}` : 'Home',
+  );
 
   if (content.heroImage) {
     const box = $('#hero-photo');

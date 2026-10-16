@@ -15,7 +15,12 @@ const SECTIONS = [
   {
     title: 'Your business',
     fields: [
-      { path: 'businessName', label: 'Business name', type: 'text' },
+      {
+        path: 'businessName',
+        label: 'Business name',
+        type: 'text',
+        hint: 'Shown in the header and footer, in page titles and in every email. Add your logo under Website.',
+      },
       {
         path: 'businessEmail',
         label: 'Business email',

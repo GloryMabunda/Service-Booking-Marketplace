@@ -47,7 +47,7 @@ function render({ booking, emailSentTo }, businessEmail) {
     ? 'Booking received, not yet confirmed'
     : 'Booking confirmed';
   $('#reference').textContent = booking.reference;
-  document.title = `${pending ? 'Booking received' : 'Booking confirmed'} · Make Up by Glory`;
+  window.mbgSetTitle?.(pending ? 'Booking received' : 'Booking confirmed');
 
   const rows = [
     ['Service', booking.service.name],

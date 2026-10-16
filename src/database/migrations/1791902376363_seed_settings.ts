@@ -22,7 +22,9 @@ export async function up(db: Kysely<any>): Promise<void> {
         branchCode: PLACEHOLDER,
         accountType: PLACEHOLDER,
       }),
-      business_name: 'Make Up by Glory',
+      // A neutral name: the owner replaces it in Settings. A fresh install
+      // never carries anyone's real business name.
+      business_name: 'Your Business',
       business_email: 'bookings@example.com',
       business_phone: null,
     })

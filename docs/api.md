@@ -32,6 +32,7 @@ This document describes every endpoint: method, path, access, request, response 
 | `GET /media/:key` | Public | [4.7](#47-get-mediakey) |
 | `GET /api/health` | Public | [4.9](#49-get-apihealth) |
 | `GET /api/demo/emails` | Public (demo mode only) | [4.10](#410-get-apidemoemails) |
+| `GET /api/brand` | Public | [4.11](#411-get-apibrand) |
 | `POST /api/auth/login` | Public | [6.1](#61-post-apiauthlogin) |
 | `POST /api/auth/logout` | Admin | [6.2](#62-post-apiauthlogout) |
 | `GET /api/auth/me` | Admin | [6.3](#63-get-apiauthme) |
@@ -489,6 +490,7 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
       "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp", "width": 480, "height": 320 }
     },
     "aboutImage": null,
+    "logoImage": null,
     "location": { "type": "travel", "text": "Pretoria East and Centurion" },
     "social": {
       "whatsapp": { "number": "+27821234567", "url": "https://wa.me/27821234567" },
@@ -542,7 +544,7 @@ Everything the home page needs in one call (C-9). Services still come from [`GET
 | Field | Rule |
 | --- | --- |
 | `content.about` | The About text split into paragraphs at blank lines. Plain text: the page inserts it as text, never as HTML |
-| `content.heroImage`, `aboutImage` | `null` when not set. `alt` falls back to the business name |
+| `content.heroImage`, `aboutImage`, `logoImage` | `null` when not set. `alt` falls back to the business name. `logoImage` is the business logo |
 | `content.location` | `null` when not set; `type` is `travel` or `studio` |
 | `content.social` | Each link `null` when not set |
 | `workingHours.days` | All seven days, from Availability (A-6). The page groups days with the same hours |
@@ -635,6 +637,28 @@ The emails a demo "sent" (`docs/demo.md`). **Only in demo mode** (`DEMO_MODE=tru
   ]
 }
 ```
+
+---
+
+### 4.11 `GET /api/brand`
+
+The business's own brand, which every page shows in its header and footer: its name, its tagline and its logo. The name is set in Settings (`businessName`), the tagline and the logo on the Website page. The repository ships with **no real brand**: until the owner sets these, the name is the neutral "Your Business" and there is no logo, so pages show the name as text (`BRANDING.md`).
+
+**Response `200`**
+
+```json
+{
+  "name": "Glow Studio",
+  "tagline": "Beauty, booked.",
+  "logo": {
+    "alt": "Glow Studio",
+    "large": { "url": "/media/9f2c….webp", "width": 1600, "height": 533 },
+    "thumb": { "url": "/media/41ab….webp", "width": 480, "height": 160 }
+  }
+}
+```
+
+`tagline` and `logo` are `null` when not set. Sent with `Cache-Control: public, max-age=60`, so a change can take up to a minute to show. Limited to 120 requests a minute per IP address.
 
 ---
 
@@ -1241,6 +1265,7 @@ About, contact and area, and the hero and About photos (A-10).
     "aboutText": "Hi, I'm Glory...\n\nI travel to you...",
     "heroImage": { "id": "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e", "altText": "Bride with soft glam makeup", "width": 1600, "height": 1067, "large": { "url": "/media/3f9c2a7e5b1d4c8e9a0f6b2d7c1e4a90.webp" }, "thumb": { "url": "/media/8b1e6d3c9f2a4b7e1c5d0a9f3e6b2c71.webp" }, "duplicateOf": [], "uploadedAt": "2026-10-10T08:00:00Z" },
     "aboutImage": null,
+    "logoImage": null,
     "locationType": "travel",
     "locationText": "Pretoria East and Centurion",
     "whatsappNumber": "+27821234567",
@@ -1261,9 +1286,9 @@ About, contact and area, and the hero and About photos (A-10).
 | `locationType`, `locationText` | Set together: `travel` or `studio` with 1 to 200 characters, or both `null` |
 | `whatsappNumber` | A phone number in any common format, stored in E.164; or `null` |
 | `instagramUrl`, `facebookUrl`, `tiktokUrl` | An `https://` link on that network's domain (`instagram.com`, `facebook.com`, `tiktok.com`); or `null` |
-| `heroImageAlt`, `aboutImageAlt` | At most 250 characters; updates the photo's alt text |
+| `heroImageAlt`, `aboutImageAlt`, `logoImageAlt` | At most 250 characters; updates the photo's alt text |
 
-**`PUT /api/admin/site-content/images/:slot`**, where `:slot` is `hero` or `about`: upload a photo (field `file`, optional field `altText`) to replace the current one. The old photo's files and row are deleted. Response `200 { "content": ... }`. Errors: see [Photo uploads](#photo-uploads); `404 NOT_FOUND` for an unknown slot.
+**`PUT /api/admin/site-content/images/:slot`**, where `:slot` is `hero`, `about` or `logo` (the business logo): upload a photo (field `file`, optional field `altText`) to replace the current one. The old photo's files and row are deleted. Response `200 { "content": ... }`. Errors: see [Photo uploads](#photo-uploads); `404 NOT_FOUND` for an unknown slot.
 
 **`DELETE /api/admin/site-content/images/:slot`** removes the photo and its files. Response `204`.
 

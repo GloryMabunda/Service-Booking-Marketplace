@@ -61,7 +61,7 @@ function phoneLink(phone) {
 
 function render({ booking: b, proofs, notifications }) {
   booking = b;
-  document.title = `${b.reference} · Make Up by Glory admin`;
+  window.mbgSetTitle?.(b.reference);
   $('#reference').textContent = b.reference;
   $('#status').replaceChildren(statusBadge(b.status));
 

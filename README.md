@@ -4,7 +4,7 @@
 
 > **An appointment booking and management system designed for service-based businesses, allowing clients to discover services, view availability, book appointments online and secure them with a deposit.**
 
-For this portfolio project the system is built around a **makeup artist business**, but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code.
+For this portfolio project the system is built around a **makeup artist business**, but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code, including its own name and logo, set in the portal ([BRANDING.md](BRANDING.md)).
 
 <p align="center">
   <img src="docs/images/services.jpg" alt="The services page: each service is a card with its picture, duration, price and deposit" width="49%">
@@ -44,6 +44,13 @@ Then open <http://localhost:3000>. It starts the app and PostgreSQL, creates the
 | *Choose a date and a time that is really free* | *The private booking page: pay the deposit, upload a proof, or cancel* |
 | ![The owner's dashboard](docs/images/admin-dashboard.jpg) | ![The services page on a phone](docs/images/mobile-services.jpg) |
 | *The owner's dashboard* | *Built mobile first* |
+
+**Your brand, not ours.** The project ships with a neutral name and no logo. The owner sets the business name in Settings and uploads a logo under Website, and the header, footer, home page and every email follow, with no code to change. See [BRANDING.md](BRANDING.md).
+
+| | |
+| --- | --- |
+| ![Without a logo, the business name is shown as text](docs/images/home.jpg) | ![With a logo uploaded in the portal](docs/images/home-logo.jpg) |
+| *Out of the box: the name as text* | *After uploading a logo (a sample one here)* |
 
 More screens: the [demo mailbox](docs/images/demo-mailbox.jpg), [bookings](docs/images/admin-bookings.jpg), [one booking](docs/images/admin-booking.jpg), [services](docs/images/admin-services.jpg), [website editor](docs/images/admin-website.jpg).
 
@@ -99,4 +106,4 @@ Every change goes through an issue, a branch and a pull request that passes CI. 
 
 ## 📜 Licence
 
-MIT. See [`LICENSE`](LICENSE).
+MIT for the code. See [`LICENSE`](LICENSE). The project ships with a neutral brand: your business name and logo are set in the portal, never in the code. The name and logo of the example business, Make Up by Glory, are not covered by the licence. See [`BRANDING.md`](BRANDING.md).

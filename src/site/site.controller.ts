@@ -49,6 +49,20 @@ export class PublicSiteController {
   }
 }
 
+// GET /api/brand (docs/api.md 4.11): the name, tagline and logo every page
+// shows in its header and footer. Public and cached for 60 seconds.
+@Controller('brand')
+export class PublicBrandController {
+  constructor(private readonly site: PublicSiteService) {}
+
+  @Get()
+  @RateLimit({ limit: 120, windowSeconds: 60 })
+  get(@Res({ passthrough: true }) res: Response) {
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    return this.site.brand();
+  }
+}
+
 const slotOrFail = (slot: string) => {
   const parsed = imageSlotSchema.safeParse(slot);
   if (!parsed.success) {

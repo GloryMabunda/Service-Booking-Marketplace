@@ -67,7 +67,7 @@ describe('Admin settings API', () => {
       .expect(401);
   });
 
-  it('returns the seeded Make Up by Glory settings', async () => {
+  it('returns the seeded settings', async () => {
     const res = await get().expect(200);
     expect(res.headers['cache-control']).toBe('no-store');
     expect(res.body).toEqual({
@@ -89,7 +89,7 @@ describe('Admin settings API', () => {
           branchCode: 'Not set yet',
           accountType: 'Not set yet',
         },
-        businessName: 'Make Up by Glory',
+        businessName: 'Your Business',
         businessEmail: 'bookings@example.com',
         businessPhone: null,
         homeAddress: null,

@@ -228,6 +228,7 @@ export interface SiteContent {
   instagram_url: string | null;
   location_text: string | null;
   location_type: LocationType | null;
+  logo_image_id: string | null;
   tagline: string | null;
   tiktok_url: string | null;
   updated_at: Generated<Timestamp>;

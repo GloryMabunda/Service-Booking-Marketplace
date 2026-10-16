@@ -56,7 +56,7 @@ export const envSchema = z
       .default(587),
     SMTP_USER: optionalText,
     SMTP_PASSWORD: optionalText,
-    // The address emails come from, for example: Make Up by Glory <bookings@example.com>
+    // The address emails come from, for example: Your Business <bookings@example.com>
     MAIL_FROM: optionalText,
     // Travel fees (#115): the OpenRouteService key that finds the distance to a
     // client's address. Without it travel bookings say they are unavailable.

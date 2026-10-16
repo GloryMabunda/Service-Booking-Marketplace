@@ -90,7 +90,7 @@ export function renderPaymentInstructions(
     `Can't use the upload link? Email your proof of payment to ${d.business.email} with your reference ${d.reference}.`,
     '',
     'See you soon,',
-    'Glory',
+    d.business.name,
     '',
     '--',
     d.business.name,
@@ -126,7 +126,7 @@ export function renderPaymentInstructions(
 <p>If the deposit isn't received by ${escapeHtml(d.deadline)}, the booking expires and the time is released for other clients.</p>
 <p>The balance of ${escapeHtml(d.balance)} is payable on the day.</p>
 <p>Can't use the upload button? Email your proof of payment to <a href="mailto:${escapeHtml(d.business.email)}" style="color:#A02080">${escapeHtml(d.business.email)}</a> with your reference ${escapeHtml(d.reference)}.</p>
-<p>See you soon,<br>Glory</p>
+<p>See you soon,<br>${escapeHtml(d.business.name)}</p>
 <hr style="border:0;border-top:1px solid #e6d9e2;margin:24px 0">
 <p style="font-size:13px;color:#6b5a66">${escapeHtml(d.business.name)}<br>${escapeHtml(contact)}<br><br>Questions? Just reply to this email.<br>You're receiving this because you made a booking with ${escapeHtml(d.business.name)}.</p>
 </div></body></html>`;

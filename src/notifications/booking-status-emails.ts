@@ -62,7 +62,7 @@ export function renderPaymentConfirmed(d: PaymentConfirmedData): RenderedEmail {
       {
         p: "This is your private booking link; it replaces the one in your payment instructions email, which no longer works. Please keep this email and don't share the link.",
       },
-      { p: "I'm looking forward to seeing you!\nGlory" },
+      { p: `I'm looking forward to seeing you!\n${d.business.name}` },
     ],
     clientFooter(d.business),
   );
@@ -107,7 +107,7 @@ export function renderBookingCancelled(d: BookingCancelledData): RenderedEmail {
   if (refundLine) blocks.push({ p: refundLine });
   blocks.push(
     { p: `You're welcome to book again any time: ${d.bookUrl}` },
-    { p: 'Glory' },
+    { p: d.business.name },
   );
   return renderEmail(
     `Your booking ${d.reference} has been cancelled`,

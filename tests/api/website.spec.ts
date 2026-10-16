@@ -33,7 +33,7 @@ describe('Public website', () => {
     ['/css/tokens.css', /css/],
     ['/css/site.css', /css/],
     ['/js/layout.js', /javascript/],
-    ['/images/logo/logo-horizontal.png', /png/],
+    ['/images/brand/favicon-64.png', /png/],
   ])('serves %s', async (path, type) => {
     await request(app.getHttpServer())
       .get(path)

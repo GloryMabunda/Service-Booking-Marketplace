@@ -333,6 +333,16 @@ admin-header .nav-link.active {
   object-fit: cover;
 }
 
+/* The business name shown as text when no logo has been uploaded */
+.mbg-brand-text {
+  font-family: var(--mbg-font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--mbg-magenta);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
 /* The demo banner, shown at the top of every page in demo mode */
 .mbg-demo-banner {
   background: var(--mbg-tint-cream);
