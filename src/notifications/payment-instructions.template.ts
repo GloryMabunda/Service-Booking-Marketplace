@@ -119,7 +119,7 @@ export function renderPaymentInstructions(
 <table role="presentation" style="border-collapse:collapse;margin:0 0 8px">${rows(bank)}</table>
 <p>Please use <strong>${escapeHtml(d.reference)}</strong> as your payment reference so I can match your payment.</p>
 <h2 style="${heading}">2. Upload your proof of payment</h2>
-<p><a href="${escapeHtml(d.link)}" style="display:inline-block;background:#123A66;color:#FFFFFF;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">Upload proof of payment</a></p>
+<p><a href="${escapeHtml(d.link)}" style="display:inline-block;background:#3B8FE0;color:#071A30;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">Upload proof of payment</a></p>
 <p>This is your private booking link. Keep this email: you can also use the link to cancel if your plans change. Please don't share it.</p>
 <h2 style="${heading}">3. I'll confirm your booking</h2>
 <p>I'll confirm your booking by email as soon as the money reflects in my account.</p>

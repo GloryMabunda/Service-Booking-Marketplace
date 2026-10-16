@@ -17,9 +17,10 @@
   --mbg-primary-rgb: 26, 91, 181;
   --mbg-primary-dark: #134689;   /* primary hover */
   --mbg-primary-dark-rgb: 19, 70, 137;
-  --mbg-action: #123A66;         /* action: Book now only (deep navy, the strongest thing on the page) */
-  --mbg-action-dark: #0A2646;    /* action hover */
-  --mbg-on-action: #FFFFFF;      /* text on the action colour */
+  --mbg-action: #3B8FE0;         /* action: Book now only (the bright accent blue; dark text, white would be too faint) */
+  --mbg-action-dark: #5AA3EC;    /* action hover (lighter, so the dark text stays easy to read) */
+  --mbg-on-action: #071A30;      /* text on the action colour */
+  --mbg-accent-rgb: 59, 143, 224;
   --mbg-accent: #3B8FE0;         /* large headings, flourishes, decoration; never small text */
   --mbg-accent-text: #1E63A8;    /* small accent text: prices, labels */
   --mbg-gold: #F2C94C;           /* stars, highlights */

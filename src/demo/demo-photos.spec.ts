@@ -1,7 +1,12 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { DEMO_LOGO, DEMO_PHOTO_DIR, DEMO_SERVICES } from './seed-demo.js';
+import {
+  DEMO_HERO,
+  DEMO_LOGO,
+  DEMO_PHOTO_DIR,
+  DEMO_SERVICES,
+} from './seed-demo.js';
 
 // The demo's pictures: real, credited, sensibly sized, and nothing left over.
 
@@ -9,7 +14,7 @@ const credits = readFileSync(join(DEMO_PHOTO_DIR, 'CREDITS.md'), 'utf8');
 const file = (name: string) => join(DEMO_PHOTO_DIR, name);
 
 describe('the demo photos', () => {
-  it.each(DEMO_SERVICES.map((s) => s.photo))(
+  it.each([...DEMO_SERVICES.map((s) => s.photo), DEMO_HERO])(
     '%s is a proper photo',
     async (name) => {
       const meta = await sharp(file(name)).metadata();
@@ -23,7 +28,7 @@ describe('the demo photos', () => {
     },
   );
 
-  it.each(DEMO_SERVICES.map((s) => s.photo))(
+  it.each([...DEMO_SERVICES.map((s) => s.photo), DEMO_HERO])(
     '%s is credited, with its licence',
     (name) => {
       const row = credits
@@ -55,6 +60,7 @@ describe('the demo photos', () => {
     const used = new Set([
       ...DEMO_SERVICES.map((s) => s.photo),
       DEMO_LOGO,
+      DEMO_HERO,
       'CREDITS.md',
     ]);
     const stray = readdirSync(DEMO_PHOTO_DIR).filter((name) => !used.has(name));
