@@ -12,6 +12,9 @@ describe('validateEnv', () => {
       DATABASE_URL: valid.DATABASE_URL,
       SMTP_PORT: 587,
       DEMO_MODE: false,
+      DEMO_REAL_EMAIL: false,
+      DEMO_REAL_EMAIL_DAILY_CAP: 100,
+      DEMO_REAL_EMAIL_PER_ADDRESS_PER_HOUR: 3,
     });
   });
 
@@ -68,7 +71,7 @@ describe('email settings', () => {
   it('need MAIL_FROM once SMTP_HOST is set', () => {
     expect(() =>
       validateEnv({ ...base, SMTP_HOST: 'smtp.example.com' }),
-    ).toThrow(/MAIL_FROM: is required when SMTP_HOST is set/);
+    ).toThrow(/MAIL_FROM: is required when SMTP_HOST or BREVO_API_KEY is set/);
     expect(
       validateEnv({
         ...base,
@@ -136,7 +139,7 @@ describe('production settings (#89)', () => {
 
   it('refuses to start without an email provider, so no client is left without their emails', () => {
     expect(() => validateEnv({ ...production, SMTP_HOST: '' })).toThrow(
-      /SMTP_HOST: is required in production/,
+      /SMTP_HOST: or BREVO_API_KEY is required in production/,
     );
   });
 
@@ -223,5 +226,76 @@ describe('PUBLIC_URL on Render', () => {
       RENDER_EXTERNAL_URL: 'https://fresh-start-demo.onrender.com',
     });
     expect(env.PUBLIC_URL).toBe('https://example.com');
+  });
+});
+
+describe('email through Brevo', () => {
+  const demo = {
+    DATABASE_URL: 'postgres://booking:booking@localhost:5432/booking',
+    DEMO_MODE: 'true',
+  };
+
+  it('needs a sender address', () => {
+    expect(() => validateEnv({ ...demo, BREVO_API_KEY: 'k' })).toThrow(
+      /MAIL_FROM: is required when SMTP_HOST or BREVO_API_KEY is set/,
+    );
+  });
+
+  it('cannot be mixed with SMTP', () => {
+    expect(() =>
+      validateEnv({
+        DATABASE_URL: demo.DATABASE_URL,
+        BREVO_API_KEY: 'k',
+        SMTP_HOST: 'smtp.example.com',
+        MAIL_FROM: 'a@b.com',
+      }),
+    ).toThrow(/BREVO_API_KEY: cannot be used together with SMTP_HOST/);
+  });
+
+  it('counts as a mail provider in production', () => {
+    const production = {
+      DATABASE_URL: demo.DATABASE_URL,
+      NODE_ENV: 'production',
+      PUBLIC_URL: 'https://example.com',
+      BREVO_API_KEY: 'k',
+      MAIL_FROM: 'a@b.com',
+    };
+    expect(validateEnv(production).BREVO_API_KEY).toBe('k');
+    expect(() =>
+      validateEnv({ ...production, BREVO_API_KEY: '', MAIL_FROM: '' }),
+    ).toThrow(/BREVO_API_KEY is required in production/);
+  });
+
+  it('lets the demo email real addresses only when asked, with limits', () => {
+    const env = validateEnv({
+      ...demo,
+      BREVO_API_KEY: 'k',
+      MAIL_FROM: 'a@b.com',
+      DEMO_REAL_EMAIL: 'true',
+    });
+    expect(env.DEMO_REAL_EMAIL).toBe(true);
+    expect(env.DEMO_REAL_EMAIL_DAILY_CAP).toBe(100);
+    expect(env.DEMO_REAL_EMAIL_PER_ADDRESS_PER_HOUR).toBe(3);
+    expect(validateEnv({ ...demo }).DEMO_REAL_EMAIL).toBe(false);
+  });
+
+  it('refuses real demo email outside the demo, or without a key', () => {
+    expect(() =>
+      validateEnv({
+        DATABASE_URL: demo.DATABASE_URL,
+        DEMO_REAL_EMAIL: 'true',
+        BREVO_API_KEY: 'k',
+        MAIL_FROM: 'a@b.com',
+      }),
+    ).toThrow(/DEMO_REAL_EMAIL: is only for the demo/);
+    expect(() => validateEnv({ ...demo, DEMO_REAL_EMAIL: 'true' })).toThrow(
+      /BREVO_API_KEY: is required when DEMO_REAL_EMAIL is true/,
+    );
+  });
+
+  it('keeps the daily cap sensible', () => {
+    expect(() =>
+      validateEnv({ ...demo, DEMO_REAL_EMAIL_DAILY_CAP: '1000' }),
+    ).toThrow(/DEMO_REAL_EMAIL_DAILY_CAP/);
   });
 });

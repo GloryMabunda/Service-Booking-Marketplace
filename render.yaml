@@ -41,3 +41,6 @@ services:
       # Typed in the Render dashboard; at least 12 characters. Not in Git.
       - key: DEMO_ADMIN_PASSWORD
         sync: false
+      # Optional, added by hand in the dashboard (docs/demo.md, "Real email from the
+      # demo"): BREVO_API_KEY, MAIL_FROM and DEMO_REAL_EMAIL=true. They are not
+      # listed here, so the demo starts fine without them.

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createTransport, type Transporter } from 'nodemailer';
 import type { Env } from '../config/env.js';
+import { DemoRealEmailProvider } from '../demo/demo-real-email.js';
+import { BrevoEmailProvider } from './brevo-email-provider.js';
 
 // One email, ready to send: the same words as plain text and as HTML.
 export interface EmailMessage {
@@ -27,7 +29,9 @@ export const EMAIL_PROVIDER = Symbol('EMAIL_PROVIDER');
 export class NoEmailProvider implements EmailProvider {
   send(): Promise<void> {
     return Promise.reject(
-      new Error('No email provider is set up (SMTP_HOST is empty)'),
+      new Error(
+        'No email provider is set up (SMTP_HOST and BREVO_API_KEY are empty)',
+      ),
     );
   }
 }
@@ -62,8 +66,29 @@ export function createEmailProvider(
   config: ConfigService<Env, true>,
   demoMailbox: EmailProvider,
 ): EmailProvider {
-  // Demo mode keeps emails on the demo mailbox page instead of sending them
-  if (config.get('DEMO_MODE', { infer: true })) return demoMailbox;
+  const brevoKey = config.get('BREVO_API_KEY', { infer: true });
+  const from = config.get('MAIL_FROM', { infer: true }) ?? '';
+  // Demo mode keeps emails on the demo mailbox page instead of sending them,
+  // unless the hosted demo is set to also email real addresses, within limits
+  if (config.get('DEMO_MODE', { infer: true })) {
+    if (config.get('DEMO_REAL_EMAIL', { infer: true }) && brevoKey) {
+      return new DemoRealEmailProvider(
+        demoMailbox,
+        new BrevoEmailProvider(brevoKey, from),
+        {
+          dailyCap: config.get('DEMO_REAL_EMAIL_DAILY_CAP', { infer: true }),
+          perAddressPerHour: config.get(
+            'DEMO_REAL_EMAIL_PER_ADDRESS_PER_HOUR',
+            {
+              infer: true,
+            },
+          ),
+        },
+      );
+    }
+    return demoMailbox;
+  }
+  if (brevoKey) return new BrevoEmailProvider(brevoKey, from);
   return config.get('SMTP_HOST', { infer: true })
     ? new SmtpEmailProvider(config)
     : new NoEmailProvider();

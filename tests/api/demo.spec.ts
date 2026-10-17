@@ -18,7 +18,7 @@ import { createTestDatabase } from '../helpers/database.js';
 // the health check says so. Each app here is built by hand with the setting
 // switched one way or the other.
 
-async function appWith(demo: boolean) {
+async function appWith(demo: boolean, realEmail = false) {
   const mailbox = new DemoMailbox();
   const db = createTestDatabase();
   const moduleRef = await Test.createTestingModule({
@@ -26,7 +26,13 @@ async function appWith(demo: boolean) {
     controllers: [DemoController, HealthController],
     providers: [
       { provide: DemoMailbox, useValue: mailbox },
-      { provide: ConfigService, useValue: { get: () => demo } },
+      {
+        provide: ConfigService,
+        useValue: {
+          get: (key: string) =>
+            key === 'DEMO_MODE' ? demo : key === 'DEMO_REAL_EMAIL' && realEmail,
+        },
+      },
       { provide: DATABASE, useValue: db },
       { provide: APP_FILTER, useClass: ApiExceptionFilter },
     ],
@@ -111,6 +117,23 @@ describe('Demo mode', () => {
     it('makes the health check say it is a demo', async () => {
       const res = await request(app.getHttpServer()).get('/api/health');
       expect(res.body).toEqual({ status: 'ok', demo: true });
+    });
+  });
+
+  describe('switched on, with real email', () => {
+    let app: INestApplication<App>;
+    let db: Kysely<DB>;
+    beforeAll(async () => {
+      ({ app, db } = await appWith(true, true));
+    });
+    afterAll(async () => {
+      await app.close();
+      await db.destroy();
+    });
+
+    it('lets the pages know the demo emails real addresses', async () => {
+      const res = await request(app.getHttpServer()).get('/api/health');
+      expect(res.body).toEqual({ status: 'ok', demo: true, realEmail: true });
     });
   });
 

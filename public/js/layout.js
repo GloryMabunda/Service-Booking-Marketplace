@@ -21,9 +21,12 @@ const NAV_LINKS = [
 // In demo mode (docs/demo.md) every page says so, and points to the demo
 // mailbox where the emails appear. /api/health says whether this is a demo.
 async function showDemoBanner(header) {
+  let realEmail;
   try {
     const res = await fetch('/api/health', { cache: 'no-store' });
-    if (!res.ok || !(await res.json()).demo) return;
+    const health = res.ok ? await res.json() : {};
+    if (!health.demo) return;
+    realEmail = Boolean(health.realEmail);
   } catch {
     return;
   }
@@ -32,7 +35,9 @@ async function showDemoBanner(header) {
   bar.setAttribute('role', 'note');
   bar.append(
     document.createTextNode(
-      'Demo: nothing here is real and no email is sent. ',
+      realEmail
+        ? 'Demo: nothing here is real. Emails to real addresses are sent, and every email is kept on the demo mailbox. '
+        : 'Demo: nothing here is real and no email is sent. ',
     ),
   );
   const link = document.createElement('a');
@@ -40,6 +45,13 @@ async function showDemoBanner(header) {
   link.textContent = 'Open the demo mailbox';
   bar.append(link);
   header.prepend(bar);
+  // On the booking form, say that the typed address will get a real email
+  const hint = document.querySelector('#clientEmail + .form-text');
+  if (realEmail && hint) {
+    hint.append(
+      ' This demo sends a real email to this address, marked as a demo.',
+    );
+  }
 }
 
 class SiteHeader extends HTMLElement {
