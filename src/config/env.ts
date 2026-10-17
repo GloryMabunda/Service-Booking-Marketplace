@@ -126,7 +126,13 @@ export type Env = z.infer<typeof envSchema>;
 
 // Checks the variables and returns them typed, or throws one error that lists
 // every problem, so a missing or wrong setting stops the app at startup.
-export function validateEnv(raw: Record<string, unknown>): Env {
+export function validateEnv(input: Record<string, unknown>): Env {
+  // Render tells every service its own public address; use it when PUBLIC_URL
+  // isn't set, so the hosted demo (render.yaml) needs no second setting.
+  const raw =
+    !input.PUBLIC_URL && input.RENDER_EXTERNAL_URL
+      ? { ...input, PUBLIC_URL: input.RENDER_EXTERNAL_URL }
+      : input;
   const result = envSchema.safeParse(raw);
   if (result.success) return result.data;
 
