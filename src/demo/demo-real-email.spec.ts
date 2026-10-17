@@ -112,6 +112,10 @@ describe('DemoRealEmailProvider', () => {
     await expect(provider.send(mail('a@gmail.com'))).rejects.toThrow(
       'Brevo is down',
     );
-    expect(mailbox.list()).toHaveLength(1);
+    expect(mailbox.list()).toHaveLength(2);
+    expect(mailbox.list()[0]?.subject).toBe(
+      'Not delivered for real: Your booking',
+    );
+    expect(mailbox.list()[0]?.text).toContain('Brevo is down');
   });
 });
