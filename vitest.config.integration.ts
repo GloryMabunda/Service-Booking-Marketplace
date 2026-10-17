@@ -19,6 +19,10 @@ export default defineConfig({
       // The app under test uses the test database too, so tests never read or
       // change development data (#27).
       ...(testDatabaseUrl ? { DATABASE_URL: testDatabaseUrl } : {}),
+      // Whatever the developer runs locally (demo mode, a real mail server) must
+      // never change a test result or send a real email from a test run.
+      DEMO_MODE: '',
+      SMTP_HOST: '',
     },
     // Migrates the test database before the tests run (#19).
     globalSetup: ['./tests/setup/migrate-test-database.ts'],
