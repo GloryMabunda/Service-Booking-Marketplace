@@ -21,6 +21,8 @@ docker compose -f compose.demo.yml up --build
 
 Then open <http://localhost:3000>. It starts the app and PostgreSQL, creates the tables and fills them with made-up demo data. Sign in to the owner's portal at <http://localhost:3000/admin/> as `demo@example.com` with the password `demo-admin-1234`. The demo sends no email: the emails it would send appear on the [demo mailbox](http://localhost:3000/demo-mailbox.html) page. If port 3000 is already in use, start it on another one, for example `DEMO_PORT=3001 docker compose -f compose.demo.yml up --build` (PowerShell: `$env:DEMO_PORT=3001; docker compose …`). More in [docs/demo.md](docs/demo.md).
 
+**Short on time?** Look at the screenshots below, then try the demo: book a service as a client (pick a place, see the travel fee, get the emails in the demo mailbox), sign in to the owner's portal, confirm the payment and watch the calendar change. About five minutes. No email setup is needed: the demo sends nothing real. To send real email, copy `.env.example` to `.env` and set your own `SMTP_*` details ([docs/development.md](docs/development.md)); the project never contains anyone's mail credentials.
+
 ---
 
 ## ✨ What it does
