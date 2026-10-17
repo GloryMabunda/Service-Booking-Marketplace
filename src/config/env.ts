@@ -15,6 +15,16 @@ const optionalText = z
   .optional()
   .transform((value) => value || undefined);
 
+// true or false (also 1 or 0); blank means false
+const trueOrFalse = optionalText.transform((value, context) => {
+  if (value === undefined) return false;
+  if (!/^(true|false|1|0)$/i.test(value)) {
+    context.addIssue({ code: 'custom', message: 'must be true or false' });
+    return z.NEVER;
+  }
+  return /^(true|1)$/i.test(value);
+});
+
 export const envSchema = z
   .object({
     NODE_ENV: z
@@ -58,6 +68,9 @@ export const envSchema = z
     SMTP_PASSWORD: optionalText,
     // The address emails come from, for example: Your Business <bookings@example.com>
     MAIL_FROM: optionalText,
+    // Email through Brevo's web API instead of SMTP (docs/demo.md): works on hosts
+    // that block the SMTP ports. Use this or SMTP_HOST, not both.
+    BREVO_API_KEY: optionalText,
     // Travel fees (#115): the OpenRouteService key that finds the distance to a
     // client's address. Without it travel bookings say they are unavailable.
     OPENROUTESERVICE_API_KEY: optionalText,
@@ -68,17 +81,22 @@ export const envSchema = z
     // Demo mode: for trying or showing the app. No email is sent: each one is
     // kept on a demo mailbox page, so the booking link can be opened. Pages show
     // a demo banner. Never use it with real clients (docs/demo.md).
-    DEMO_MODE: optionalText.transform((value, context) => {
-      if (value === undefined) return false;
-      if (!/^(true|false|1|0)$/i.test(value)) {
-        context.addIssue({
-          code: 'custom',
-          message: 'must be true or false',
-        });
-        return z.NEVER;
-      }
-      return /^(true|1)$/i.test(value);
-    }),
+    DEMO_MODE: trueOrFalse,
+    // Hosted demo only: also send a real email to the address a visitor types,
+    // within the limits below (needs BREVO_API_KEY and MAIL_FROM).
+    DEMO_REAL_EMAIL: trueOrFalse,
+    DEMO_REAL_EMAIL_DAILY_CAP: z.coerce
+      .number({ error: 'must be a whole number from 1 to 250' })
+      .int('must be a whole number from 1 to 250')
+      .min(1, 'must be a whole number from 1 to 250')
+      .max(250, 'must be a whole number from 1 to 250')
+      .default(100),
+    DEMO_REAL_EMAIL_PER_ADDRESS_PER_HOUR: z.coerce
+      .number({ error: 'must be a whole number from 1 to 20' })
+      .int('must be a whole number from 1 to 20')
+      .min(1, 'must be a whole number from 1 to 20')
+      .max(20, 'must be a whole number from 1 to 20')
+      .default(3),
     // The public address of the site, used to build the links in emails
     PUBLIC_URL: optionalText.pipe(
       z.url('must be a full web address').optional(),
@@ -97,12 +115,34 @@ export const envSchema = z
           'cannot be used together with SMTP_HOST: demo mode keeps emails on a public page, so it is only for demo data',
       });
     }
+    if (env.SMTP_HOST && env.BREVO_API_KEY) {
+      context.addIssue({
+        code: 'custom',
+        path: ['BREVO_API_KEY'],
+        message: 'cannot be used together with SMTP_HOST: choose one',
+      });
+    }
+    if (env.DEMO_REAL_EMAIL && !env.DEMO_MODE) {
+      context.addIssue({
+        code: 'custom',
+        path: ['DEMO_REAL_EMAIL'],
+        message: 'is only for the demo: it needs DEMO_MODE=true',
+      });
+    }
+    if (env.DEMO_REAL_EMAIL && !env.BREVO_API_KEY) {
+      context.addIssue({
+        code: 'custom',
+        path: ['BREVO_API_KEY'],
+        message: 'is required when DEMO_REAL_EMAIL is true',
+      });
+    }
     if (env.NODE_ENV === 'production' && !env.DEMO_MODE) {
-      if (!env.SMTP_HOST) {
+      if (!env.SMTP_HOST && !env.BREVO_API_KEY) {
         context.addIssue({
           code: 'custom',
           path: ['SMTP_HOST'],
-          message: 'is required in production, so clients get their emails',
+          message:
+            'or BREVO_API_KEY is required in production, so clients get their emails',
         });
       }
       if (!env.PUBLIC_URL) {
@@ -113,11 +153,11 @@ export const envSchema = z
         });
       }
     }
-    if (env.SMTP_HOST && !env.MAIL_FROM) {
+    if ((env.SMTP_HOST || env.BREVO_API_KEY) && !env.MAIL_FROM) {
       context.addIssue({
         code: 'custom',
         path: ['MAIL_FROM'],
-        message: 'is required when SMTP_HOST is set',
+        message: 'is required when SMTP_HOST or BREVO_API_KEY is set',
       });
     }
   });

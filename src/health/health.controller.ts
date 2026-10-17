@@ -10,7 +10,8 @@ import type { DB } from '../database/database.types.js';
 // its database? Used by the server's health check, the deploy script and an
 // outside uptime monitor. Public, and it says nothing about the system beyond
 // ok or not. In demo mode it also says so (`demo: true`), which is how the
-// pages know to show the demo banner.
+// pages know to show the demo banner, and whether the demo emails real
+// addresses (`realEmail: true`).
 @Controller('health')
 export class HealthController {
   constructor(
@@ -29,7 +30,11 @@ export class HealthController {
         ),
       ]);
       const demo = this.config.get('DEMO_MODE', { infer: true });
-      return demo ? { status: 'ok', demo: true } : { status: 'ok' };
+      if (!demo) return { status: 'ok' };
+      // The pages say so when the demo emails real addresses
+      return this.config.get('DEMO_REAL_EMAIL', { infer: true })
+        ? { status: 'ok', demo: true, realEmail: true }
+        : { status: 'ok', demo: true };
     } catch {
       res.status(503);
       return { status: 'unavailable' };

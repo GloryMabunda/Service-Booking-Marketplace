@@ -61,8 +61,26 @@ How the hosted demo behaves, so nobody is surprised:
 - **It sleeps after about 15 minutes without visitors** on the free plan, and the first visit afterwards takes about 30 to 60 seconds to wake it.
 - **It starts fresh every time it wakes**: `DEMO_RESET_ON_START=true` empties the database and adds the demo data again, because the pictures live on a disk that the free plan wipes. Whatever a visitor books or changes is gone after the next sleep, which is what you want for a public demo.
 - **The free database is deleted 30 days after it was created.** Render emails a warning first. To keep the demo going, create the database again from the blueprint (or move to a paid plan).
-- **No real email is ever sent.** The emails appear on `/demo-mailbox.html`, which anyone can open.
+- **No real email is sent unless you switch it on** (see the next section). The emails appear on `/demo-mailbox.html`, which anyone can open.
 - **Never put real data in it.** The administrator's password is shared and the data is public.
+
+## Real email from the demo (optional)
+
+By default the hosted demo sends nothing: its emails appear on the demo mailbox. To let a visitor, such as a recruiter, get the real email at their own address, the demo can send through [Brevo](https://www.brevo.com)'s web API. Render's free plan most likely blocks the usual SMTP ports; an HTTPS request is not blocked.
+
+1. Sign up for Brevo (free: about 300 emails a day), add and verify a **sender** (your own address), and create an **API key** under SMTP & API.
+2. In the Render dashboard, open the demo service, then Environment, and add `BREVO_API_KEY` (the key), `MAIL_FROM` (the verified sender, for example `Fresh Start <you@gmail.com>`) and `DEMO_REAL_EMAIL` set to `true`. Save. The service restarts.
+
+What it does, and what it limits:
+
+- **Every email is also kept on the demo mailbox**, as before.
+- **Only to a real address.** Addresses that can't be real (the demo owner, `example.com`, `.test`) never leave the demo, and the owner's emails stay on the mailbox.
+- **Marked as a demo:** the subject starts with "[Demo]" and each email ends with a note that nothing in it is real.
+- **Limits:** 3 emails an hour to any one address (`DEMO_REAL_EMAIL_PER_ADDRESS_PER_HOUR`) and 100 a day for the whole demo (`DEMO_REAL_EMAIL_DAILY_CAP`, at most 250). Past a limit the email stays on the mailbox only.
+- **The booking form and the demo banner say so,** so nobody is surprised.
+- **One risk to accept:** someone can type another person's address and trigger a few demo emails to them. The limits keep it small; stopping it entirely would need an address check (a code sent first), which this demo does not have.
+
+Emails may land in spam when the sender is a free Gmail address. A sender on your own domain, with its DNS records, fixes that, and is what a real site should use.
 
 ## Putting a demo online somewhere else (a portfolio)
 
