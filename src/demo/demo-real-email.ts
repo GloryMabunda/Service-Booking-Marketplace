@@ -51,14 +51,29 @@ export class DemoRealEmailProvider implements EmailProvider {
     // The demo mailbox always has a copy, whatever happens next
     await this.mailbox.send(message);
     if (isReservedAddress(message.to) || !this.allow(message.to)) return;
-    await this.real.send({
-      ...message,
-      subject: `[Demo] ${message.subject}`,
-      text: message.text + NOTE_TEXT,
-      html: message.html.includes('</body>')
-        ? message.html.replace('</body>', `${NOTE_HTML}</body>`)
-        : message.html + NOTE_HTML,
-    });
+    try {
+      await this.real.send({
+        ...message,
+        subject: `[Demo] ${message.subject}`,
+        text: message.text + NOTE_TEXT,
+        html: message.html.includes('</body>')
+          ? message.html.replace('</body>', `${NOTE_HTML}</body>`)
+          : message.html + NOTE_HTML,
+      });
+    } catch (error) {
+      // Say why on the demo mailbox, so whoever sets the demo up can see it
+      // without the server's logs. The reason never holds a key.
+      const reason = error instanceof Error ? error.message : String(error);
+      await this.mailbox.send({
+        to: message.to,
+        subject: `Not delivered for real: ${message.subject}`,
+        text: `The demo could not send this email to a real inbox.
+
+${reason}`,
+        html: '',
+      });
+      throw error;
+    }
   }
 
   // Counts the email when it is allowed
