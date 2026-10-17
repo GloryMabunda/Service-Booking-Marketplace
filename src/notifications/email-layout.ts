@@ -1,3 +1,4 @@
+import { EMAIL_COLOURS as C } from './email-colours.js';
 import { escapeHtml } from './email-format.js';
 import type { RenderedEmail } from './payment-instructions.template.js';
 
@@ -16,10 +17,6 @@ export interface Business {
   phone: string | null;
 }
 
-const INK = '#2A1A26';
-const MAGENTA = '#A02080';
-const ACTION = '#123A66';
-
 function textOf(block: Block): string {
   if ('p' in block) return block.p;
   if ('callout' in block) return block.callout;
@@ -35,15 +32,15 @@ function htmlOf(block: Block): string {
     return `<p>${escapeHtml(block.p).replace(/\n/g, '<br>')}</p>`;
   }
   if ('callout' in block) {
-    return `<p style="border-left:4px solid ${MAGENTA};padding:8px 12px;background:#faf2f8"><strong>${escapeHtml(block.callout)}</strong></p>`;
+    return `<p style="border-left:4px solid ${C.primary};padding:8px 12px;background:${C.callout}"><strong>${escapeHtml(block.callout)}</strong></p>`;
   }
   if ('button' in block) {
-    return `<p><a href="${escapeHtml(block.button.url)}" style="display:inline-block;background:${ACTION};color:#FFFFFF;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">${escapeHtml(block.button.label)}</a></p>`;
+    return `<p><a href="${escapeHtml(block.button.url)}" style="display:inline-block;background:${C.action};color:${C.onAction};text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">${escapeHtml(block.button.label)}</a></p>`;
   }
   const rows = block.rows
     .map(
       ([label, value]) =>
-        `<tr><td style="padding:2px 12px 2px 0;color:#6b5a66">${escapeHtml(label)}</td><td style="padding:2px 0"><strong>${escapeHtml(value)}</strong></td></tr>`,
+        `<tr><td style="padding:2px 12px 2px 0;color:${C.muted}">${escapeHtml(label)}</td><td style="padding:2px 0"><strong>${escapeHtml(value)}</strong></td></tr>`,
     )
     .join('');
   return `<table role="presentation" style="border-collapse:collapse;margin:0 0 16px">${rows}</table>`;
@@ -78,11 +75,12 @@ export function renderEmail(
     ...footer,
   ].join('\n');
   const html = `<!doctype html>
-<html lang="en"><body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:${INK};line-height:1.5">
+<html lang="en"><body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:${C.ink};line-height:1.5">
+<div style="height:6px;background:${C.primary}"></div>
 <div style="max-width:600px;margin:0 auto;padding:24px 16px">
 ${blocks.map(htmlOf).join('\n')}
-<hr style="border:0;border-top:1px solid #e6d9e2;margin:24px 0">
-<p style="font-size:13px;color:#6b5a66">${footer.map(escapeHtml).join('<br>')}</p>
+<hr style="border:0;border-top:1px solid ${C.line};margin:24px 0">
+<p style="font-size:13px;color:${C.muted}">${footer.map(escapeHtml).join('<br>')}</p>
 </div></body></html>`;
   return { subject, text, html };
 }

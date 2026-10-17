@@ -1,5 +1,6 @@
 import type { BankingDetails } from '../settings/settings.schema.js';
 import { locationRows } from './booking-emails.js';
+import { EMAIL_COLOURS as C } from './email-colours.js';
 import { escapeHtml } from './email-format.js';
 
 // The "payment instructions" email (docs/emails.md 4.1, #56). Every value is
@@ -104,31 +105,32 @@ export function renderPaymentInstructions(
     items
       .map(
         ([label, value]) =>
-          `<tr><td style="padding:2px 12px 2px 0;color:#6b5a66">${escapeHtml(label)}</td><td style="padding:2px 0"><strong>${escapeHtml(value)}</strong></td></tr>`,
+          `<tr><td style="padding:2px 12px 2px 0;color:${C.muted}">${escapeHtml(label)}</td><td style="padding:2px 0"><strong>${escapeHtml(value)}</strong></td></tr>`,
       )
       .join('');
-  const heading = 'font-size:18px;color:#A02080;margin:24px 0 8px';
+  const heading = `font-size:18px;color:${C.primary};margin:24px 0 8px`;
   const html = `<!doctype html>
-<html lang="en"><body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#2A1A26;line-height:1.5">
+<html lang="en"><body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:${C.ink};line-height:1.5">
+<div style="height:6px;background:${C.primary}"></div>
 <div style="max-width:600px;margin:0 auto;padding:24px 16px">
 <p>Hi ${escapeHtml(d.clientFirstName)},</p>
 <p>${escapeHtml(intro)}</p>
 <table role="presentation" style="border-collapse:collapse;margin:0 0 16px">${rows(summary)}</table>
-<p style="border-left:4px solid #A02080;padding:8px 12px;background:#faf2f8"><strong>${escapeHtml(NOT_CONFIRMED)}</strong></p>
+<p style="border-left:4px solid ${C.primary};padding:8px 12px;background:${C.callout}"><strong>${escapeHtml(NOT_CONFIRMED)}</strong></p>
 <h2 style="${heading}">1. Pay your deposit of ${escapeHtml(d.deposit)} by ${escapeHtml(d.deadline)}</h2>
 <table role="presentation" style="border-collapse:collapse;margin:0 0 8px">${rows(bank)}</table>
 <p>Please use <strong>${escapeHtml(d.reference)}</strong> as your payment reference so I can match your payment.</p>
 <h2 style="${heading}">2. Upload your proof of payment</h2>
-<p><a href="${escapeHtml(d.link)}" style="display:inline-block;background:#123A66;color:#FFFFFF;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">Upload proof of payment</a></p>
+<p><a href="${escapeHtml(d.link)}" style="display:inline-block;background:${C.action};color:${C.onAction};text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:6px">Upload proof of payment</a></p>
 <p>This is your private booking link. Keep this email: you can also use the link to cancel if your plans change. Please don't share it.</p>
 <h2 style="${heading}">3. I'll confirm your booking</h2>
 <p>I'll confirm your booking by email as soon as the money reflects in my account.</p>
 <p>If the deposit isn't received by ${escapeHtml(d.deadline)}, the booking expires and the time is released for other clients.</p>
 <p>The balance of ${escapeHtml(d.balance)} is payable on the day.</p>
-<p>Can't use the upload button? Email your proof of payment to <a href="mailto:${escapeHtml(d.business.email)}" style="color:#A02080">${escapeHtml(d.business.email)}</a> with your reference ${escapeHtml(d.reference)}.</p>
+<p>Can't use the upload button? Email your proof of payment to <a href="mailto:${escapeHtml(d.business.email)}" style="color:${C.primary}">${escapeHtml(d.business.email)}</a> with your reference ${escapeHtml(d.reference)}.</p>
 <p>See you soon,<br>${escapeHtml(d.business.name)}</p>
-<hr style="border:0;border-top:1px solid #e6d9e2;margin:24px 0">
-<p style="font-size:13px;color:#6b5a66">${escapeHtml(d.business.name)}<br>${escapeHtml(contact)}<br><br>Questions? Just reply to this email.<br>You're receiving this because you made a booking with ${escapeHtml(d.business.name)}.</p>
+<hr style="border:0;border-top:1px solid ${C.line};margin:24px 0">
+<p style="font-size:13px;color:${C.muted}">${escapeHtml(d.business.name)}<br>${escapeHtml(contact)}<br><br>Questions? Just reply to this email.<br>You're receiving this because you made a booking with ${escapeHtml(d.business.name)}.</p>
 </div></body></html>`;
 
   return {
