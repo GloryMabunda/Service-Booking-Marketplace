@@ -1,0 +1,47 @@
+# A free hosted demo on Render (docs/demo.md): a web service built from the
+# Dockerfile, plus a free PostgreSQL database. In Render choose New, then
+# Blueprint, and point it at this repository. Render asks for the one secret
+# below (the demo administrator's password) and builds the rest from this file.
+#
+# It runs in demo mode: made-up data, and the emails it would send appear on
+# /demo-mailbox.html instead of being sent. It starts fresh whenever it wakes
+# up, so nothing a visitor does lasts. Never put real data in it.
+
+databases:
+  - name: fresh-start-demo-db
+    plan: free
+    region: frankfurt
+    databaseName: booking
+    user: booking
+
+services:
+  - type: web
+    name: fresh-start-demo
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /api/health
+    # Empties the demo, creates the tables, adds the demo data, starts the site.
+    # PUBLIC_URL (for links in emails) is the address Render gives the service.
+    dockerCommand: >-
+      sh -c 'export PUBLIC_URL="$RENDER_EXTERNAL_URL" &&
+      node dist/scripts/reset-demo.js &&
+      node dist/scripts/migrate.js &&
+      node dist/scripts/seed-demo.js &&
+      node dist/main.js'
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_MODE
+        value: 'true'
+      - key: DEMO_RESET_ON_START
+        value: 'true'
+      - key: TRUST_PROXY
+        value: '1'
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fresh-start-demo-db
+          property: connectionString
+      # Typed in the Render dashboard; at least 12 characters. Not in Git.
+      - key: DEMO_ADMIN_PASSWORD
+        sync: false
