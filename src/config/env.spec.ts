@@ -202,3 +202,26 @@ describe('DEMO_MODE', () => {
     ).not.toThrow();
   });
 });
+
+describe('PUBLIC_URL on Render', () => {
+  const valid = {
+    DATABASE_URL: 'postgres://booking:booking@localhost:5432/booking',
+  };
+
+  it("uses Render's own address when PUBLIC_URL isn't set", () => {
+    const env = validateEnv({
+      ...valid,
+      RENDER_EXTERNAL_URL: 'https://fresh-start-demo.onrender.com',
+    });
+    expect(env.PUBLIC_URL).toBe('https://fresh-start-demo.onrender.com');
+  });
+
+  it('keeps PUBLIC_URL when both are set', () => {
+    const env = validateEnv({
+      ...valid,
+      PUBLIC_URL: 'https://example.com',
+      RENDER_EXTERNAL_URL: 'https://fresh-start-demo.onrender.com',
+    });
+    expect(env.PUBLIC_URL).toBe('https://example.com');
+  });
+});

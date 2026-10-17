@@ -21,14 +21,10 @@ services:
     plan: free
     region: frankfurt
     healthCheckPath: /api/health
-    # Empties the demo, creates the tables, adds the demo data, starts the site.
-    # PUBLIC_URL (for links in emails) is the address Render gives the service.
-    dockerCommand: >-
-      sh -c 'export PUBLIC_URL="$RENDER_EXTERNAL_URL" &&
-      node dist/scripts/reset-demo.js &&
-      node dist/scripts/migrate.js &&
-      node dist/scripts/seed-demo.js &&
-      node dist/main.js'
+    # Empties the demo, creates the tables, adds the demo data, starts the site
+    # (the steps are the start:demo script in package.json). The links in emails
+    # use the address Render gives the service (RENDER_EXTERNAL_URL).
+    dockerCommand: npm run start:demo
     envVars:
       - key: NODE_ENV
         value: production
