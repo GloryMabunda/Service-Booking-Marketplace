@@ -47,7 +47,24 @@ To use another port or password: `DEMO_PORT=8080 DEMO_ADMIN_PASSWORD=choose-your
 
 `compose.demo.yml` runs the migrations, the seed and the app one after the other, so there are no setup steps.
 
-## Putting a demo online (a portfolio)
+## A free hosted demo on Render (a portfolio link)
+
+The repository holds a Render blueprint, [`render.yaml`](../render.yaml): a web service built from the Dockerfile and a free PostgreSQL database, both in Frankfurt. You create the account; nothing in it costs money or needs a card for the free plans.
+
+1. Sign up at <https://render.com> with GitHub, and let it see this repository.
+2. In the dashboard choose **New**, then **Blueprint**, pick the repository, and apply `render.yaml`.
+3. Render asks for `DEMO_ADMIN_PASSWORD`: type any password of 12 or more characters. It is only stored in Render. Share it with whoever should see the owner's portal, for example in the README.
+4. Wait for the first build (a few minutes). The demo is at the address Render shows, `https://fresh-start-demo.onrender.com` or similar. Put that link at the top of the README.
+
+How the hosted demo behaves, so nobody is surprised:
+
+- **It sleeps after about 15 minutes without visitors** on the free plan, and the first visit afterwards takes about 30 to 60 seconds to wake it.
+- **It starts fresh every time it wakes**: `DEMO_RESET_ON_START=true` empties the database and adds the demo data again, because the pictures live on a disk that the free plan wipes. Whatever a visitor books or changes is gone after the next sleep, which is what you want for a public demo.
+- **The free database is deleted 30 days after it was created.** Render emails a warning first. To keep the demo going, create the database again from the blueprint (or move to a paid plan).
+- **No real email is ever sent.** The emails appear on `/demo-mailbox.html`, which anyone can open.
+- **Never put real data in it.** The administrator's password is shared and the data is public.
+
+## Putting a demo online somewhere else (a portfolio)
 
 Any host that runs a Docker image or a Node.js app plus PostgreSQL will do (for example a free web service with a free database). Set `DEMO_MODE=true`, a `DATABASE_URL`, your own `DEMO_ADMIN_PASSWORD` and `PUBLIC_URL` (the demo's address, with `https://`), and run `node dist/scripts/migrate.js && node dist/scripts/seed-demo.js && node dist/main.js` as the start command.
 
