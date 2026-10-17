@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml)
 
+**▶ [Try the live demo](https://fresh-start-demo.onrender.com)**: book a service, read the emails on the demo mailbox, no sign-up. It is on a free host, so the first visit can take about a minute to wake up, and it resets itself when idle. The owner's portal login is shared on request (`demo@example.com`).
+
 > **An appointment booking and management system designed for service-based businesses, allowing clients to discover services, view availability, book appointments online and secure them with a deposit.**
 
 For this portfolio project the system is built around an example **home cleaning and laundry business, Fresh Start** (house cleans, laundry washing and ironing, at the client's home or the owner's place), but the booking logic is generic: a different appointment-based business (hair stylist, photographer, tutor, personal trainer) changes configuration, not code, including its own name and logo, set in the portal ([BRANDING.md](BRANDING.md)).
