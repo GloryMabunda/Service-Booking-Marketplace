@@ -4,7 +4,11 @@ import { parseBody } from '../common/api-error.js';
 import { RateLimit } from '../common/rate-limit.js';
 import { BookingLinkService } from './booking-link.service.js';
 import { BookingLookupService } from './booking-lookup.service.js';
-import { createBookingSchema, lookupBookingSchema } from './booking.schema.js';
+import {
+  createBookingSchema,
+  findLinksSchema,
+  lookupBookingSchema,
+} from './booking.schema.js';
 import { BookingsService } from './bookings.service.js';
 
 // POST /api/bookings (C-3, docs/api.md 4.3): public, no sign-in. Limited to
@@ -44,6 +48,26 @@ export class BookingsController {
     const { email } = parseBody(lookupBookingSchema, body);
     res.setHeader('Cache-Control', 'no-store');
     return this.lookups.lookup(reference, email);
+  }
+
+  // POST /api/bookings/find-links (C-6, docs/api.md 4.10): for a client who
+  // knows only their reference or only their email. A new private link is
+  // emailed to each active booking's own address; the answer never says what
+  // was found. 10 an hour per IP, 3 an hour for what was typed.
+  @Post('find-links')
+  @HttpCode(202)
+  @RateLimit({ limit: 10, windowSeconds: 3600 })
+  async findLinks(
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const input = parseBody(findLinksSchema, body);
+    res.setHeader('Cache-Control', 'no-store');
+    await this.links.sendLinks(input);
+    return {
+      message:
+        'If we found an active booking, a new booking link has been sent to the email address it was made with.',
+    };
   }
 
   // POST /api/bookings/:reference/resend-booking-link (C-6, BR-15, docs/api.md

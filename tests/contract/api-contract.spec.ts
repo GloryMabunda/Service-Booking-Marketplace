@@ -564,6 +564,17 @@ describe('API contract (docs/api.md)', () => {
             .send({ email: pending.booking.client_email }),
       },
       {
+        name: 'find a booking by email alone',
+        heading: '### 4.12 `POST /api/bookings/find-links`',
+        marker: /\*\*Response `202`\*\*/,
+        status: 202,
+        call: () =>
+          h
+            .http()
+            .post('/api/bookings/find-links')
+            .send({ email: pending.booking.client_email }),
+      },
+      {
         name: 'the site',
         heading: '### 4.6 `GET /api/site`',
         marker: R200,

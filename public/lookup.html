@@ -42,8 +42,9 @@
         <p class="mbg-label mb-2">My booking</p>
         <h1>Find my booking</h1>
         <p class="mbg-readable text-secondary">
-          Enter the reference from your confirmation and the email you booked
-          with.
+          Enter your booking reference, the email you booked with, or both. With
+          both we show your booking here. With only one, we email a new private
+          link to the address you booked with.
         </p>
 
         <form
@@ -59,7 +60,6 @@
               placeholder="BK-000123"
               autocomplete="off"
               autocapitalize="characters"
-              required
             />
             <div class="invalid-feedback" id="reference-error"></div>
           </div>
@@ -70,7 +70,6 @@
               id="email"
               type="email"
               autocomplete="email"
-              required
             />
             <div class="invalid-feedback" id="email-error"></div>
           </div>

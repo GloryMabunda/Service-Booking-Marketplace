@@ -25,6 +25,7 @@ This document describes every endpoint: method, path, access, request, response 
 | `POST /api/bookings` | Public | [4.3](#43-post-apibookings) |
 | `POST /api/bookings/:reference/lookup` | Public (reference + email) | [4.4](#44-post-apibookingsreferencelookup) |
 | `POST /api/bookings/:reference/resend-booking-link` | Public (reference + email) | [4.5](#45-post-apibookingsreferenceresend-booking-link) |
+| `POST /api/bookings/find-links` | Public (reference or email) | [4.12](#412-post-apibookingsfind-links) |
 | `GET /api/booking/:token` | Booking link | [5.1](#51-get-apibookingtoken) |
 | `POST /api/booking/:token/proofs` | Booking link | [5.2](#52-post-apibookingtokenproofs) |
 | `POST /api/booking/:token/cancel` | Booking link | [5.3](#53-post-apibookingtokencancel) |
@@ -234,6 +235,7 @@ The numbers below are the initial values. They live in configuration so they can
 | `POST /api/bookings` | 10 per hour per IP (plus the 2 Pending bookings limit, BR-11) |
 | `POST /api/bookings/:reference/lookup` | 10 per 15 minutes per IP |
 | `POST /api/bookings/:reference/resend-booking-link` | 3 per hour per booking, and 10 per hour per IP |
+| `POST /api/bookings/find-links` | 3 per hour for the reference or email typed, and 10 per hour per IP |
 | `GET /api/booking/:token` | 30 per minute per IP |
 | `POST /api/booking/:token/proofs` | 5 per hour per booking, and 10 per hour per IP |
 | `POST /api/booking/:token/cancel` | 5 per hour per IP |
@@ -663,6 +665,33 @@ The business's own brand, which every page shows in its header and footer: its n
 `tagline` and `logo` are `null` when not set. Sent with `Cache-Control: public, max-age=60`, so a change can take up to a minute to show. Limited to 120 requests a minute per IP address.
 
 ---
+
+### 4.12 `POST /api/bookings/find-links`
+
+For a client who knows only their reference, or only their email (C-6). Nothing about a booking is shown: a new booking link is **emailed** to each active booking's own address. This is why one field is enough, and why it can't be used to look up other people's bookings. When both are given, they must match, as for [lookup](#44-post-apibookingsreferencelookup).
+
+**Request** (at least one of the two)
+
+```json
+{ "email": "sarah@example.com" }
+```
+
+```json
+{ "reference": "BK-000123" }
+```
+
+**Response `202`**, always, whether or not anything matched:
+
+```json
+{
+  "message": "If we found an active booking, a new booking link has been sent to the email address it was made with."
+}
+```
+
+With a reference, one booking is found. With an email (compared case-insensitively), up to 5 active bookings are found, soonest first, and each gets its own email. Only Pending or Confirmed bookings whose appointment hasn't started get a link. Each new link replaces that booking's old one, which stops working. The emails are sent in the background, so the answer and its timing are the same whether or not anything matched. The count of 3 an hour is kept per reference or email typed, whether or not it matches anything, so reaching it reveals nothing.
+
+**Errors:** `400 VALIDATION_FAILED` (neither field, or an invalid email), `429`.
+
 
 ## 5. Booking link endpoints
 

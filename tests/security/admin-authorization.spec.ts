@@ -31,6 +31,7 @@ const PUBLIC_ROUTES = [
   'GET /api/health',
   'GET /api/brand',
   'GET /api/demo/emails',
+  'POST /api/bookings/find-links',
   'POST /api/bookings/:reference/lookup',
   'POST /api/bookings/:reference/resend-booking-link',
 ];

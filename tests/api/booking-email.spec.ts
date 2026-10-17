@@ -487,6 +487,88 @@ describe('Booking emails', () => {
       });
     });
   });
+
+  describe('finding a booking by reference or email alone', () => {
+    const MESSAGE =
+      'If we found an active booking, a new booking link has been sent to the email address it was made with.';
+    const find = (body: Record<string, unknown>) =>
+      request(app.getHttpServer()).post('/api/bookings/find-links').send(body);
+
+    it('emails a new link to the address on file when only the reference is given', async () => {
+      const ref = reference(await book());
+      const oldToken = TOKEN_IN_LINK.exec(toClient()[0].text)?.[1] ?? '';
+      provider.sent = [];
+
+      const res = await find({ reference: ref.toLowerCase() });
+      expect(res.status).toBe(202);
+      expect(res.body).toEqual({ message: MESSAGE });
+      await vi.waitFor(() => expect(toClient()).toHaveLength(1));
+      const newToken = TOKEN_IN_LINK.exec(toClient()[0].text)?.[1] ?? '';
+      expect(newToken).not.toBe(oldToken);
+      expect(await hashOf(ref)).toEqual(sha256(newToken));
+      // Nothing about the booking is in the answer
+      expect(JSON.stringify(res.body)).not.toContain(person.clientEmail);
+    });
+
+    it('emails a link for each active booking when only the email is given', async () => {
+      const first = reference(await book('09:00'));
+      const second = reference(await book('13:00'));
+      provider.sent = [];
+
+      const res = await find({ email: person.clientEmail.toUpperCase() });
+      expect(res.status).toBe(202);
+      expect(res.body).toEqual({ message: MESSAGE });
+      await vi.waitFor(() => expect(toClient()).toHaveLength(2));
+      const subjects = toClient().map((m) => m.subject);
+      expect(subjects).toContain(`Your new booking link for ${first}`);
+      expect(subjects).toContain(`Your new booking link for ${second}`);
+    });
+
+    it('answers the same and sends nothing when nothing matches', async () => {
+      const ref = reference(await book());
+      const before = await hashOf(ref);
+      provider.sent = [];
+
+      for (const body of [
+        { email: 'nobody.here@example.com' },
+        { reference: 'BK-999999' },
+        { reference: 'nonsense' },
+        { reference: ref, email: 'someone.else@example.com' },
+      ]) {
+        const res = await find(body);
+        expect(res.status).toBe(202);
+        expect(res.body).toEqual({ message: MESSAGE });
+      }
+      await settle();
+      expect(provider.sent).toHaveLength(0);
+      expect(await hashOf(ref)).toEqual(before);
+    });
+
+    it('skips bookings that are no longer active', async () => {
+      const ref = reference(await book());
+      await db
+        .updateTable('bookings')
+        .set({ status: 'expired' })
+        .where('reference', '=', ref)
+        .execute();
+      provider.sent = [];
+      expect((await find({ email: person.clientEmail })).status).toBe(202);
+      await settle();
+      expect(provider.sent).toHaveLength(0);
+    });
+
+    it('needs the reference or the email, and a valid email', async () => {
+      expect((await find({})).status).toBe(400);
+      expect((await find({ email: 'not an email' })).status).toBe(400);
+    });
+
+    it('allows 3 requests an hour for the same email, then 429', async () => {
+      for (let i = 0; i < 3; i++) {
+        expect((await find({ email: person.clientEmail })).status).toBe(202);
+      }
+      expect((await find({ email: person.clientEmail })).status).toBe(429);
+    });
+  });
 });
 
 async function clean(db: Kysely<DB>, serviceId: string) {
