@@ -171,22 +171,73 @@ $('#resend-button').addEventListener('click', async (event) => {
   }
 });
 
+// Asking by reference alone or by email alone: the answer is the same whether
+// or not anything was found, so this page can't be used to find out which
+// bookings exist
+async function requestLink(reference, email) {
+  button.disabled = true;
+  $('#lookup-loading').hidden = false;
+  try {
+    const res = await fetch('/api/bookings/find-links', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...(reference ? { reference } : {}),
+        ...(email ? { email } : {}),
+      }),
+    });
+    if (res.status === 202) {
+      showMessage(
+        'info',
+        'If we found an active booking, we have emailed a new private link to the address it was made with. Check your inbox and spam folder. The old link no longer works.',
+      );
+    } else if (res.status === 429) {
+      showMessage(
+        'warning',
+        'Too many attempts. Please try again in a little while.',
+      );
+    } else if (res.status === 400) {
+      fieldError(
+        email ? 'email' : 'reference',
+        email
+          ? 'Enter the email you used to book.'
+          : 'Enter a valid booking reference.',
+      );
+    } else {
+      showMessage('danger', 'Something went wrong. Please try again.');
+    }
+  } catch {
+    showMessage(
+      'danger',
+      "Can't reach the server. Check your connection and try again.",
+    );
+  } finally {
+    button.disabled = false;
+    $('#lookup-loading').hidden = true;
+  }
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   reset();
   const reference = $('#reference').value.trim().toUpperCase();
   const email = $('#email').value.trim();
   let valid = true;
-  if (!reference) {
-    fieldError('reference', 'Enter your booking reference.');
+  if (!reference && !email) {
+    fieldError('reference', 'Enter your booking reference or your email.');
     valid = false;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  } else if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     fieldError('email', 'Enter the email you used to book.');
     valid = false;
   }
   if (!valid) {
     form.querySelector('.is-invalid')?.focus();
+    return;
+  }
+  // With only one of the two, nothing is shown: a new private link is emailed
+  // to the address the booking was made with
+  if (!reference || !email) {
+    await requestLink(reference, email);
     return;
   }
 

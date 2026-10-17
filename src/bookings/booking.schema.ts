@@ -70,6 +70,28 @@ export const createBookingSchema = z
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 
+// POST /api/bookings/find-links (docs/api.md 4.10, C-6): a client who knows only
+// their reference or only their email asks for a new link by email. At least
+// one of the two is needed.
+export const findLinksSchema = z
+  .strictObject({
+    reference: z
+      .string()
+      .trim()
+      .max(30, 'Enter a valid booking reference.')
+      .optional(),
+    email: z
+      .string()
+      .trim()
+      .max(254, 'Enter a valid email address.')
+      .toLowerCase()
+      .pipe(z.email('Enter a valid email address.'))
+      .optional(),
+  })
+  .refine((value) => Boolean(value.reference) || Boolean(value.email), {
+    message: 'Enter your booking reference or your email.',
+  });
+
 // POST /api/bookings/:reference/lookup (docs/api.md 4.4, C-6): the email travels
 // in the body, never in the URL.
 export const lookupBookingSchema = z.strictObject({

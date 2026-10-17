@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { Kysely } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import {
   RATE_LIMITER,
   RateLimitedException,
@@ -18,6 +18,9 @@ const REFERENCE = /^BK-\d{6,}$/;
 // section 3). The count is by the reference typed, whether or not it exists,
 // so hitting the limit tells nobody anything.
 const PER_BOOKING = { limit: 3, windowMs: 3_600_000 };
+
+// At most this many bookings are sent when someone asks by email alone
+const MOST_BY_EMAIL = 5;
 
 // Issues a new booking link on request (C-6, BR-15, #58). The old link stops
 // working the moment the new one is made, and the new one is emailed to the
@@ -70,6 +73,69 @@ export class BookingLinkService {
     );
     if (!booking) return; // not Pending or Confirmed, or already started
 
+    this.send(booking, token);
+  }
+
+  // For someone who knows only their reference or only their email: a new
+  // link for each active booking found goes to that booking's own address,
+  // and nothing about what was found is shown. Always finishes the same way.
+  async sendLinks(
+    input: { reference?: string; email?: string },
+    now = new Date(),
+  ): Promise<void> {
+    const ref = input.reference?.trim().toUpperCase() ?? '';
+    const email = input.email?.trim().toLowerCase() ?? '';
+    // Counted by what was typed, whether or not it matches anything
+    const result = this.limiter.consume(
+      `find-links|${ref || email}`,
+      PER_BOOKING.limit,
+      PER_BOOKING.windowMs,
+    );
+    if (!result.allowed) {
+      throw new RateLimitedException(result.resetSeconds, result.limit);
+    }
+
+    let ids: string[] = [];
+    if (ref) {
+      if (REFERENCE.test(ref)) {
+        const row = await this.db
+          .selectFrom('bookings')
+          .select(['id', 'client_email'])
+          .where('reference', '=', ref)
+          .executeTakeFirst();
+        // With both given, they must match, as everywhere else
+        if (row && (!email || sameEmail(email, row.client_email))) {
+          ids = [row.id];
+        }
+      }
+    } else {
+      const rows = await this.db
+        .selectFrom('bookings')
+        .select('id')
+        .where(sql<string>`lower(client_email)`, '=', email)
+        .where('status', 'in', ['pending', 'confirmed'])
+        .where('start_at', '>', now)
+        .orderBy('start_at')
+        .limit(MOST_BY_EMAIL)
+        .execute();
+      ids = rows.map((row) => row.id);
+    }
+
+    for (const id of ids) {
+      const token = generateBookingToken();
+      const booking = await this.bookings.reissueLink(
+        id,
+        hashBookingToken(token),
+        now,
+      );
+      if (booking) this.send(booking, token);
+    }
+  }
+
+  private send(
+    booking: Parameters<BookingNotifier['bookingLinkReissued']>[0],
+    token: string,
+  ): void {
     void this.notifier.bookingLinkReissued(booking, token).catch((error) => {
       // Log the reference and the reason, never the token
       this.logger.error(
