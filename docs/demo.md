@@ -53,7 +53,7 @@ The repository holds a Render blueprint, [`render.yaml`](../render.yaml): a web 
 
 1. Sign up at <https://render.com> with GitHub, and let it see this repository.
 2. In the dashboard choose **New**, then **Blueprint**, pick the repository, and apply `render.yaml`.
-3. Render asks for `DEMO_ADMIN_PASSWORD`: type any password of 12 or more characters. It is only stored in Render. Share it with whoever should see the owner's portal, for example in the README.
+3. Render asks for `DEMO_ADMIN_PASSWORD`: type a password of 12 or more characters. This project uses the public default, `demo-admin-1234`, which the README shows to visitors, because the demo only holds made-up data and resets itself. For anything with private data, choose your own and don't publish it.
 4. Wait for the first build (a few minutes). The demo is at the address Render shows. This project's is <https://fresh-start-demo.onrender.com>, linked from the top of the README.
 
 How the hosted demo behaves, so nobody is surprised:

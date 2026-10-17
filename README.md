@@ -2,7 +2,9 @@
 
 [![CI](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/GloryMabunda/Service-Booking-Marketplace/actions/workflows/ci.yml)
 
-**▶ [Try the live demo](https://fresh-start-demo.onrender.com)**: book a service, read the emails on the demo mailbox, no sign-up. It is on a free host, so the first visit can take about a minute to wake up, and it resets itself when idle. The owner's portal login is shared on request (`demo@example.com`).
+**▶ [Try the live demo](https://fresh-start-demo.onrender.com)**: book a service, read the emails on the demo mailbox, no sign-up. It is on a free host, so the first visit can take about a minute to wake up, and it resets itself when idle. 
+
+**Owner's portal:** [sign in](https://fresh-start-demo.onrender.com/admin/login.html) with `demo@example.com` and the password `demo-admin-1234`. It is a public demo login for made-up data only, and the demo resets itself, so nothing you change lasts.
 
 > **An appointment booking and management system designed for service-based businesses, allowing clients to discover services, view availability, book appointments online and secure them with a deposit.**
 
