@@ -1,5 +1,15 @@
 # Hosting decision
 
+> **Update, October 2026: the portfolio runs on Render.** For this portfolio project, the application is hosted on Render's free plan (a web service built from the Dockerfile and a free PostgreSQL database in Frankfurt, described in [`render.yaml`](../render.yaml); steps in [demo.md](demo.md)). It runs in demo mode with made-up data, so it needs no domain, no backups and no real email provider, and it costs nothing. The South African VPS below is **not** used for the portfolio. It is the plan for the day a real business goes live, because a real site needs a fixed server, backups, a domain and a proper email sender, none of which the free plan offers.
+>
+> | | Portfolio demo | A real business |
+> | --- | --- | --- |
+> | Where | Render, free plan | One VPS in South Africa (this document) |
+> | Data | Made up, reset when the demo wakes | Real client data, backed up nightly |
+> | Email | Demo mailbox, plus real email through Brevo within limits | A real SMTP relay or Brevo, from the business's own domain |
+> | Cost | R0 | Roughly R200 to R600 a month |
+
+
 Decided in #86 (October 2026), by the owner: **one small virtual server (VPS) in South Africa** that runs the app and PostgreSQL together, with a backed-up disk for photos and proofs of payment. This replaces the spec's earlier recommendation of Azure App Service, Azure Database for PostgreSQL and Blob Storage.
 
 ## Why a single VPS
