@@ -107,7 +107,7 @@ Because the old version keeps running while migrations are applied (and returns 
 
 ## Settings that production requires
 
-The app refuses to start in production without `SMTP_HOST` or `BREVO_API_KEY` (clients must get their emails) and `PUBLIC_URL` (links in emails), and `deploy/docker-compose.yml` refuses to start without `DB_PASSWORD` and `SITE_ADDRESS`. `TRUST_PROXY=1` tells the app that Caddy is in front, so rate limits count each visitor and not Caddy.
+The app refuses to start in production without an email provider (`SMTP_HOST`, or `BREVO_API_KEY` to send through Brevo's web API; not both), a `MAIL_FROM` sender (clients must get their emails) and `PUBLIC_URL` (links in emails), and `deploy/docker-compose.yml` refuses to start without `DB_PASSWORD` and `SITE_ADDRESS`. `TRUST_PROXY=1` tells the app that Caddy is in front, so rate limits count each visitor and not Caddy.
 
 ## Trying the image on your own computer
 
