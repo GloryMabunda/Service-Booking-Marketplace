@@ -1,6 +1,50 @@
 # Deployment
 
-How the app runs in production, and how a new version gets there. The hosting choice (one South African VPS) is in [hosting.md](hosting.md). The files are in [`deploy/`](../deploy), the [`Dockerfile`](../Dockerfile) and [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml).
+How the app runs in production, and how a new version gets there. The portfolio demo runs on Render ([see below](#deploying-the-portfolio-demo-on-render)); a real business runs on one South African VPS. The hosting choice is in [hosting.md](hosting.md). The files are in [`deploy/`](../deploy), the [`Dockerfile`](../Dockerfile) and [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml).
+
+## Deploying the portfolio demo on Render
+
+The portfolio demo of this project runs on Render's free plan, in demo mode, with made-up data. It is the answer to "where is it hosted" for the portfolio ([hosting.md](hosting.md) explains the choice). **It is not for real clients.** A real business uses the server steps in the rest of this document.
+
+**What gets created.** [`render.yaml`](../render.yaml) describes two things in Render's Frankfurt region: a web service built from the project's [`Dockerfile`](../Dockerfile), and a free PostgreSQL database. Nothing else is needed.
+
+**How to deploy it**
+
+1. Sign up at <https://render.com> with GitHub and let it see this repository.
+2. Choose **New**, then **Blueprint**, pick the repository and the `main` branch, and apply `render.yaml`.
+3. When Render asks, type `DEMO_ADMIN_PASSWORD` (12 or more characters). It is stored only in Render.
+4. Wait for the first build. Render gives the service its address, for example `https://fresh-start-demo.onrender.com`.
+
+The full walkthrough, with the free plan's limits, is in [demo.md](demo.md#a-free-hosted-demo-on-render-a-portfolio-link).
+
+**How it starts.** `npm run start:demo` runs four steps one after the other, and stops at the first one that fails, so a broken step never leaves a half-started app: it empties the demo database, applies the migrations, adds the demo data, then starts the app. After the first deploy, Render redeploys by itself whenever `main` changes.
+
+**Settings**
+
+| Setting | Where it comes from |
+| --- | --- |
+| `DATABASE_URL` | Render, from the database in `render.yaml` (its internal address) |
+| `DEMO_ADMIN_PASSWORD` | You type it in Render. It is never in Git |
+| `NODE_ENV`, `DEMO_MODE`, `DEMO_RESET_ON_START`, `TRUST_PROXY` | `render.yaml` |
+| `PUBLIC_URL` | Taken from Render's own `RENDER_EXTERNAL_URL` |
+| `BREVO_API_KEY`, `MAIL_FROM`, `DEMO_REAL_EMAIL` | Optional. Add them by hand in Render's Environment tab to let the demo send real email within limits ([demo.md](demo.md#real-email-from-the-demo-optional)) |
+
+**Security on Render**
+
+- **No secrets in Git or in workflow files.** The only secrets, the admin password and the Brevo key, exist only in Render's Environment tab. The repository is scanned for secrets by the tests.
+- **The database is reached through Render's internal address**, which only your own Render services can use. Keep the database's **external** access closed: in Render, open the database, check its access control, and remove any entry that allows every address.
+- **Uploads stay private where they should.** Proofs of payment are kept in a private area and shown only to the signed-in administrator through the app; only website photos are public. The app checks every upload's real file type, and accepts only JPEG, PNG, WebP and PDF.
+- **No malware scanning.** Render does not offer it. Because the demo holds only made-up data, this is acceptable here. A real site should use a host or a tool that scans uploads.
+
+**Health and logs.** `/api/health` is the health check Render uses. Errors and the application's logs are in the service's **Logs** tab in Render. Booking links and their tokens are masked in the logs, as in the VPS setup.
+
+**Limits of the free plan**
+
+- The service sleeps after about 15 minutes without visitors, and the first visit afterwards takes about a minute.
+- It starts fresh every time it wakes, so nothing a visitor does lasts. That is the intention.
+- The free database is deleted 30 days after it was created. Recreate it from the blueprint to keep the demo going.
+
+For a real business, continue with the steps below.
 
 ## The picture
 
